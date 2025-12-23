@@ -135,7 +135,7 @@ curl http://localhost:8000/api/v1/floor/holder/conv_test
 - **🚀 How to Launch and Test**: [docs/LAUNCH_AND_TEST.md](docs/LAUNCH_AND_TEST.md) ⭐ **START HERE**
 - **⚙️ Detailed Setup**: [docs/SETUP.md](docs/SETUP.md)
 - **🏗️ Architecture**: [docs/ARCHITECTURE_DETAILED.md](docs/ARCHITECTURE_DETAILED.md)
-- **🤖 Agent Integration**: [docs/OFP_AGENT_INTEGRATION.md](docs/OFP_AGENT_INTEGRATION.md) - Manifest, floor control, OFP compliance
+- **🤖 Agent Integration**: [docs/OFP_AGENT_INTEGRATION.md](docs/OFP_AGENT_INTEGRATION.md) - Manifest, floor control, OFP compliance with **interactive diagrams** 📊
 - **📖 Quick Reference**: [docs/QUICKSTART.md](docs/QUICKSTART.md)
 
 ## Development
