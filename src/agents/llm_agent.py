@@ -65,7 +65,7 @@ class LLMAgent(BaseAgent):
         defaults = {
             "openai": "gpt-4o-mini",
             "anthropic": "claude-3-haiku-20240307",
-            "ollama": "llama3"
+            "ollama": "llama3.1"
         }
         return defaults.get(self.llm_provider, "gpt-4o-mini")
 

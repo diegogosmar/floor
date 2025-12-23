@@ -1,5 +1,5 @@
 """
-Example: How to use LLM Agent with real LLM providers (OpenAI, Anthropic, Ollama)
+Example: How to use LLM Agent with real LLM providers (OpenAI, Ollama)
 
 This example shows how to create agents that use real LLM models instead of fake echo responses.
 """
@@ -73,32 +73,36 @@ async def example_openai_agent():
     await agent.stop()
 
 
-async def example_anthropic_agent():
+async def example_openai_agent_gpt4():
     """
-    Example: Create an agent using Anthropic Claude models
+    Example: Create an agent using OpenAI GPT-4 (more capable model)
     """
     print("\n" + "=" * 60)
-    print("Example: Anthropic Claude Agent")
+    print("Example: OpenAI GPT-4 Agent")
     print("=" * 60)
 
-    if not os.getenv("ANTHROPIC_API_KEY"):
-        print("\n⚠️  ANTHROPIC_API_KEY not set!")
-        print("Please set it: export ANTHROPIC_API_KEY='sk-ant-...'")
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        print("\n⚠️  OPENAI_API_KEY not set!")
+        print("Please set it: export OPENAI_API_KEY='sk-...'")
         return
 
+    key_preview = api_key[:7] + "..." if len(api_key) > 7 else "***"
+    print(f"\n✅ Using OPENAI_API_KEY: {key_preview}")
+
     agent = LLMAgent(
-        speakerUri="tag:example.com,2025:claude_agent",
-        agent_name="Claude Assistant",
-        llm_provider="anthropic",
-        model_name="claude-3-haiku-20240307",  # or "claude-3-opus-20240229", etc.
-        system_prompt="You are a helpful assistant in a multi-agent conversation."
+        speakerUri="tag:example.com,2025:gpt4_agent",
+        agent_name="GPT-4 Assistant",
+        llm_provider="openai",
+        model_name="gpt-4o",  # More capable model
+        system_prompt="You are an expert assistant specializing in multi-agent systems and floor control protocols."
     )
 
-    conversation_id = "conv_claude_test"
+    conversation_id = "conv_gpt4_test"
     test_message = "Explain the concept of floor control in multi-agent systems."
 
     print(f"\n📨 Received message: {test_message}")
-    print("\n🤖 Processing with Claude...")
+    print("\n🤖 Processing with GPT-4o...")
 
     response = await agent.process_utterance(
         conversation_id=conversation_id,
@@ -118,7 +122,7 @@ async def example_ollama_agent():
     Requires Ollama to be running locally:
     - Install: https://ollama.ai
     - Run: ollama serve
-    - Pull model: ollama pull llama3
+    - Pull model: ollama pull llama3.1
     """
     print("\n" + "=" * 60)
     print("Example: Ollama Agent (Local LLM)")
@@ -128,7 +132,7 @@ async def example_ollama_agent():
         speakerUri="tag:example.com,2025:ollama_agent",
         agent_name="Local LLM Assistant",
         llm_provider="ollama",
-        model_name="llama3",  # or "mistral", "codellama", etc.
+        model_name="llama3.1",  # Using llama3.1:latest
         system_prompt="You are a helpful assistant in a multi-agent conversation."
     )
 
@@ -163,34 +167,33 @@ async def example_multi_llm_conversation():
 
     # Check API keys
     has_openai = bool(os.getenv("OPENAI_API_KEY"));
-    has_anthropic = bool(os.getenv("ANTHROPIC_API_KEY"));
 
-    if not has_openai and not has_anthropic:
-        print("\n⚠️  No LLM API keys found!")
-        print("Set at least one: OPENAI_API_KEY or ANTHROPIC_API_KEY")
+    if not has_openai:
+        print("\n⚠️  OPENAI_API_KEY not set!")
+        print("Set it: export OPENAI_API_KEY='sk-...'")
         return
 
     agents = [];
 
-    if has_openai:
-        agent1 = LLMAgent(
-            speakerUri="tag:example.com,2025:gpt_agent",
-            agent_name="GPT Assistant",
-            llm_provider="openai",
-            model_name="gpt-4o-mini",
-            system_prompt="You are GPT, a helpful assistant. Be concise."
-        );
-        agents.append(agent1);
+    # First agent: GPT-4o-mini (fast and cheap)
+    agent1 = LLMAgent(
+        speakerUri="tag:example.com,2025:gpt_mini_agent",
+        agent_name="GPT-4o-mini Assistant",
+        llm_provider="openai",
+        model_name="gpt-4o-mini",
+        system_prompt="You are GPT-4o-mini, a helpful assistant. Be concise."
+    );
+    agents.append(agent1);
 
-    if has_anthropic:
-        agent2 = LLMAgent(
-            speakerUri="tag:example.com,2025:claude_agent",
-            agent_name="Claude Assistant",
-            llm_provider="anthropic",
-            model_name="claude-3-haiku-20240307",
-            system_prompt="You are Claude, a helpful assistant. Be concise."
-        );
-        agents.append(agent2);
+    # Second agent: GPT-4o (more capable)
+    agent2 = LLMAgent(
+        speakerUri="tag:example.com,2025:gpt4_agent",
+        agent_name="GPT-4o Assistant",
+        llm_provider="openai",
+        model_name="gpt-4o",
+        system_prompt="You are GPT-4o, a more capable assistant. Provide detailed answers."
+    );
+    agents.append(agent2);
 
     if not agents:
         return;
@@ -233,11 +236,11 @@ async def main():
     print("\nThis script demonstrates how to use real LLM providers")
     print("with Open Floor Protocol agents.\n")
 
-    # Example 1: OpenAI
+    # Example 1: OpenAI GPT-4o-mini
     await example_openai_agent();
 
-    # Example 2: Anthropic
-    await example_anthropic_agent();
+    # Example 2: OpenAI GPT-4o
+    await example_openai_agent_gpt4();
 
     # Example 3: Ollama (local)
     await example_ollama_agent();
