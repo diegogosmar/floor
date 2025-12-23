@@ -77,7 +77,7 @@ open http://localhost:8000/docs
 
 ## 📋 Test Base
 
-### Test 1: Registrazione Agente
+### Test 1: Agent Registration
 
 ```bash
 curl -X POST http://localhost:8000/api/v1/agents/register \
