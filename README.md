@@ -237,10 +237,6 @@ This implementation follows the Open Floor Protocol 1.0.0 specification for:
 4. Ensure all tests pass
 5. Submit a pull request
 
-## License
-
-[Specify your license here]
-
 ## Support
 
 For issues and questions, please open an issue in the repository.
