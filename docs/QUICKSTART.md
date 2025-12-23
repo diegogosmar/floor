@@ -6,7 +6,7 @@
 
 ```bash
 # Go to project directory
-cd /Users/diego.gosmar/Documents/OFP/FLOOR
+cd /path/to/floor
 
 # Start services with Docker Compose
 docker-compose up -d

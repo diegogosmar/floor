@@ -18,7 +18,7 @@ pip install -r ../../requirements.txt
 
 ```bash
 # From project root
-cd /Users/diego.gosmar/Documents/OFP/FLOOR
+cd /path/to/floor
 
 # Start services
 docker-compose up -d

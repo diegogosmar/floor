@@ -19,7 +19,7 @@ docker-compose --version
 
 ```bash
 # Go to project directory
-cd /Users/diego.gosmar/Documents/OFP/FLOOR
+cd /path/to/floor
 
 # Start services (PostgreSQL, Redis, API)
 docker-compose up -d

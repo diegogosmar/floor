@@ -6,7 +6,7 @@ Before running LLM agent examples, make sure you have:
 
 1. **Installed project dependencies:**
    ```bash
-   cd /Users/diego.gosmar/Documents/OFP/FLOOR
+   cd /path/to/floor
    pip install -r requirements.txt
    ```
 
@@ -48,7 +48,7 @@ python examples/agents/llm_agent_example.py
 
 **Solution:** Run the script from the project root directory:
 ```bash
-cd /Users/diego.gosmar/Documents/OFP/FLOOR
+cd /path/to/floor
 python examples/agents/llm_agent_example.py
 ```
 

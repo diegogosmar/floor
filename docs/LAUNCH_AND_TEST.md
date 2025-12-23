@@ -31,7 +31,7 @@ pip install httpx
 
 ```bash
 # Go to project directory
-cd /Users/diego.gosmar/Documents/OFP/FLOOR
+cd /path/to/floor
 
 # Start all services (PostgreSQL, Redis, API)
 docker-compose up -d
@@ -355,7 +355,7 @@ curl http://localhost:8000/api/v1/floor/holder/$CONV_ID | jq
 
 ```bash
 # Make sure you're in the project root directory
-cd /Users/diego.gosmar/Documents/OFP/FLOOR
+cd /path/to/floor
 
 # Install dependencies
 pip install httpx

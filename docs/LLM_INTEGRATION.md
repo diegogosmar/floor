@@ -19,7 +19,7 @@ By default, agents use simple echo responses. To use real LLM models, you can us
 **First, install project dependencies:**
 ```bash
 # From project root directory
-cd /Users/diego.gosmar/Documents/OFP/FLOOR
+cd /path/to/floor
 
 # Install all project dependencies (includes structlog, httpx, etc.)
 pip install -r requirements.txt

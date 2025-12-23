@@ -23,7 +23,7 @@
 
 ```bash
 # If you haven't already cloned the repository
-cd /Users/diego.gosmar/Documents/OFP/FLOOR
+cd /path/to/floor
 
 # Create virtual environment
 python -m venv venv

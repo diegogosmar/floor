@@ -62,8 +62,9 @@ src/
 #### 1. Start Services
 
 ```bash
-# Clone and go to directory
-cd /Users/diego.gosmar/Documents/OFP/FLOOR
+# Clone the repository (if not already cloned)
+git clone https://github.com/diegogosmar/floor.git
+cd floor
 
 # Start services (PostgreSQL, Redis, API)
 docker-compose up -d
