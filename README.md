@@ -32,6 +32,8 @@ src/
 2. **Conversation Envelope Router**: Routes OFP 1.0.0 compliant JSON envelopes between heterogeneous agents
 3. **Agent Capability Registry**: Maintains agent manifests per Assistant Manifest Specification, enabling dynamic capability discovery
 
+📊 **Visual Architecture Diagrams**: See [Agent Integration Guide](docs/OFP_AGENT_INTEGRATION.md) for interactive Mermaid diagrams showing the complete system architecture, integration flow, floor control state machine, and capability discovery.
+
 ### Orchestration Patterns
 
 - **Convener-Based**: Explicit floor management by convener agent (round-robin, priority-based, context-aware)
