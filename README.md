@@ -13,14 +13,30 @@ This project implements a multi-agent system following the Open Floor Protocol (
 
 ## Architecture
 
+### Multi-Layer Architecture per OFP 1.0.0
+
 ```
 src/
-├── floor_manager/     # Floor control primitives management
-├── envelope_router/  # Conversation envelope routing
-├── agent_registry/   # Capability discovery and registration
-├── agents/           # Agent implementations
+├── floor_manager/     # Floor Manager Layer - Floor control primitives
+├── envelope_router/   # Conversation Envelope Router - OFP envelope routing
+├── agent_registry/   # Agent Capability Registry - Manifest & discovery
+├── agents/           # Agent implementations (BaseAgent, ExampleAgent)
+├── orchestration/    # Orchestration patterns (Convener, Collaborative, Hybrid)
+├── api/              # FastAPI REST endpoints
 └── main.py          # FastAPI application entry point
 ```
+
+### Three Main Layers
+
+1. **Floor Manager Layer**: Manages floor control primitives (requestFloor, grantFloor, revokeFloor, yieldFloor) and coordinates conversational turns
+2. **Conversation Envelope Router**: Routes OFP 1.0.0 compliant JSON envelopes between heterogeneous agents
+3. **Agent Capability Registry**: Maintains agent manifests per Assistant Manifest Specification, enabling dynamic capability discovery
+
+### Orchestration Patterns
+
+- **Convener-Based**: Explicit floor management by convener agent (round-robin, priority-based, context-aware)
+- **Collaborative**: Autonomous floor negotiation with minimal arbitration
+- **Hybrid Delegation**: Master agent delegates to specialists while maintaining control
 
 ## Technology Stack
 
@@ -30,7 +46,7 @@ src/
 - **Cache/Queue**: Redis 7
 - **Testing**: pytest, pytest-asyncio
 
-## Quick Start
+## 🚀 Quick Start - Lancia il Floor Manager e Testa con Agenti Demo
 
 ### Prerequisites
 
@@ -39,47 +55,87 @@ src/
 - PostgreSQL 15 (or use Docker)
 - Redis 7 (or use Docker)
 
-### Installation
+### Avvio Rapido (3 Passi)
 
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd FLOOR
-```
+#### 1. Avvia i Servizi
 
-2. Create virtual environment:
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
+# Clone e vai nella directory
+cd /Users/diego.gosmar/Documents/OFP/FLOOR
 
-3. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-4. Configure environment:
-```bash
-cp .env.example .env
-# Edit .env with your configuration
-```
-
-5. Start services with Docker Compose:
-```bash
+# Avvia servizi (PostgreSQL, Redis, API)
 docker-compose up -d
+
+# Attendi qualche secondo
+sleep 5
 ```
 
-6. Run database migrations:
+#### 2. Verifica che Funzioni
+
 ```bash
-alembic upgrade head
+# Health check
+curl http://localhost:8000/health
+# Risposta: {"status":"healthy"}
 ```
 
-7. Start the API server:
+#### 3. Testa con Agenti Demo
+
+**Opzione A: Script Python (Consigliato)**
 ```bash
-uvicorn src.main:app --reload
+# Installa dipendenza se necessario
+pip install httpx
+
+# Test conversazione multi-agente completa
+python examples/agents/demo_agents.py
+
+# Test priorità floor control
+python examples/agents/demo_agents.py priority
 ```
 
-The API will be available at `http://localhost:8000`
+**Opzione B: Script Bash**
+```bash
+# Test workflow completo
+./examples/test_workflow.sh
+```
+
+**Opzione C: Swagger UI (Interattivo)**
+```bash
+# Apri nel browser
+open http://localhost:8000/docs
+# Oppure visita: http://localhost:8000/docs
+```
+
+### Test Manuale Rapido
+
+```bash
+# 1. Registra un agente
+curl -X POST http://localhost:8000/api/v1/agents/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "speakerUri": "tag:test.com,2025:agent_1",
+    "agent_name": "Test Agent",
+    "capabilities": ["text_generation"]
+  }'
+
+# 2. Richiedi floor
+curl -X POST http://localhost:8000/api/v1/floor/request \
+  -H "Content-Type: application/json" \
+  -d '{
+    "conversation_id": "conv_test",
+    "speakerUri": "tag:test.com,2025:agent_1",
+    "priority": 5
+  }'
+
+# 3. Verifica floor holder
+curl http://localhost:8000/api/v1/floor/holder/conv_test
+```
+
+### 📚 Documentazione Completa
+
+- **🚀 Come Lanciare e Testare**: [docs/LAUNCH_AND_TEST.md](docs/LAUNCH_AND_TEST.md) ⭐ **INIZIA QUI**
+- **⚙️ Setup Dettagliato**: [docs/SETUP.md](docs/SETUP.md)
+- **🏗️ Architettura**: [docs/ARCHITECTURE_DETAILED.md](docs/ARCHITECTURE_DETAILED.md)
+- **📖 Quick Reference**: [docs/QUICKSTART.md](docs/QUICKSTART.md)
 
 ## Development
 
