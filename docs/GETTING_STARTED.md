@@ -90,7 +90,7 @@ curl -X POST http://localhost:8000/api/v1/agents/register \
   }'
 ```
 
-**Risposta attesa**:
+**Expected response**:
 ```json
 {
   "success": true,
