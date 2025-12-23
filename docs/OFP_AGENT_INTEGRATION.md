@@ -11,6 +11,65 @@ According to OFP 1.0.0, agents must:
 4. **Send messages** via conversation envelopes
 5. **Yield floor** when done (using `yieldFloor` event)
 
+## Integration Flow Diagram
+
+```mermaid
+sequenceDiagram
+    participant Agent as Agent
+    participant Registry as Agent Registry
+    participant FloorMgr as Floor Manager
+    participant Router as Envelope Router
+    participant OtherAgent as Other Agent
+
+    Note over Agent,OtherAgent: Step 1: Agent Registration
+    Agent->>Registry: POST /api/v1/agents/register<br/>(manifest: speakerUri, serviceUrl, capabilities)
+    Registry-->>Agent: ✅ Registration confirmed
+    
+    Note over Agent,OtherAgent: Step 2: Request Floor
+    Agent->>FloorMgr: POST /api/v1/floor/request<br/>(conversation_id, speakerUri, priority)
+    alt Floor Available
+        FloorMgr-->>Agent: ✅ Floor granted immediately
+    else Floor Busy
+        FloorMgr-->>Agent: ⏳ Queued (position: N)
+        FloorMgr->>Agent: Envelope: grantFloor event<br/>(when floor available)
+    end
+    
+    Note over Agent,OtherAgent: Step 3: Send Message
+    Agent->>Router: POST /api/v1/envelopes/send<br/>(utterance envelope)
+    Router->>OtherAgent: Forward envelope<br/>(to serviceUrl)
+    OtherAgent-->>Router: Envelope received
+    
+    Note over Agent,OtherAgent: Step 4: Yield Floor
+    Agent->>FloorMgr: POST /api/v1/floor/release<br/>(conversation_id, speakerUri)
+    FloorMgr-->>Agent: ✅ Floor released
+    FloorMgr->>OtherAgent: Envelope: grantFloor event<br/>(next in queue)
+```
+
+## Agent Lifecycle Diagram
+
+```mermaid
+stateDiagram-v2
+    [*] --> Unregistered: Agent starts
+    
+    Unregistered --> Registering: Register manifest
+    Registering --> Registered: ✅ Registration confirmed
+    
+    Registered --> RequestingFloor: Request floor
+    RequestingFloor --> FloorGranted: ✅ Floor available
+    RequestingFloor --> Queued: ⏳ Floor busy
+    
+    Queued --> FloorGranted: Next in queue
+    
+    FloorGranted --> Speaking: Send utterance
+    Speaking --> FloorGranted: More messages
+    Speaking --> YieldingFloor: Done speaking
+    
+    YieldingFloor --> Registered: Floor released
+    
+    Registered --> Unregistered: Unregister
+    Unregistered --> [*]: Agent stops
+```
+
 ## Step-by-Step Integration Flow
 
 ### Step 1: Agent Registration (Manifest Publication)
@@ -290,6 +349,51 @@ POST /api/v1/envelopes/send
 }
 ```
 
+## Complete Agent Integration Architecture
+
+```mermaid
+graph TB
+    subgraph "Agent Layer"
+        A1[Agent 1<br/>speakerUri: tag:example.com,2025:agent1<br/>serviceUrl: http://localhost:8001]
+        A2[Agent 2<br/>speakerUri: tag:example.com,2025:agent2<br/>serviceUrl: http://localhost:8002]
+        A3[Agent 3<br/>speakerUri: tag:example.com,2025:agent3<br/>serviceUrl: http://localhost:8003]
+    end
+    
+    subgraph "Floor Manager API"
+        FM[Floor Manager<br/>- Floor Control<br/>- Priority Queue<br/>- Timeout Management]
+        AR[Agent Registry<br/>- Manifest Storage<br/>- Capability Discovery<br/>- Heartbeat Tracking]
+        ER[Envelope Router<br/>- Envelope Validation<br/>- Routing Logic<br/>- Multi-party Support]
+    end
+    
+    subgraph "Storage Layer"
+        DB[(PostgreSQL<br/>Conversation State)]
+        REDIS[(Redis<br/>Floor Queue<br/>Cache)]
+    end
+    
+    A1 -->|1. Register Manifest| AR
+    A2 -->|1. Register Manifest| AR
+    A3 -->|1. Register Manifest| AR
+    
+    A1 -->|2. Request Floor| FM
+    A2 -->|2. Request Floor| FM
+    A3 -->|2. Request Floor| FM
+    
+    FM -->|3. Grant Floor| A1
+    FM -->|3. Grant Floor| A2
+    FM -->|3. Grant Floor| A3
+    
+    A1 -->|4. Send Envelope| ER
+    ER -->|5. Route Envelope| A2
+    ER -->|5. Route Envelope| A3
+    
+    A1 -->|6. Yield Floor| FM
+    
+    FM --> DB
+    FM --> REDIS
+    AR --> DB
+    ER --> REDIS
+```
+
 ## Complete OFP-Compliant Agent Flow
 
 ### 1. Agent Startup
@@ -340,6 +444,32 @@ yield_envelope = create_yield_floor_envelope("conv_001")
 await send_envelope(yield_envelope)
 
 # Floor Manager processes queue and grants to next agent
+```
+
+## Implementation Comparison
+
+```mermaid
+graph LR
+    subgraph "Current Implementation<br/>(REST API Convenience Layer)"
+        A1[Agent] -->|POST /api/v1/floor/request| B1[Floor Manager]
+        A1 -->|POST /api/v1/envelopes/utterance| C1[Envelope Router]
+        A1 -->|POST /api/v1/floor/release| B1
+        B1 -->|Direct Response| A1
+    end
+    
+    subgraph "Full OFP Compliance<br/>(Envelope-Based)"
+        A2[Agent] -->|Envelope: requestFloor| B2[Floor Manager]
+        B2 -->|Envelope: grantFloor| A2
+        A2 -->|Envelope: utterance| C2[Envelope Router]
+        C2 -->|Envelope: utterance| D2[Other Agent]
+        A2 -->|Envelope: yieldFloor| B2
+        B2 -->|Envelope: grantFloor| E2[Next Agent]
+    end
+    
+    style A1 fill:#e1f5ff
+    style A2 fill:#fff4e1
+    style B1 fill:#e1f5ff
+    style B2 fill:#fff4e1
 ```
 
 ## Current Implementation vs Full OFP Compliance
@@ -405,6 +535,39 @@ According to OFP Assistant Manifest Specification:
 }
 ```
 
+## Floor Control State Machine
+
+```mermaid
+stateDiagram-v2
+    [*] --> Idle: Conversation starts
+    
+    Idle --> Requested: Agent requests floor
+    Requested --> Granted: Floor available
+    Requested --> Queued: Floor busy
+    
+    Queued --> Granted: Next in queue
+    
+    Granted --> Speaking: Agent sends message
+    Speaking --> Granted: Continue speaking
+    Speaking --> Yielding: Agent yields
+    
+    Yielding --> Idle: Floor released
+    Yielding --> Requested: Another request pending
+    
+    Granted --> Revoked: Timeout exceeded
+    Revoked --> Idle: Floor released
+    
+    note right of Granted
+        Only floor holder
+        can send messages
+    end note
+    
+    note right of Queued
+        Priority-based
+        queue ordering
+    end note
+```
+
 ## Floor Control Events (OFP 1.0.0)
 
 ### requestFloor Event
@@ -461,6 +624,33 @@ According to OFP Assistant Manifest Specification:
         "reason": "Timeout exceeded"
     }
 }
+```
+
+## Capability Discovery Flow
+
+```mermaid
+sequenceDiagram
+    participant Client as Client/Agent
+    participant Registry as Agent Registry
+    participant Agent1 as Agent 1<br/>(text_generation)
+    participant Agent2 as Agent 2<br/>(image_generation)
+    participant Agent3 as Agent 3<br/>(text + image)
+
+    Note over Client,Agent3: Registration Phase
+    Agent1->>Registry: Register<br/>(capabilities: text_generation)
+    Agent2->>Registry: Register<br/>(capabilities: image_generation)
+    Agent3->>Registry: Register<br/>(capabilities: text_generation, image_generation)
+    
+    Note over Client,Agent3: Discovery Phase
+    Client->>Registry: GET /api/v1/agents/capability/text_generation
+    Registry-->>Client: [Agent1, Agent3]
+    
+    Client->>Registry: GET /api/v1/agents/capability/image_generation
+    Registry-->>Client: [Agent2, Agent3]
+    
+    Note over Client,Agent3: Selection
+    Client->>Agent1: Select Agent1 for text task
+    Client->>Agent2: Select Agent2 for image task
 ```
 
 ## Capability Discovery (OFP 1.0.0)
