@@ -1,5 +1,5 @@
 """
-Demo Agents - Esempi di agenti per testare il Floor Manager
+Demo Agents - Example agents to test the Floor Manager
 """
 
 import asyncio
@@ -11,7 +11,7 @@ from datetime import datetime
 
 class DemoAgent:
     """
-    Agente demo che si connette al Floor Manager via REST API
+    Demo agent that connects to Floor Manager via REST API
     """
 
     def __init__(
@@ -30,7 +30,7 @@ class DemoAgent:
         self.client = httpx.AsyncClient(timeout=30.0)
 
     async def register(self) -> bool:
-        """Registra l'agente nel registry"""
+        """Register the agent in the registry"""
         try:
             response = await self.client.post(
                 f"{self.floor_api_url}/api/v1/agents/register",
@@ -42,14 +42,14 @@ class DemoAgent:
                 }
             )
             response.raise_for_status()
-            print(f"✅ {self.agent_name} registrato con successo")
+            print(f"✅ {self.agent_name} registered successfully")
             return True
         except Exception as e:
-            print(f"❌ Errore registrazione {self.agent_name}: {e}")
+            print(f"❌ Registration error for {self.agent_name}: {e}")
             return False
 
     async def request_floor(self, conversation_id: str, priority: int = 5) -> bool:
-        """Richiedi floor per una conversazione"""
+        """Request floor for a conversation"""
         try:
             response = await self.client.post(
                 f"{self.floor_api_url}/api/v1/floor/request",
@@ -62,16 +62,16 @@ class DemoAgent:
             response.raise_for_status()
             data = response.json()
             if data.get("granted"):
-                print(f"🎤 {self.agent_name} ha ottenuto il floor")
+                print(f"🎤 {self.agent_name} obtained the floor")
             else:
-                print(f"⏳ {self.agent_name} è in coda per il floor")
+                print(f"⏳ {self.agent_name} is queued for the floor")
             return data.get("granted", False)
         except Exception as e:
-            print(f"❌ Errore richiesta floor {self.agent_name}: {e}")
+            print(f"❌ Floor request error for {self.agent_name}: {e}")
             return False
 
     async def release_floor(self, conversation_id: str) -> bool:
-        """Rilascia il floor"""
+        """Release the floor"""
         try:
             response = await self.client.post(
                 f"{self.floor_api_url}/api/v1/floor/release",
@@ -81,10 +81,10 @@ class DemoAgent:
                 }
             )
             response.raise_for_status()
-            print(f"🔓 {self.agent_name} ha rilasciato il floor")
+            print(f"🔓 {self.agent_name} released the floor")
             return True
         except Exception as e:
-            print(f"❌ Errore release floor {self.agent_name}: {e}")
+            print(f"❌ Floor release error for {self.agent_name}: {e}")
             return False
 
     async def send_utterance(
@@ -93,7 +93,7 @@ class DemoAgent:
         target_speaker_uri: Optional[str],
         text: str
     ) -> bool:
-        """Invia un utterance"""
+        """Send an utterance"""
         try:
             response = await self.client.post(
                 f"{self.floor_api_url}/api/v1/envelopes/utterance",
@@ -108,11 +108,11 @@ class DemoAgent:
             print(f"💬 {self.agent_name}: {text}")
             return True
         except Exception as e:
-            print(f"❌ Errore invio utterance {self.agent_name}: {e}")
+            print(f"❌ Utterance send error for {self.agent_name}: {e}")
             return False
 
     async def get_floor_holder(self, conversation_id: str) -> Optional[str]:
-        """Ottieni chi ha il floor"""
+        """Get current floor holder"""
         try:
             response = await self.client.get(
                 f"{self.floor_api_url}/api/v1/floor/holder/{conversation_id}"
@@ -121,11 +121,11 @@ class DemoAgent:
             data = response.json()
             return data.get("holder")
         except Exception as e:
-            print(f"❌ Errore get floor holder: {e}")
+            print(f"❌ Error getting floor holder: {e}")
             return None
 
     async def heartbeat(self) -> bool:
-        """Aggiorna heartbeat"""
+        """Update heartbeat"""
         try:
             response = await self.client.post(
                 f"{self.floor_api_url}/api/v1/agents/heartbeat",
@@ -137,20 +137,26 @@ class DemoAgent:
             return False
 
     async def close(self):
-        """Chiudi connessione"""
+        """Close connection"""
         await self.client.aclose()
 
 
 async def demo_multi_agent_conversation():
     """
-    Demo: Conversazione multi-agente con floor control
+    Demo: Multi-agent conversation with floor control
+    
+    This demo shows:
+    1. How agents request floor with different priorities
+    2. How floor queue works (higher priority agents get floor first)
+    3. How agents can send messages even without floor (but can't respond)
+    4. How floor is passed to the next agent in queue when released
     """
     print("=" * 60)
-    print("DEMO: Conversazione Multi-Agente con Floor Control")
+    print("DEMO: Multi-Agent Conversation with Floor Control")
     print("=" * 60)
     print()
 
-    # Crea agenti demo
+    # Create demo agents
     text_agent = DemoAgent(
         speaker_uri="tag:demo.com,2025:text_agent",
         agent_name="Text Agent",
@@ -172,68 +178,85 @@ async def demo_multi_agent_conversation():
     conversation_id = f"conv_demo_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
 
     try:
-        # Registra agenti
-        print("📝 Registrazione agenti...")
+        # Register agents
+        print("📝 Registering agents...")
         await text_agent.register()
         await image_agent.register()
         await data_agent.register()
         print()
 
         # Test floor control
-        print("🎤 Test Floor Control:")
+        print("🎤 Floor Control Test:")
         print("-" * 60)
 
-        # Agent 1 richiede floor
-        print("\n1. Text Agent richiede floor (priority 5)...")
+        # Agent 1 requests floor
+        print("\n1. Text Agent requests floor (priority 5)...")
         await text_agent.request_floor(conversation_id, priority=5)
         holder = await text_agent.get_floor_holder(conversation_id)
         print(f"   Floor holder: {holder}")
 
-        # Agent 2 richiede floor (sarà in coda)
-        print("\n2. Image Agent richiede floor (priority 3)...")
-        await image_agent.request_floor(conversation_id, priority=3)
+        # Agent 2 requests floor (will be queued)
+        print("\n2. Image Agent requests floor (priority 4)...")
+        await image_agent.request_floor(conversation_id, priority=4)
         holder = await text_agent.get_floor_holder(conversation_id)
-        print(f"   Floor holder: {holder}")
+        print(f"   Floor holder: {holder} (Image Agent is queued)")
 
-        # Agent 3 richiede floor (sarà in coda)
-        print("\n3. Data Agent richiede floor (priority 4)...")
-        await data_agent.request_floor(conversation_id, priority=4)
+        # Agent 3 requests floor (will be queued with lower priority)
+        print("\n3. Data Agent requests floor (priority 3)...")
+        await data_agent.request_floor(conversation_id, priority=3)
         holder = await text_agent.get_floor_holder(conversation_id)
-        print(f"   Floor holder: {holder}")
+        print(f"   Floor holder: {holder} (Data Agent is queued after Image Agent)")
 
-        # Agent 1 invia utterance
-        print("\n4. Text Agent invia utterance...")
+        # Agent 1 sends utterance to Image Agent
+        print("\n4. Text Agent sends utterance to Image Agent...")
         await text_agent.send_utterance(
             conversation_id,
             image_agent.speaker_uri,
-            "Ciao Image Agent, puoi generare un'immagine?"
+            "Hello Image Agent, can you generate an image?"
         )
+        print("   Note: Image Agent receives the message but cannot respond yet (no floor)")
 
-        # Agent 1 rilascia floor
-        print("\n5. Text Agent rilascia floor...")
+        # Agent 1 releases floor
+        print("\n5. Text Agent releases floor...")
         await text_agent.release_floor(conversation_id)
-        await asyncio.sleep(1)  # Attendi processamento coda
+        await asyncio.sleep(1)  # Wait for queue processing
         holder = await text_agent.get_floor_holder(conversation_id)
-        print(f"   Nuovo floor holder: {holder}")
+        print(f"   New floor holder: {holder}")
+        print("   (Image Agent gets floor because it has highest priority in queue)")
 
-        # Agent con floor invia utterance
-        if holder:
-            print(f"\n6. {holder} invia utterance...")
-            if holder == image_agent.speaker_uri:
-                await image_agent.send_utterance(
-                    conversation_id,
-                    None,  # Broadcast
-                    "Certamente! Sto generando l'immagine..."
-                )
-            elif holder == data_agent.speaker_uri:
+        # Image Agent responds now that it has the floor
+        if holder == image_agent.speaker_uri:
+            print("\n6. Image Agent responds (now has floor)...")
+            await image_agent.send_utterance(
+                conversation_id,
+                text_agent.speaker_uri,
+                "Certainly! I'm generating the image for you..."
+            )
+            
+            # Image Agent releases floor
+            print("\n7. Image Agent releases floor...")
+            await image_agent.release_floor(conversation_id)
+            await asyncio.sleep(1)
+            holder = await text_agent.get_floor_holder(conversation_id)
+            print(f"   New floor holder: {holder}")
+            
+            if holder == data_agent.speaker_uri:
+                print("\n8. Data Agent gets floor (next in queue)...")
                 await data_agent.send_utterance(
                     conversation_id,
-                    None,
-                    "Posso analizzare i dati se necessario..."
+                    None,  # Broadcast
+                    "I can analyze the data if needed..."
                 )
+        elif holder == data_agent.speaker_uri:
+            print("\n6. Data Agent gets floor (higher priority in queue)...")
+            await data_agent.send_utterance(
+                conversation_id,
+                None,
+                "I can analyze the data if needed..."
+            )
 
         print("\n" + "=" * 60)
-        print("✅ Demo completata con successo!")
+        print("✅ Demo completed successfully!")
         print("=" * 60)
 
     finally:
@@ -245,10 +268,10 @@ async def demo_multi_agent_conversation():
 
 async def demo_floor_priority():
     """
-    Demo: Test priorità nel floor control
+    Demo: Test priority in floor control
     """
     print("=" * 60)
-    print("DEMO: Test Priorità Floor Control")
+    print("DEMO: Floor Control Priority Test")
     print("=" * 60)
     print()
 
@@ -270,25 +293,96 @@ async def demo_floor_priority():
         await agent1.register()
         await agent2.register()
 
-        print("Agent 1 richiede floor con priority 3...")
+        print("Agent 1 requests floor with priority 3...")
         await agent1.request_floor(conversation_id, priority=3)
         await asyncio.sleep(0.5)
 
-        print("Agent 2 richiede floor con priority 5 (più alta)...")
+        print("Agent 2 requests floor with priority 5 (higher)...")
         await agent2.request_floor(conversation_id, priority=5)
         await asyncio.sleep(0.5)
 
         holder = await agent1.get_floor_holder(conversation_id)
-        print(f"\nFloor holder attuale: {holder}")
-        print("Nota: Agent 2 ha priority più alta ma Agent 1 ha già il floor")
+        print(f"\nCurrent floor holder: {holder}")
+        print("Note: Agent 2 has higher priority but Agent 1 already has the floor")
 
-        print("\nAgent 1 rilascia floor...")
+        print("\nAgent 1 releases floor...")
         await agent1.release_floor(conversation_id)
         await asyncio.sleep(1)
 
         holder = await agent1.get_floor_holder(conversation_id)
-        print(f"Nuovo floor holder: {holder}")
-        print("(Dovrebbe essere Agent 2 per la priority più alta)")
+        print(f"New floor holder: {holder}")
+        print("(Should be Agent 2 due to higher priority)")
+
+    finally:
+        await agent1.close()
+        await agent2.close()
+
+
+async def demo_simple_conversation():
+    """
+    Demo: Simple two-agent conversation showing floor passing
+    
+    This demonstrates a clearer scenario where Agent 1 asks Agent 2,
+    and Agent 2 responds when it gets the floor.
+    """
+    print("=" * 60)
+    print("DEMO: Simple Two-Agent Conversation")
+    print("=" * 60)
+    print()
+
+    agent1 = DemoAgent(
+        speaker_uri="tag:demo.com,2025:agent_1",
+        agent_name="Agent 1",
+        capabilities=["text_generation"]
+    )
+
+    agent2 = DemoAgent(
+        speaker_uri="tag:demo.com,2025:agent_2",
+        agent_name="Agent 2",
+        capabilities=["text_generation"]
+    )
+
+    conversation_id = f"conv_simple_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+
+    try:
+        await agent1.register()
+        await agent2.register()
+
+        print("1. Agent 1 requests floor...")
+        await agent1.request_floor(conversation_id, priority=5)
+        
+        print("\n2. Agent 2 requests floor (will be queued)...")
+        await agent2.request_floor(conversation_id, priority=4)
+        
+        print("\n3. Agent 1 sends question to Agent 2...")
+        await agent1.send_utterance(
+            conversation_id,
+            agent2.speaker_uri,
+            "Hello Agent 2, can you help me?"
+        )
+        print("   Note: Agent 2 receives the message but cannot respond (no floor)")
+        
+        print("\n4. Agent 1 releases floor...")
+        await agent1.release_floor(conversation_id)
+        await asyncio.sleep(1)
+        
+        holder = await agent1.get_floor_holder(conversation_id)
+        print(f"   Floor holder: {holder}")
+        
+        if holder == agent2.speaker_uri:
+            print("\n5. Agent 2 now has floor and can respond...")
+            await agent2.send_utterance(
+                conversation_id,
+                agent1.speaker_uri,
+                "Yes, I can help! What do you need?"
+            )
+            
+            print("\n6. Agent 2 releases floor...")
+            await agent2.release_floor(conversation_id)
+
+        print("\n" + "=" * 60)
+        print("✅ Demo completed successfully!")
+        print("=" * 60)
 
     finally:
         await agent1.close()
@@ -298,8 +392,15 @@ async def demo_floor_priority():
 if __name__ == "__main__":
     import sys
 
-    if len(sys.argv) > 1 and sys.argv[1] == "priority":
-        asyncio.run(demo_floor_priority())
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "priority":
+            asyncio.run(demo_floor_priority())
+        elif sys.argv[1] == "simple":
+            asyncio.run(demo_simple_conversation())
+        else:
+            print("Usage: python demo_agents.py [priority|simple]")
+            print("  No args: Multi-agent demo")
+            print("  priority: Priority test demo")
+            print("  simple: Simple two-agent conversation")
     else:
         asyncio.run(demo_multi_agent_conversation())
-

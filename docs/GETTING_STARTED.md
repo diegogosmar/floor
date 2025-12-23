@@ -1,67 +1,77 @@
-# Getting Started - Come Lanciare e Testare il Floor Manager
+# Getting Started - How to Launch and Test the Floor Manager
 
-## 🚀 Avvio Rapido
+## 🚀 Quick Start
 
-> **💡 Per una guida completa passo-passo, vedi [docs/LAUNCH_AND_TEST.md](LAUNCH_AND_TEST.md)**
+> **💡 For a complete step-by-step guide, see [docs/LAUNCH_AND_TEST.md](LAUNCH_AND_TEST.md)**
 
-### Prerequisiti
+### Prerequisites
 
 ```bash
-# Verifica Python version
-python --version  # Deve essere 3.11+
+# Verify Python version
+python --version  # Must be 3.11+
 
-# Verifica Docker
+# Verify Docker
 docker --version
 docker-compose --version
 ```
 
-### Step 1: Avvia i Servizi
+### Step 1: Start Services
 
 ```bash
-# Vai nella directory del progetto
+# Go to project directory
 cd /Users/diego.gosmar/Documents/OFP/FLOOR
 
-# Avvia servizi (PostgreSQL, Redis, API)
+# Start services (PostgreSQL, Redis, API)
 docker-compose up -d
 
-# Attendi qualche secondo
+# Wait a few seconds
 sleep 5
 
-# Verifica che siano attivi
+# Verify they are active
 docker-compose ps
 ```
 
-### Step 2: Verifica Installazione
+### Step 2: Verify Installation
 
 ```bash
 # Health check
 curl http://localhost:8000/health
-# Risposta: {"status":"healthy"}
+# Response: {"status":"healthy"}
 ```
 
-### Step 3: Testa con Agenti Demo ⭐
+### Step 3: Test with Demo Agents ⭐
 
-**Opzione A: Script Python (Consigliato)**
+**Option A: Python Script (Recommended)**
 ```bash
-# Installa httpx se necessario
+# Install httpx if needed
 pip install httpx
 
-# Test conversazione multi-agente completa
+# Test complete multi-agent conversation
 python examples/agents/demo_agents.py
 
-# Test priorità floor control
+# Test floor control priority
 python examples/agents/demo_agents.py priority
 ```
 
-**Opzione B: Swagger UI (Interattivo)**
+> **ℹ️ Note**: Demo agents (`demo_agents.py`) are **HTTP simulators** that do not use LLM or external APIs. 
+> - ✅ **Free** - No API costs
+> - ✅ **Fast** - No LLM calls
+> - ✅ **Safe** - Does not use your OpenAI key
+> 
+> To use agents with **real LLMs** (OpenAI, Anthropic, etc.), see:
+> - `examples/agents/llm_agent_example.py` - LLM examples
+> - `examples/agents/quick_llm_test.py` - Quick LLM test
+> - `docs/LLM_INTEGRATION.md` - Complete LLM integration guide
+
+**Option B: Swagger UI (Interactive)**
 ```bash
-# Apri nel browser
+# Open in browser
 open http://localhost:8000/docs
 ```
 
-**Opzione C: Script Bash**
+**Option C: Bash Script**
 ```bash
-# Test workflow completo
+# Complete workflow test
 ./examples/test_workflow.sh
 ```
 
@@ -325,13 +335,14 @@ docker-compose logs api | grep -i registry
 - **API Reference**: `docs/api.md`
 - **Swagger UI**: http://localhost:8000/docs
 
-## 🎓 Prossimi Passi
+## 🎓 Next Steps
 
-1. **Esplora Swagger UI**: http://localhost:8000/docs
-2. **Leggi Architettura**: `docs/ARCHITECTURE_DETAILED.md`
-3. **Testa Pattern Orchestrazione**: Vedi esempi in `src/orchestration/`
-4. **Crea il Tuo Agente**: Estendi `BaseAgent` in `src/agents/`
-5. **Esegui Test Suite**: `pytest tests/`
+1. **Explore Swagger UI**: http://localhost:8000/docs
+2. **Read Architecture**: `docs/ARCHITECTURE_DETAILED.md`
+3. **Test Orchestration Patterns**: See examples in `src/orchestration/`
+4. **Create Your Agent**: Extend `BaseAgent` in `src/agents/`
+5. **Use Real LLM Agents**: See `docs/LLM_INTEGRATION.md` to integrate OpenAI, Anthropic, etc.
+6. **Run Test Suite**: `pytest tests/`
 
 ## 💡 Tips
 

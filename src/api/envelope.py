@@ -129,7 +129,7 @@ async def validate_envelope(
         ofp_envelope = OpenFloorEnvelope.from_dict(envelope);
         return {
             "valid": True,
-            "version": ofp_envelope.schema.version,
+            "version": ofp_envelope.schema_obj.version,
             "conversation_id": ofp_envelope.conversation.id
         };
     except Exception as e:

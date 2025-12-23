@@ -1,0 +1,16 @@
+# Minimal requirements for testing LLM agents only
+# This excludes PostgreSQL dependencies that may not work with Python 3.13
+
+# HTTP Client (for demo agents and LLM calls)
+httpx==0.25.2
+
+# Logging
+structlog==23.2.0
+
+# LLM Providers (install only what you need)
+# openai>=1.0.0  # Uncomment if using OpenAI
+# anthropic>=0.18.0  # Uncomment if using Anthropic
+
+# Basic utilities
+python-dotenv==1.0.0
+

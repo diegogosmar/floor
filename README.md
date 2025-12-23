@@ -46,7 +46,7 @@ src/
 - **Cache/Queue**: Redis 7
 - **Testing**: pytest, pytest-asyncio
 
-## 🚀 Quick Start - Lancia il Floor Manager e Testa con Agenti Demo
+## 🚀 Quick Start - Launch the Floor Manager and Test with Demo Agents
 
 ### Prerequisites
 
@@ -55,60 +55,60 @@ src/
 - PostgreSQL 15 (or use Docker)
 - Redis 7 (or use Docker)
 
-### Avvio Rapido (3 Passi)
+### Quick Start (3 Steps)
 
-#### 1. Avvia i Servizi
+#### 1. Start Services
 
 ```bash
-# Clone e vai nella directory
+# Clone and go to directory
 cd /Users/diego.gosmar/Documents/OFP/FLOOR
 
-# Avvia servizi (PostgreSQL, Redis, API)
+# Start services (PostgreSQL, Redis, API)
 docker-compose up -d
 
-# Attendi qualche secondo
+# Wait a few seconds
 sleep 5
 ```
 
-#### 2. Verifica che Funzioni
+#### 2. Verify It Works
 
 ```bash
 # Health check
 curl http://localhost:8000/health
-# Risposta: {"status":"healthy"}
+# Response: {"status":"healthy"}
 ```
 
-#### 3. Testa con Agenti Demo
+#### 3. Test with Demo Agents
 
-**Opzione A: Script Python (Consigliato)**
+**Option A: Python Script (Recommended)**
 ```bash
-# Installa dipendenza se necessario
+# Install dependency if needed
 pip install httpx
 
-# Test conversazione multi-agente completa
+# Test complete multi-agent conversation
 python examples/agents/demo_agents.py
 
-# Test priorità floor control
+# Test floor control priority
 python examples/agents/demo_agents.py priority
 ```
 
-**Opzione B: Script Bash**
+**Option B: Bash Script**
 ```bash
-# Test workflow completo
+# Complete workflow test
 ./examples/test_workflow.sh
 ```
 
-**Opzione C: Swagger UI (Interattivo)**
+**Option C: Swagger UI (Interactive)**
 ```bash
-# Apri nel browser
+# Open in browser
 open http://localhost:8000/docs
-# Oppure visita: http://localhost:8000/docs
+# Or visit: http://localhost:8000/docs
 ```
 
-### Test Manuale Rapido
+### Quick Manual Test
 
 ```bash
-# 1. Registra un agente
+# 1. Register an agent
 curl -X POST http://localhost:8000/api/v1/agents/register \
   -H "Content-Type: application/json" \
   -d '{
@@ -117,7 +117,7 @@ curl -X POST http://localhost:8000/api/v1/agents/register \
     "capabilities": ["text_generation"]
   }'
 
-# 2. Richiedi floor
+# 2. Request floor
 curl -X POST http://localhost:8000/api/v1/floor/request \
   -H "Content-Type: application/json" \
   -d '{
@@ -126,15 +126,15 @@ curl -X POST http://localhost:8000/api/v1/floor/request \
     "priority": 5
   }'
 
-# 3. Verifica floor holder
+# 3. Check floor holder
 curl http://localhost:8000/api/v1/floor/holder/conv_test
 ```
 
-### 📚 Documentazione Completa
+### 📚 Complete Documentation
 
-- **🚀 Come Lanciare e Testare**: [docs/LAUNCH_AND_TEST.md](docs/LAUNCH_AND_TEST.md) ⭐ **INIZIA QUI**
-- **⚙️ Setup Dettagliato**: [docs/SETUP.md](docs/SETUP.md)
-- **🏗️ Architettura**: [docs/ARCHITECTURE_DETAILED.md](docs/ARCHITECTURE_DETAILED.md)
+- **🚀 How to Launch and Test**: [docs/LAUNCH_AND_TEST.md](docs/LAUNCH_AND_TEST.md) ⭐ **START HERE**
+- **⚙️ Detailed Setup**: [docs/SETUP.md](docs/SETUP.md)
+- **🏗️ Architecture**: [docs/ARCHITECTURE_DETAILED.md](docs/ARCHITECTURE_DETAILED.md)
 - **📖 Quick Reference**: [docs/QUICKSTART.md](docs/QUICKSTART.md)
 
 ## Development

@@ -79,6 +79,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = True
+        extra = "ignore"  # Ignore extra environment variables (like DATABASE_URL, REDIS_URL)
 
 
 settings = Settings()

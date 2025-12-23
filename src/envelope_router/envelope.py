@@ -38,6 +38,10 @@ class SchemaObject(BaseModel):
         None,
         description="URL to JSON schema for validation"
     )
+    
+    class Config:
+        # Avoid shadowing BaseModel.schema
+        json_schema_extra = {"examples": [{"version": "1.0.0"}]}
 
 
 class ConversantIdentification(BaseModel):
@@ -117,12 +121,17 @@ class OpenFloorEnvelope(BaseModel):
     }
     """
 
-    schema: SchemaObject = Field(..., description="Schema version and URL")
+    schema_obj: SchemaObject = Field(
+        ...,
+        alias="schema",  # JSON field is "schema", Python attribute avoids shadowing BaseModel.schema
+        description="Schema version and URL"
+    )
     conversation: ConversationObject = Field(..., description="Conversation information")
     sender: SenderObject = Field(..., description="Sender information")
     events: List[EventObject] = Field(..., description="List of events")
 
     class Config:
+        populate_by_name = True  # Allow both alias "schema" and attribute name "schema_obj"
         json_encoders = {
             datetime: lambda v: v.isoformat()
         }

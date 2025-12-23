@@ -1,72 +1,72 @@
-# Demo Agents - Esempi di Agenti per Testare il Floor Manager
+# Demo Agents - Example Agents to Test the Floor Manager
 
-Questi script Python dimostrano come creare agenti che interagiscono con il Floor Manager Open Floor Protocol.
+These Python scripts demonstrate how to create agents that interact with the Open Floor Protocol Floor Manager.
 
 ## 🚀 Quick Start
 
-### Prerequisiti
+### Prerequisites
 
 ```bash
-# Assicurati di avere httpx installato
+# Make sure you have httpx installed
 pip install httpx
 
-# Oppure installa tutte le dipendenze
+# Or install all dependencies
 pip install -r ../../requirements.txt
 ```
 
-### Avvia il Floor Manager
+### Start the Floor Manager
 
 ```bash
-# Dalla root del progetto
+# From project root
 cd /Users/diego.gosmar/Documents/OFP/FLOOR
 
-# Avvia servizi
+# Start services
 docker-compose up -d
 
-# Verifica che funzioni
+# Verify it works
 curl http://localhost:8000/health
 ```
 
-### Esegui Demo
+### Run Demo
 
 ```bash
-# Test conversazione multi-agente completa
+# Test complete multi-agent conversation
 python examples/agents/demo_agents.py
 
-# Test priorità floor control
+# Test floor control priority
 python examples/agents/demo_agents.py priority
 ```
 
-## 📋 Cosa Fanno gli Script
+## 📋 What the Scripts Do
 
 ### `demo_agents.py`
 
-Script principale che include:
+Main script that includes:
 
-1. **DemoAgent Class**: Classe Python che simula un agente
-   - Registrazione nel registry
-   - Richiesta/rilascio floor
-   - Invio utterance
+1. **DemoAgent Class**: Python class that simulates an agent
+   - Registry registration
+   - Floor request/release
+   - Utterance sending
    - Heartbeat updates
 
 2. **demo_multi_agent_conversation()**: 
-   - Crea 3 agenti (Text, Image, Data)
-   - Testa floor control con priorità
-   - Simula conversazione multi-agente
-   - Mostra invio utterance tra agenti
+   - Creates 3 agents (Text, Image, Data)
+   - Tests floor control with priorities
+   - Simulates multi-agent conversation
+   - Shows utterance sending between agents
 
 3. **demo_floor_priority()**:
-   - Testa comportamento priorità nel floor control
-   - Mostra come agenti con priorità diverse competono per il floor
+   - Tests priority behavior in floor control
+   - Shows how agents with different priorities compete for the floor
 
-## 💡 Come Usare DemoAgent
+## 💡 How to Use DemoAgent
 
 ```python
 from examples.agents.demo_agents import DemoAgent
 import asyncio
 
 async def main():
-    # Crea un agente
+    # Create an agent
     agent = DemoAgent(
         speaker_uri="tag:example.com,2025:my_agent",
         agent_name="My Agent",
@@ -74,20 +74,20 @@ async def main():
     )
     
     try:
-        # Registra
+        # Register
         await agent.register()
         
-        # Richiedi floor
+        # Request floor
         await agent.request_floor("conv_001", priority=5)
         
-        # Invia utterance
+        # Send utterance
         await agent.send_utterance(
             "conv_001",
             target_speaker_uri="tag:example.com,2025:other_agent",
             text="Hello!"
         )
         
-        # Rilascia floor
+        # Release floor
         await agent.release_floor("conv_001")
         
     finally:
@@ -96,44 +96,43 @@ async def main():
 asyncio.run(main())
 ```
 
-## 🎯 Scenari di Test
+## 🎯 Test Scenarios
 
-### Scenario 1: Conversazione Sequenziale
+### Scenario 1: Sequential Conversation
 
 ```bash
 python examples/agents/demo_agents.py
 ```
 
-Testa:
-- ✅ Registrazione multipla agenti
-- ✅ Floor control sequenziale
-- ✅ Coda con priorità
-- ✅ Passaggio floor tra agenti
-- ✅ Invio utterance
+Tests:
+- ✅ Multiple agent registration
+- ✅ Sequential floor control
+- ✅ Priority queue
+- ✅ Floor passing between agents
+- ✅ Utterance sending
 
-### Scenario 2: Test Priorità
+### Scenario 2: Priority Test
 
 ```bash
 python examples/agents/demo_agents.py priority
 ```
 
-Testa:
-- ✅ Agenti con priorità diverse
-- ✅ Comportamento quando un agente con priorità più alta richiede floor
-- ✅ Queue ordering per priorità
+Tests:
+- ✅ Agents with different priorities
+- ✅ Behavior when an agent with higher priority requests floor
+- ✅ Queue ordering by priority
 
-## 🔧 Personalizzazione
+## 🔧 Customization
 
-Puoi modificare `demo_agents.py` per:
+You can modify `demo_agents.py` to:
 
-- Aggiungere più agenti
-- Cambiare priorità
-- Modificare i messaggi
-- Testare scenari specifici
+- Add more agents
+- Change priorities
+- Modify messages
+- Test specific scenarios
 
-## 📚 Riferimenti
+## 📚 References
 
-- **Documentazione Completa**: `../../docs/LAUNCH_AND_TEST.md`
+- **Complete Documentation**: `../../docs/LAUNCH_AND_TEST.md`
 - **API Reference**: http://localhost:8000/docs
 - **BaseAgent**: `../../src/agents/base_agent.py`
-

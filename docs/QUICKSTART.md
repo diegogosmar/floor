@@ -1,56 +1,56 @@
 # Quick Start Guide - Open Floor Protocol
 
-## 🚀 Avvio Rapido in 5 Minuti
+## 🚀 Quick Start in 5 Minutes
 
-### 1. Avvia i Servizi
+### 1. Start Services
 
 ```bash
-# Vai nella directory del progetto
+# Go to project directory
 cd /Users/diego.gosmar/Documents/OFP/FLOOR
 
-# Avvia servizi con Docker Compose
+# Start services with Docker Compose
 docker-compose up -d
 
-# Attendi che i servizi siano pronti (circa 10 secondi)
+# Wait for services to be ready (about 10 seconds)
 sleep 10
 
-# Verifica che siano attivi
+# Verify they are active
 docker-compose ps
 ```
 
-### 2. Verifica che Funzioni
+### 2. Verify It Works
 
 ```bash
 # Health check
 curl http://localhost:8000/health
 
-# Dovresti vedere: {"status":"healthy"}
+# You should see: {"status":"healthy"}
 ```
 
-### 3. Testa con Agenti Demo (Consigliato)
+### 3. Test with Demo Agents (Recommended)
 
-**Opzione A: Script Python Demo**
+**Option A: Python Demo Script**
 ```bash
-# Installa httpx se necessario
+# Install httpx if needed
 pip install httpx
 
-# Test conversazione multi-agente completa
+# Test complete multi-agent conversation
 python examples/agents/demo_agents.py
 
-# Test priorità floor control
+# Test floor control priority
 python examples/agents/demo_agents.py priority
 ```
 
-**Opzione B: Script Bash**
+**Option B: Bash Script**
 ```bash
-# Test workflow completo
+# Complete workflow test
 ./examples/test_workflow.sh
 ```
 
-### 4. Test Manuale Rapido
+### 4. Quick Manual Test
 
 ```bash
-# Registra un agente
+# Register an agent
 curl -X POST http://localhost:8000/api/v1/agents/register \
   -H "Content-Type: application/json" \
   -d '{
@@ -59,7 +59,7 @@ curl -X POST http://localhost:8000/api/v1/agents/register \
     "capabilities": ["text_generation"]
   }'
 
-# Richiedi floor
+# Request floor
 curl -X POST http://localhost:8000/api/v1/floor/request \
   -H "Content-Type: application/json" \
   -d '{
@@ -68,53 +68,52 @@ curl -X POST http://localhost:8000/api/v1/floor/request \
     "priority": 5
   }'
 
-# Verifica floor holder
+# Check floor holder
 curl http://localhost:8000/api/v1/floor/holder/test_conv
 ```
 
-### 5. Esplora l'API
+### 5. Explore the API
 
-Apri nel browser: **http://localhost:8000/docs**
+Open in browser: **http://localhost:8000/docs**
 
-Qui puoi:
-- Vedere tutti gli endpoint disponibili
-- Testare le API direttamente dal browser
-- Leggere la documentazione di ogni endpoint
+Here you can:
+- See all available endpoints
+- Test APIs directly from the browser
+- Read documentation for each endpoint
 
-## 📖 Documentazione Completa
+## 📖 Complete Documentation
 
-Per una guida dettagliata su come lanciare e testare il sistema:
-- **[docs/LAUNCH_AND_TEST.md](LAUNCH_AND_TEST.md)** ⭐ **Guida Completa**
-- [docs/SETUP.md](SETUP.md) - Setup dettagliato
-- [docs/ARCHITECTURE_DETAILED.md](ARCHITECTURE_DETAILED.md) - Architettura
+For a detailed guide on how to launch and test the system:
+- **[docs/LAUNCH_AND_TEST.md](LAUNCH_AND_TEST.md)** ⭐ **Complete Guide**
+- [docs/SETUP.md](SETUP.md) - Detailed setup
+- [docs/ARCHITECTURE_DETAILED.md](ARCHITECTURE_DETAILED.md) - Architecture
 
-## Prossimi Passi
+## Next Steps
 
-1. **Leggi la documentazione completa**: `docs/SETUP.md`
-2. **Esplora i pattern di orchestrazione**: `src/orchestration/`
-3. **Crea il tuo agente**: Vedi `src/agents/example_agent.py`
-4. **Testa con pytest**: `pytest tests/`
+1. **Read complete documentation**: `docs/SETUP.md`
+2. **Explore orchestration patterns**: `src/orchestration/`
+3. **Create your agent**: See `src/agents/example_agent.py`
+4. **Test with pytest**: `pytest tests/`
 
-## Comandi Utili
+## Useful Commands
 
 ```bash
-# Visualizza log
+# View logs
 docker-compose logs -f api
 
-# Riavvia servizi
+# Restart services
 docker-compose restart
 
-# Ferma servizi
+# Stop services
 docker-compose down
 
-# Pulisci tutto (ATTENZIONE: cancella dati)
+# Clean everything (WARNING: deletes data)
 docker-compose down -v
 ```
 
-## Supporto
+## Support
 
-- **Documentazione**: `docs/`
+- **Documentation**: `docs/`
 - **Swagger UI**: http://localhost:8000/docs
-- **Architettura**: `docs/architecture.md`
+- **Architecture**: `docs/architecture.md`
 - **API Reference**: `docs/api.md`
-

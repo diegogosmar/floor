@@ -50,3 +50,8 @@ isort==5.12.0
 types-redis==4.6.0.11
 types-requests==2.31.0.10
 
+# LLM Providers (optional - install only what you need)
+openai>=1.0.0  # For OpenAI GPT models
+anthropic>=0.18.0  # For Anthropic Claude models
+# ollama  # Install separately: pip install ollama (or use HTTP API)
+

@@ -1,117 +1,117 @@
-# 🚀 Come Lanciare il Floor Manager e Testarlo con Agenti di Esempio
+# 🚀 How to Launch the Floor Manager and Test It with Example Agents
 
-Questa guida ti mostra passo-passo come avviare il sistema Open Floor Protocol e testarlo con agenti di esempio.
+This guide shows you step-by-step how to start the Open Floor Protocol system and test it with example agents.
 
-## 📋 Indice
+## 📋 Table of Contents
 
-1. [Prerequisiti](#prerequisiti)
-2. [Avvio del Sistema](#avvio-del-sistema)
-3. [Test con Agenti Demo](#test-con-agenti-demo)
-4. [Test Manuale con curl](#test-manuale-con-curl)
-5. [Test con Script Python](#test-con-script-python)
-6. [Scenari di Test](#scenari-di-test)
+1. [Prerequisites](#prerequisites)
+2. [System Startup](#system-startup)
+3. [Testing with Demo Agents](#testing-with-demo-agents)
+4. [Manual Testing with curl](#manual-testing-with-curl)
+5. [Testing with Python Scripts](#testing-with-python-scripts)
+6. [Test Scenarios](#test-scenarios)
 
-## Prerequisiti
+## Prerequisites
 
 ```bash
-# Verifica Python 3.11+
+# Verify Python 3.11+
 python --version
 
-# Verifica Docker
+# Verify Docker
 docker --version
 docker-compose --version
 
-# Installa httpx se vuoi usare gli script Python
+# Install httpx if you want to use Python scripts
 pip install httpx
 ```
 
-## Avvio del Sistema
+## System Startup
 
-### Step 1: Avvia i Servizi
+### Step 1: Start Services
 
 ```bash
-# Vai nella directory del progetto
+# Go to project directory
 cd /Users/diego.gosmar/Documents/OFP/FLOOR
 
-# Avvia tutti i servizi (PostgreSQL, Redis, API)
+# Start all services (PostgreSQL, Redis, API)
 docker-compose up -d
 
-# Attendi qualche secondo che i servizi siano pronti
+# Wait a few seconds for services to be ready
 sleep 5
 
-# Verifica che siano attivi
+# Verify they are active
 docker-compose ps
 ```
 
-Dovresti vedere 3 servizi attivi:
+You should see 3 active services:
 - `ofp_postgres` (PostgreSQL)
 - `ofp_redis` (Redis)
 - `ofp_api` (FastAPI)
 
-### Step 2: Verifica che Funzioni
+### Step 2: Verify It Works
 
 ```bash
 # Health check
 curl http://localhost:8000/health
 
-# Risposta attesa: {"status":"healthy"}
+# Expected response: {"status":"healthy"}
 ```
 
-### Step 3: Apri Swagger UI (Opzionale ma Consigliato)
+### Step 3: Open Swagger UI (Optional but Recommended)
 
-Apri nel browser: **http://localhost:8000/docs**
+Open in browser: **http://localhost:8000/docs**
 
-Qui puoi vedere tutti gli endpoint disponibili e testarli direttamente.
+Here you can see all available endpoints and test them directly.
 
-## Test con Agenti Demo
+## Testing with Demo Agents
 
-### Opzione 1: Script Python Demo (Consigliato)
+### Option 1: Python Demo Script (Recommended)
 
-Abbiamo creato script Python che simulano agenti che interagiscono con il Floor Manager:
+We've created Python scripts that simulate agents interacting with the Floor Manager:
 
 ```bash
-# Test conversazione multi-agente completa
+# Test complete multi-agent conversation
 python examples/agents/demo_agents.py
 
-# Test priorità floor control
+# Test floor control priority
 python examples/agents/demo_agents.py priority
 ```
 
-Lo script:
-1. ✅ Crea 3 agenti demo (Text, Image, Data)
-2. ✅ Li registra nel registry
-3. ✅ Testa floor control con priorità
-4. ✅ Simula conversazione multi-agente
-5. ✅ Mostra invio utterance tra agenti
+The script:
+1. ✅ Creates 3 demo agents (Text, Image, Data)
+2. ✅ Registers them in the registry
+3. ✅ Tests floor control with priorities
+4. ✅ Simulates multi-agent conversation
+5. ✅ Shows utterance sending between agents
 
-**Output esempio**:
+**Example output**:
 ```
 ============================================================
-DEMO: Conversazione Multi-Agente con Floor Control
+DEMO: Multi-Agent Conversation with Floor Control
 ============================================================
 
-📝 Registrazione agenti...
-✅ Text Agent registrato con successo
-✅ Image Agent registrato con successo
-✅ Data Agent registrato con successo
+📝 Registering agents...
+✅ Text Agent registered successfully
+✅ Image Agent registered successfully
+✅ Data Agent registered successfully
 
-🎤 Test Floor Control:
+🎤 Floor Control Test:
 ------------------------------------------------------------
 
-1. Text Agent richiede floor (priority 5)...
-🎤 Text Agent ha ottenuto il floor
+1. Text Agent requests floor (priority 5)...
+🎤 Text Agent obtained the floor
    Floor holder: tag:demo.com,2025:text_agent
 
-2. Image Agent richiede floor (priority 3)...
-⏳ Image Agent è in coda per il floor
+2. Image Agent requests floor (priority 3)...
+⏳ Image Agent is queued for the floor
    Floor holder: tag:demo.com,2025:text_agent
 
 ...
 ```
 
-### Opzione 2: Test Manuale con curl
+### Option 2: Manual Testing with curl
 
-#### 1. Registra Agenti di Esempio
+#### 1. Register Example Agents
 
 ```bash
 # Agent 1: Text Generation Agent
@@ -148,23 +148,23 @@ curl -X POST http://localhost:8000/api/v1/agents/register \
   }'
 ```
 
-#### 2. Verifica Agenti Registrati
+#### 2. Verify Registered Agents
 
 ```bash
-# Lista tutti gli agenti
+# List all agents
 curl http://localhost:8000/api/v1/agents/ | jq
 
-# Trova agenti per capability
+# Find agents by capability
 curl http://localhost:8000/api/v1/agents/capability/text_generation | jq
 ```
 
 #### 3. Test Floor Control
 
 ```bash
-# Definisci conversation ID
+# Define conversation ID
 CONV_ID="conv_test_$(date +%s)"
 
-# Agent 1 richiede floor (priority 5)
+# Agent 1 requests floor (priority 5)
 curl -X POST http://localhost:8000/api/v1/floor/request \
   -H "Content-Type: application/json" \
   -d "{
@@ -173,10 +173,10 @@ curl -X POST http://localhost:8000/api/v1/floor/request \
     \"priority\": 5
   }" | jq
 
-# Verifica chi ha il floor
+# Check who has the floor
 curl http://localhost:8000/api/v1/floor/holder/$CONV_ID | jq
 
-# Agent 2 richiede floor (priority 3 - sarà in coda)
+# Agent 2 requests floor (priority 3 - will be queued)
 curl -X POST http://localhost:8000/api/v1/floor/request \
   -H "Content-Type: application/json" \
   -d "{
@@ -185,17 +185,17 @@ curl -X POST http://localhost:8000/api/v1/floor/request \
     \"priority\": 3
   }" | jq
 
-# Agent 1 invia utterance ad Agent 2
+# Agent 1 sends utterance to Agent 2
 curl -X POST http://localhost:8000/api/v1/envelopes/utterance \
   -H "Content-Type: application/json" \
   -d "{
     \"conversation_id\": \"$CONV_ID\",
     \"sender_speakerUri\": \"tag:example.com,2025:text_agent\",
     \"target_speakerUri\": \"tag:example.com,2025:image_agent\",
-    \"text\": \"Ciao ImageBot, puoi generare un'immagine di un tramonto?\"
+    \"text\": \"Hello ImageBot, can you generate an image of a sunset?\"
   }" | jq
 
-# Agent 1 rilascia floor
+# Agent 1 releases floor
 curl -X POST http://localhost:8000/api/v1/floor/release \
   -H "Content-Type: application/json" \
   -d "{
@@ -203,20 +203,20 @@ curl -X POST http://localhost:8000/api/v1/floor/release \
     \"speakerUri\": \"tag:example.com,2025:text_agent\"
   }" | jq
 
-# Verifica nuovo floor holder (dovrebbe essere Agent 2)
+# Check new floor holder (should be Agent 2)
 curl http://localhost:8000/api/v1/floor/holder/$CONV_ID | jq
 ```
 
-## Test con Script Python
+## Testing with Python Scripts
 
-### Script Demo Completo
+### Complete Demo Script
 
-Crea un file `test_floor_demo.py`:
+Create a file `test_floor_demo.py`:
 
 ```python
 #!/usr/bin/env python3
 """
-Test completo del Floor Manager con agenti demo
+Complete test of Floor Manager with demo agents
 """
 
 import asyncio
@@ -224,10 +224,10 @@ from examples.agents.demo_agents import DemoAgent
 from datetime import datetime
 
 async def main():
-    print("🚀 Test Floor Manager con Agenti Demo")
+    print("🚀 Test Floor Manager with Demo Agents")
     print("=" * 60)
     
-    # Crea agenti
+    # Create agents
     text = DemoAgent(
         "tag:test.com,2025:text",
         "Text Agent",
@@ -243,7 +243,7 @@ async def main():
     conv_id = f"conv_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
     
     try:
-        # Registra
+        # Register
         await text.register()
         await image.register()
         
@@ -251,13 +251,13 @@ async def main():
         await text.request_floor(conv_id, priority=5)
         await image.request_floor(conv_id, priority=3)
         
-        # Invia utterance
+        # Send utterance
         await text.send_utterance(conv_id, image.speaker_uri, "Hello!")
         
         # Release
         await text.release_floor(conv_id)
         
-        print("\n✅ Test completato!")
+        print("\n✅ Test completed!")
         
     finally:
         await text.close()
@@ -267,140 +267,139 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-Esegui:
+Run:
 ```bash
 python test_floor_demo.py
 ```
 
-## Scenari di Test
+## Test Scenarios
 
-### Scenario 1: Conversazione Sequenziale
+### Scenario 1: Sequential Conversation
 
-**Obiettivo**: Testare che gli agenti prendano il floor in sequenza.
+**Goal**: Test that agents take the floor sequentially.
 
 ```bash
-# Usa lo script demo
+# Use the demo script
 python examples/agents/demo_agents.py
 ```
 
-**Cosa testa**:
-- Registrazione agenti
-- Richiesta floor sequenziale
-- Coda floor con priorità
-- Release floor e passaggio al prossimo
+**What it tests**:
+- Agent registration
+- Sequential floor requests
+- Floor queue with priorities
+- Floor release and passing to next
 
-### Scenario 2: Priorità Floor
+### Scenario 2: Floor Priority
 
-**Obiettivo**: Verificare che le priorità funzionino correttamente.
+**Goal**: Verify that priorities work correctly.
 
 ```bash
 python examples/agents/demo_agents.py priority
 ```
 
-**Cosa testa**:
-- Agenti con priorità diverse
-- Comportamento quando un agente con priorità più alta richiede floor
+**What it tests**:
+- Agents with different priorities
+- Behavior when an agent with higher priority requests floor
 
 ### Scenario 3: Multi-Party Conversation
 
-**Obiettivo**: Testare conversazione con 3+ agenti simultanei.
+**Goal**: Test conversation with 3+ simultaneous agents.
 
 ```bash
-# Esegui test workflow completo
+# Run complete workflow test
 ./examples/test_workflow.sh
 ```
 
-**Cosa testa**:
-- Registrazione multipla agenti
-- Floor control multi-party
-- Invio utterance tra più agenti
-- Discovery per capability
+**What it tests**:
+- Multiple agent registration
+- Multi-party floor control
+- Utterance sending between multiple agents
+- Capability discovery
 
-## Verifica Funzionamento
+## Verify Functionality
 
 ### Check Logs
 
 ```bash
-# Logs in tempo reale
+# Real-time logs
 docker-compose logs -f api
 
-# Cerca errori
+# Search for errors
 docker-compose logs api | grep -i error
 ```
 
 ### Check Status
 
 ```bash
-# Status servizi
+# Service status
 docker-compose ps
 
 # Health check
 curl http://localhost:8000/health
 
-# Lista agenti
+# List agents
 curl http://localhost:8000/api/v1/agents/ | jq
 ```
 
 ### Check Floor State
 
 ```bash
-# Per ogni conversation_id, verifica floor holder
+# For each conversation_id, check floor holder
 CONV_ID="conv_test_001"
 curl http://localhost:8000/api/v1/floor/holder/$CONV_ID | jq
 ```
 
 ## Troubleshooting
 
-### Problema: Script Python non trova moduli
+### Problem: Python Script Cannot Find Modules
 
 ```bash
-# Assicurati di essere nella directory root del progetto
+# Make sure you're in the project root directory
 cd /Users/diego.gosmar/Documents/OFP/FLOOR
 
-# Installa dipendenze
+# Install dependencies
 pip install httpx
 
-# Esegui con PYTHONPATH
+# Run with PYTHONPATH
 PYTHONPATH=. python examples/agents/demo_agents.py
 ```
 
-### Problema: Agenti non si registrano
+### Problem: Agents Don't Register
 
 ```bash
-# Verifica che l'API sia attiva
+# Verify API is active
 curl http://localhost:8000/health
 
-# Controlla log
+# Check logs
 docker-compose logs api | tail -20
 
-# Verifica formato speakerUri (deve essere URI valido)
-# Esempio corretto: "tag:example.com,2025:agent_1"
+# Verify speakerUri format (must be valid URI)
+# Correct example: "tag:example.com,2025:agent_1"
 ```
 
-### Problema: Floor non viene concesso
+### Problem: Floor Not Granted
 
 ```bash
-# Verifica che l'agente sia registrato
+# Verify agent is registered
 curl http://localhost:8000/api/v1/agents/ | jq
 
-# Controlla floor holder
+# Check floor holder
 curl http://localhost:8000/api/v1/floor/holder/CONV_ID | jq
 
-# Verifica log floor manager
+# Verify floor manager logs
 docker-compose logs api | grep -i floor
 ```
 
-## Prossimi Passi
+## Next Steps
 
-1. **Esplora Swagger UI**: http://localhost:8000/docs
-2. **Modifica agenti demo**: Vedi `examples/agents/demo_agents.py`
-3. **Crea il tuo agente**: Estendi `DemoAgent` o `BaseAgent`
-4. **Testa pattern orchestrazione**: Vedi `src/orchestration/`
+1. **Explore Swagger UI**: http://localhost:8000/docs
+2. **Modify demo agents**: See `examples/agents/demo_agents.py`
+3. **Create your agent**: Extend `DemoAgent` or `BaseAgent`
+4. **Test orchestration patterns**: See `src/orchestration/`
 
-## Riferimenti
+## References
 
-- **Setup Completo**: `docs/SETUP.md`
-- **Architettura**: `docs/ARCHITECTURE_DETAILED.md`
+- **Complete Setup**: `docs/SETUP.md`
+- **Architecture**: `docs/ARCHITECTURE_DETAILED.md`
 - **API Reference**: http://localhost:8000/docs
 - **Quick Start**: `docs/QUICKSTART.md`
-

@@ -125,7 +125,7 @@ class ExampleAgent(BaseAgent):
         );
 
         response_envelope = OpenFloorEnvelope(
-            schema=SchemaObject(version="1.0.0"),
+            schema_obj=SchemaObject(version="1.0.0"),
             conversation=ConversationObject(id=envelope.conversation.id),
             sender=SenderObject(
                 speakerUri=self.speakerUri,

@@ -5,17 +5,29 @@ FastAPI application entry point for Open Floor Protocol
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import structlog
+import logging
 
 from src.config import settings
 from src.api import floor_router, envelope_router, registry_router
+
+# Convert LOG_LEVEL string to logging level
+LOG_LEVEL_MAP = {
+    "DEBUG": logging.DEBUG,
+    "INFO": logging.INFO,
+    "WARNING": logging.WARNING,
+    "ERROR": logging.ERROR,
+    "CRITICAL": logging.CRITICAL,
+}
+log_level = LOG_LEVEL_MAP.get(settings.LOG_LEVEL.upper(), logging.INFO)
 
 # Configure structured logging
 structlog.configure(
     processors=[
         structlog.processors.TimeStamper(fmt="iso"),
+        structlog.processors.add_log_level,
         structlog.processors.JSONRenderer()
     ],
-    wrapper_class=structlog.make_filtering_bound_logger(settings.LOG_LEVEL),
+    wrapper_class=structlog.make_filtering_bound_logger(log_level),
     context_class=dict,
     logger_factory=structlog.PrintLoggerFactory(),
     cache_logger_on_first_use=False,

@@ -162,7 +162,7 @@ class EnvelopeRouter:
         );
 
         return OpenFloorEnvelope(
-            schema=schema,
+            schema_obj=schema,
             conversation=conversation,
             sender=sender,
             events=events or []
