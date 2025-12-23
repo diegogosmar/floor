@@ -1,5 +1,5 @@
 """
-Base Agent - Base class for OFP agents
+Base Agent - Base class for OFP 1.0.0 agents
 """
 
 from abc import ABC, abstractmethod
@@ -7,39 +7,40 @@ from typing import Optional, Dict, Any
 import structlog
 
 from src.agent_registry.capabilities import AgentCapabilities, CapabilityType
-from src.envelope_router.envelope import ConversationEnvelope, EnvelopeType
+from src.envelope_router.envelope import OpenFloorEnvelope, EventType, EventObject
 
 logger = structlog.get_logger()
 
 
 class BaseAgent(ABC):
     """
-    Base class for Open Floor Protocol agents
+    Base class for Open Floor Protocol 1.0.0 agents
+    Uses speakerUri and serviceUrl per OFP 1.0.0 specification
     """
 
     def __init__(
         self,
-        agent_id: str,
+        speakerUri: str,
         agent_name: str,
+        serviceUrl: Optional[str] = None,
         agent_version: str = "1.0.0",
-        capabilities: Optional[list[CapabilityType]] = None,
-        endpoint_url: Optional[str] = None
+        capabilities: Optional[list[CapabilityType]] = None
     ) -> None:
         """
         Initialize base agent
 
         Args:
-            agent_id: Unique agent identifier
+            speakerUri: Unique URI identifying the agent (per OFP 1.0.0)
             agent_name: Human-readable agent name
+            serviceUrl: Optional service URL
             agent_version: Agent version
             capabilities: List of agent capabilities
-            endpoint_url: Agent endpoint URL
         """
-        self.agent_id = agent_id;
+        self.speakerUri = speakerUri;
+        self.serviceUrl = serviceUrl;
         self.agent_name = agent_name;
         self.agent_version = agent_version;
         self.capabilities_list = capabilities or [];
-        self.endpoint_url = endpoint_url;
 
     def get_capabilities(self) -> AgentCapabilities:
         """
@@ -49,23 +50,23 @@ class BaseAgent(ABC):
             Agent capabilities object
         """
         return AgentCapabilities(
-            agent_id=self.agent_id,
+            speakerUri=self.speakerUri,
+            serviceUrl=self.serviceUrl,
             agent_name=self.agent_name,
             agent_version=self.agent_version,
-            capabilities=self.capabilities_list,
-            endpoint_url=self.endpoint_url
+            capabilities=self.capabilities_list
         );
 
     @abstractmethod
     async def handle_envelope(
         self,
-        envelope: ConversationEnvelope
-    ) -> Optional[ConversationEnvelope]:
+        envelope: OpenFloorEnvelope
+    ) -> Optional[OpenFloorEnvelope]:
         """
         Handle incoming conversation envelope
 
         Args:
-            envelope: Conversation envelope to handle
+            envelope: Open Floor envelope to handle
 
         Returns:
             Response envelope or None
@@ -73,54 +74,29 @@ class BaseAgent(ABC):
         pass
 
     @abstractmethod
-    async def process_message(
+    async def process_utterance(
         self,
         conversation_id: str,
-        message: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        utterance_text: str,
+        sender_speakerUri: str
+    ) -> Optional[str]:
         """
-        Process a message
+        Process an utterance
 
         Args:
             conversation_id: Conversation identifier
-            message: Message payload
+            utterance_text: Text of the utterance
+            sender_speakerUri: Speaker URI of the sender
 
         Returns:
-            Response payload
+            Response text or None
         """
         pass
 
-    async def send_message(
-        self,
-        conversation_id: str,
-        to_agent: str,
-        payload: Dict[str, Any]
-    ) -> ConversationEnvelope:
-        """
-        Send message to another agent
-
-        Args:
-            conversation_id: Conversation identifier
-            to_agent: Target agent ID
-            payload: Message payload
-
-        Returns:
-            Sent envelope
-        """
-        logger.info(
-            "Sending message",
-            from_agent=self.agent_id,
-            to_agent=to_agent,
-            conversation_id=conversation_id
-        );
-        # This would be implemented by the router integration
-        raise NotImplementedError("Router integration required")
-
     async def start(self) -> None:
         """Start agent"""
-        logger.info("Agent started", agent_id=self.agent_id);
+        logger.info("Agent started", speakerUri=self.speakerUri);
 
     async def stop(self) -> None:
         """Stop agent"""
-        logger.info("Agent stopped", agent_id=self.agent_id);
-
+        logger.info("Agent stopped", speakerUri=self.speakerUri);

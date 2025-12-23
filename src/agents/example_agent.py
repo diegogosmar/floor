@@ -1,101 +1,166 @@
 """
-Example Agent - Example implementation of BaseAgent
+Example Agent - Example implementation of BaseAgent per OFP 1.0.0
 """
 
-from typing import Optional, Dict, Any
+from typing import Optional
 import structlog
 
 from src.agents.base_agent import BaseAgent
 from src.agent_registry.capabilities import CapabilityType
-from src.envelope_router.envelope import ConversationEnvelope, EnvelopeType
+from src.envelope_router.envelope import (
+    OpenFloorEnvelope,
+    EventType,
+    EventObject,
+    ToObject
+)
 
 logger = structlog.get_logger()
 
 
 class ExampleAgent(BaseAgent):
     """
-    Example agent implementation
+    Example agent implementation per OFP 1.0.0
     """
 
     def __init__(
         self,
-        agent_id: str = "example_agent",
+        speakerUri: str = "tag:example.com,2025:example_agent",
         agent_name: str = "Example Agent",
+        serviceUrl: Optional[str] = None,
         agent_version: str = "1.0.0"
     ) -> None:
         """Initialize example agent"""
         super().__init__(
-            agent_id=agent_id,
+            speakerUri=speakerUri,
             agent_name=agent_name,
+            serviceUrl=serviceUrl,
             agent_version=agent_version,
             capabilities=[CapabilityType.TEXT_GENERATION]
         );
 
     async def handle_envelope(
         self,
-        envelope: ConversationEnvelope
-    ) -> Optional[ConversationEnvelope]:
+        envelope: OpenFloorEnvelope
+    ) -> Optional[OpenFloorEnvelope]:
         """
         Handle incoming conversation envelope
 
         Args:
-            envelope: Conversation envelope to handle
+            envelope: Open Floor envelope to handle
 
         Returns:
             Response envelope or None
         """
-        logger.info(
-            "Handling envelope",
-            agent_id=self.agent_id,
-            envelope_id=envelope.envelope_id,
-            envelope_type=envelope.envelope_type
+        # Get events intended for this agent
+        events_for_me = envelope.get_events_for_agent(
+            self.speakerUri,
+            self.serviceUrl
         );
 
-        if envelope.envelope_type == EnvelopeType.MESSAGE:
-            response_payload = await self.process_message(
-                envelope.conversation_id,
-                envelope.payload
-            );
+        if not events_for_me:
+            return None;
 
-            return ConversationEnvelope(
-                envelope_id=f"response_{envelope.envelope_id}",
-                conversation_id=envelope.conversation_id,
-                envelope_type=EnvelopeType.MESSAGE,
-                from_agent=self.agent_id,
-                to_agent=envelope.from_agent,
-                payload=response_payload
-            );
+        logger.info(
+            "Handling envelope",
+            speakerUri=self.speakerUri,
+            conversation_id=envelope.conversation.id,
+            event_count=len(events_for_me)
+        );
 
-        return None
+        response_events = [];
 
-    async def process_message(
+        for event in events_for_me:
+            if event.eventType == EventType.UTTERANCE:
+                # Extract utterance text from parameters
+                utterance_text = "";
+                if (
+                    event.parameters
+                    and "dialogEvent" in event.parameters
+                    and "features" in event.parameters["dialogEvent"]
+                    and "text" in event.parameters["dialogEvent"]["features"]
+                    and "tokens" in event.parameters["dialogEvent"]["features"]["text"]
+                ):
+                    tokens = event.parameters["dialogEvent"]["features"]["text"]["tokens"];
+                    utterance_text = " ".join(
+                        token.get("token", "") for token in tokens
+                    );
+
+                # Process utterance
+                response_text = await self.process_utterance(
+                    envelope.conversation.id,
+                    utterance_text,
+                    envelope.sender.speakerUri
+                );
+
+                if response_text:
+                    # Create response utterance event
+                    response_event = EventObject(
+                        to=ToObject(
+                            speakerUri=envelope.sender.speakerUri,
+                            serviceUrl=envelope.sender.serviceUrl
+                        ),
+                        eventType=EventType.UTTERANCE,
+                        parameters={
+                            "dialogEvent": {
+                                "speakerUri": self.speakerUri,
+                                "features": {
+                                    "text": {
+                                        "mimeType": "text/plain",
+                                        "tokens": [{"token": response_text}]
+                                    }
+                                }
+                            }
+                        }
+                    );
+                    response_events.append(response_event);
+
+        if not response_events:
+            return None;
+
+        # Create response envelope
+        from src.envelope_router.envelope import (
+            SchemaObject,
+            ConversationObject,
+            SenderObject
+        );
+
+        response_envelope = OpenFloorEnvelope(
+            schema=SchemaObject(version="1.0.0"),
+            conversation=ConversationObject(id=envelope.conversation.id),
+            sender=SenderObject(
+                speakerUri=self.speakerUri,
+                serviceUrl=self.serviceUrl
+            ),
+            events=response_events
+        );
+
+        return response_envelope
+
+    async def process_utterance(
         self,
         conversation_id: str,
-        message: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        utterance_text: str,
+        sender_speakerUri: str
+    ) -> Optional[str]:
         """
-        Process a message
+        Process an utterance
 
         Args:
             conversation_id: Conversation identifier
-            message: Message payload
+            utterance_text: Text of the utterance
+            sender_speakerUri: Speaker URI of the sender
 
         Returns:
-            Response payload
+            Response text or None
         """
         logger.info(
-            "Processing message",
-            agent_id=self.agent_id,
-            conversation_id=conversation_id
+            "Processing utterance",
+            speakerUri=self.speakerUri,
+            conversation_id=conversation_id,
+            utterance_text=utterance_text[:50]  # Log first 50 chars
         );
 
-        # Example processing logic
-        response = {
-            "status": "processed",
-            "agent_id": self.agent_id,
-            "original_message": message,
-            "response": f"Echo: {message.get('content', '')}"
-        };
+        # Example processing logic - echo the utterance
+        response = f"Echo: {utterance_text}";
 
         return response
-

@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import structlog
 
 from src.config import settings
+from src.api import floor_router, envelope_router, registry_router
 
 # Configure structured logging
 structlog.configure(
@@ -38,6 +39,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include API routers
+app.include_router(floor_router)
+app.include_router(envelope_router)
+app.include_router(registry_router)
 
 
 @app.on_event("startup")

@@ -36,15 +36,15 @@ class FloorControl:
     async def request_floor(
         self,
         conversation_id: str,
-        agent_id: str,
+        speakerUri: str,
         priority: int = 0
     ) -> bool:
         """
-        Request floor for a conversation
+        Request floor for a conversation per OFP 1.0.0
 
         Args:
             conversation_id: Unique conversation identifier
-            agent_id: Agent requesting the floor
+            speakerUri: Speaker URI requesting the floor
             priority: Request priority (higher = more priority)
 
         Returns:
@@ -53,13 +53,13 @@ class FloorControl:
         logger.info(
             "Floor request",
             conversation_id=conversation_id,
-            agent_id=agent_id,
+            speakerUri=speakerUri,
             priority=priority
         )
 
         # Check if floor is available
         if conversation_id not in self._floor_holders:
-            await self._grant_floor(conversation_id, agent_id);
+            await self._grant_floor(conversation_id, speakerUri);
             return True
 
         # Add to request queue
@@ -67,7 +67,7 @@ class FloorControl:
             self._floor_requests[conversation_id] = []
 
         request = {
-            "agent_id": agent_id,
+            "speakerUri": speakerUri,
             "priority": priority,
             "timestamp": datetime.utcnow()
         }
@@ -78,13 +78,13 @@ class FloorControl:
 
         return False
 
-    async def release_floor(self, conversation_id: str, agent_id: str) -> bool:
+    async def release_floor(self, conversation_id: str, speakerUri: str) -> bool:
         """
-        Release floor for a conversation
+        Release floor for a conversation (yieldFloor per OFP 1.0.0)
 
         Args:
             conversation_id: Unique conversation identifier
-            agent_id: Agent releasing the floor
+            speakerUri: Speaker URI releasing the floor
 
         Returns:
             True if floor was released, False if agent didn't hold floor
@@ -92,14 +92,14 @@ class FloorControl:
         logger.info(
             "Floor release",
             conversation_id=conversation_id,
-            agent_id=agent_id
+            speakerUri=speakerUri
         )
 
         if conversation_id not in self._floor_holders:
             return False
 
         holder = self._floor_holders[conversation_id];
-        if holder["agent_id"] != agent_id:
+        if holder["speakerUri"] != speakerUri:
             return False
 
         del self._floor_holders[conversation_id];
@@ -117,7 +117,7 @@ class FloorControl:
             conversation_id: Unique conversation identifier
 
         Returns:
-            Agent ID holding the floor, or None
+            Speaker URI holding the floor, or None
         """
         if conversation_id not in self._floor_holders:
             return None
@@ -130,29 +130,29 @@ class FloorControl:
             await self._revoke_floor(conversation_id);
             return None
 
-        return holder["agent_id"]
+        return holder["speakerUri"]
 
-    async def _grant_floor(self, conversation_id: str, agent_id: str) -> None:
-        """Grant floor to an agent"""
+    async def _grant_floor(self, conversation_id: str, speakerUri: str) -> None:
+        """Grant floor to an agent per OFP 1.0.0 grantFloor event"""
         self._floor_holders[conversation_id] = {
-            "agent_id": agent_id,
+            "speakerUri": speakerUri,
             "granted_at": datetime.utcnow()
         };
         logger.info(
             "Floor granted",
             conversation_id=conversation_id,
-            agent_id=agent_id
+            speakerUri=speakerUri
         );
 
     async def _revoke_floor(self, conversation_id: str) -> None:
-        """Revoke floor due to timeout"""
+        """Revoke floor due to timeout per OFP 1.0.0 revokeFloor event"""
         if conversation_id in self._floor_holders:
-            agent_id = self._floor_holders[conversation_id]["agent_id"];
+            speakerUri = self._floor_holders[conversation_id]["speakerUri"];
             del self._floor_holders[conversation_id];
             logger.warning(
                 "Floor revoked due to timeout",
                 conversation_id=conversation_id,
-                agent_id=agent_id
+                speakerUri=speakerUri
             );
             await self._process_queue(conversation_id);
 
@@ -165,7 +165,7 @@ class FloorControl:
             return
 
         next_request = self._floor_requests[conversation_id].pop(0);
-        await self._grant_floor(conversation_id, next_request["agent_id"]);
+        await self._grant_floor(conversation_id, next_request["speakerUri"]);
 
         if not self._floor_requests[conversation_id]:
             del self._floor_requests[conversation_id];

@@ -1,11 +1,18 @@
 """
-Tests for Agents
+Tests for Agents per OFP 1.0.0
 """
 
 import pytest
-from src.agents.base_agent import BaseAgent
 from src.agents.example_agent import ExampleAgent
-from src.envelope_router.envelope import ConversationEnvelope, EnvelopeType
+from src.envelope_router.envelope import (
+    OpenFloorEnvelope,
+    EventType,
+    EventObject,
+    SchemaObject,
+    ConversationObject,
+    SenderObject,
+    ToObject
+)
 from src.agent_registry.capabilities import CapabilityType
 
 
@@ -13,11 +20,11 @@ from src.agent_registry.capabilities import CapabilityType
 async def test_example_agent_initialization() -> None:
     """Test example agent initialization"""
     agent = ExampleAgent(
-        agent_id="test_agent",
+        speakerUri="tag:test.com,2025:test_agent",
         agent_name="Test Agent"
     );
 
-    assert agent.agent_id == "test_agent";
+    assert agent.speakerUri == "tag:test.com,2025:test_agent";
     assert agent.agent_name == "Test Agent";
     assert CapabilityType.TEXT_GENERATION in agent.capabilities_list
 
@@ -28,40 +35,56 @@ async def test_example_agent_capabilities() -> None:
     agent = ExampleAgent();
     capabilities = agent.get_capabilities();
 
-    assert capabilities.agent_id == agent.agent_id;
+    assert capabilities.speakerUri == agent.speakerUri;
     assert capabilities.agent_name == agent.agent_name;
     assert len(capabilities.capabilities) > 0
 
 
 @pytest.mark.asyncio
-async def test_example_agent_process_message() -> None:
-    """Test example agent message processing"""
+async def test_example_agent_process_utterance() -> None:
+    """Test example agent utterance processing"""
     agent = ExampleAgent();
 
-    message = {"content": "Hello, world!"};
-    response = await agent.process_message("conv_1", message);
+    response = await agent.process_utterance(
+        "conv_1",
+        "Hello, world!",
+        "tag:test.com,2025:sender"
+    );
 
-    assert response["status"] == "processed";
-    assert response["agent_id"] == agent.agent_id;
-    assert "Hello, world!" in response["response"]
+    assert response is not None;
+    assert "Hello, world!" in response
 
 
 @pytest.mark.asyncio
 async def test_example_agent_handle_envelope() -> None:
     """Test example agent envelope handling"""
     agent = ExampleAgent();
+    sender_speakerUri = "tag:test.com,2025:sender";
 
-    envelope = ConversationEnvelope(
-        envelope_id="test_1",
-        conversation_id="conv_1",
-        envelope_type=EnvelopeType.MESSAGE,
-        from_agent="agent_0",
-        to_agent=agent.agent_id,
-        payload={"content": "test message"}
+    envelope = OpenFloorEnvelope(
+        schema=SchemaObject(version="1.0.0"),
+        conversation=ConversationObject(id="conv_1"),
+        sender=SenderObject(speakerUri=sender_speakerUri),
+        events=[
+            EventObject(
+                to=ToObject(speakerUri=agent.speakerUri),
+                eventType=EventType.UTTERANCE,
+                parameters={
+                    "dialogEvent": {
+                        "speakerUri": sender_speakerUri,
+                        "features": {
+                            "text": {
+                                "mimeType": "text/plain",
+                                "tokens": [{"token": "test message"}]
+                            }
+                        }
+                    }
+                }
+            )
+        ]
     );
 
     response = await agent.handle_envelope(envelope);
     assert response is not None;
-    assert response.to_agent == "agent_0";
-    assert response.from_agent == agent.agent_id
-
+    assert len(response.events) > 0;
+    assert response.sender.speakerUri == agent.speakerUri

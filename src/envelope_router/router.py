@@ -1,14 +1,22 @@
 """
-Envelope Router - Routes conversation envelopes between agents
+Envelope Router - Routes conversation envelopes between agents per OFP 1.0.0
 """
 
-from typing import Optional, Dict, Callable
+from typing import Optional, Dict, Callable, List
 import asyncio
 import structlog
 from uuid import uuid4
 
 from src.config import settings
-from src.envelope_router.envelope import ConversationEnvelope, EnvelopeType
+from src.envelope_router.envelope import (
+    OpenFloorEnvelope,
+    EventType,
+    EventObject,
+    SchemaObject,
+    ConversationObject,
+    SenderObject,
+    ToObject
+)
 
 logger = structlog.get_logger()
 
@@ -21,6 +29,7 @@ class EnvelopeRouter:
 
     def __init__(self) -> None:
         """Initialize envelope router"""
+        # Routes indexed by speakerUri
         self._routes: Dict[str, Callable] = {};
         self._queue: asyncio.Queue = asyncio.Queue(
             maxsize=settings.ROUTER_QUEUE_SIZE
@@ -31,165 +40,192 @@ class EnvelopeRouter:
 
     async def register_route(
         self,
-        agent_id: str,
-        handler: Callable[[ConversationEnvelope], None]
+        speakerUri: str,
+        handler: Callable[[OpenFloorEnvelope], None]
     ) -> None:
         """
         Register routing handler for an agent
 
         Args:
-            agent_id: Agent identifier
+            speakerUri: Agent speaker URI
             handler: Async handler function for envelopes
         """
-        self._routes[agent_id] = handler;
-        logger.info("Route registered", agent_id=agent_id);
+        self._routes[speakerUri] = handler;
+        logger.info("Route registered", speakerUri=speakerUri);
 
-    async def unregister_route(self, agent_id: str) -> None:
+    async def unregister_route(self, speakerUri: str) -> None:
         """
         Unregister routing handler for an agent
 
         Args:
-            agent_id: Agent identifier
+            speakerUri: Agent speaker URI
         """
-        if agent_id in self._routes:
-            del self._routes[agent_id];
-            logger.info("Route unregistered", agent_id=agent_id);
+        if speakerUri in self._routes:
+            del self._routes[speakerUri];
+            logger.info("Route unregistered", speakerUri=speakerUri);
 
-    async def route_envelope(self, envelope: ConversationEnvelope) -> bool:
+    async def route_envelope(self, envelope: OpenFloorEnvelope) -> bool:
         """
-        Route envelope to target agent
+        Route envelope to target agents based on events
 
         Args:
-            envelope: Conversation envelope to route
+            envelope: Open Floor envelope to route
 
         Returns:
             True if routed successfully, False otherwise
         """
-        if not envelope.to_agent:
-            logger.error("Envelope missing target agent", envelope_id=envelope.envelope_id);
-            return False
+        routed = False;
 
-        if envelope.to_agent not in self._routes:
-            logger.warning(
-                "No route found for agent",
-                agent_id=envelope.to_agent,
-                envelope_id=envelope.envelope_id
-            );
-            return False
+        for event in envelope.events:
+            # If no 'to' section, event is for all recipients
+            if event.to is None:
+                # Broadcast to all registered agents except sender
+                for speakerUri, handler in self._routes.items():
+                    if speakerUri == envelope.sender.speakerUri:
+                        continue;
+                    try:
+                        await asyncio.wait_for(
+                            handler(envelope),
+                            timeout=self._timeout
+                        );
+                        routed = True;
+                    except Exception as e:
+                        logger.error(
+                            "Routing error",
+                            speakerUri=speakerUri,
+                            error=str(e)
+                        );
+                continue;
 
-        try:
-            await asyncio.wait_for(
-                self._routes[envelope.to_agent](envelope),
-                timeout=self._timeout
-            );
-            logger.debug(
-                "Envelope routed",
-                envelope_id=envelope.envelope_id,
-                to_agent=envelope.to_agent
-            );
-            return True
-        except asyncio.TimeoutError:
-            logger.error(
-                "Routing timeout",
-                envelope_id=envelope.envelope_id,
-                to_agent=envelope.to_agent
-            );
-            return False
-        except Exception as e:
-            logger.error(
-                "Routing error",
-                envelope_id=envelope.envelope_id,
-                to_agent=envelope.to_agent,
-                error=str(e)
-            );
-            return False
+            # Route to specific agent
+            target_speakerUri = event.to.speakerUri;
+            if not target_speakerUri:
+                logger.warning("Event has 'to' section but no speakerUri");
+                continue;
 
-    async def send_envelope(
+            if target_speakerUri not in self._routes:
+                logger.warning(
+                    "No route found for agent",
+                    speakerUri=target_speakerUri
+                );
+                continue;
+
+            try:
+                await asyncio.wait_for(
+                    self._routes[target_speakerUri](envelope),
+                    timeout=self._timeout
+                );
+                routed = True;
+                logger.debug(
+                    "Envelope routed",
+                    speakerUri=target_speakerUri,
+                    eventType=event.eventType
+                );
+            except asyncio.TimeoutError:
+                logger.error(
+                    "Routing timeout",
+                    speakerUri=target_speakerUri
+                );
+            except Exception as e:
+                logger.error(
+                    "Routing error",
+                    speakerUri=target_speakerUri,
+                    error=str(e)
+                );
+
+        return routed
+
+    async def create_envelope(
         self,
         conversation_id: str,
-        from_agent: str,
-        to_agent: str,
-        payload: dict,
-        envelope_type: EnvelopeType = EnvelopeType.MESSAGE,
-        priority: int = 0
-    ) -> ConversationEnvelope:
+        sender_speakerUri: str,
+        sender_serviceUrl: Optional[str] = None,
+        events: Optional[List[EventObject]] = None
+    ) -> OpenFloorEnvelope:
         """
-        Create and send envelope
+        Create a new Open Floor envelope
 
         Args:
             conversation_id: Conversation identifier
-            from_agent: Source agent ID
-            to_agent: Target agent ID
-            payload: Envelope payload
-            envelope_type: Type of envelope
-            priority: Delivery priority
+            sender_speakerUri: Sender speaker URI
+            sender_serviceUrl: Optional sender service URL
+            events: List of events (defaults to empty list)
 
         Returns:
             Created envelope
         """
-        envelope = ConversationEnvelope(
-            envelope_id=str(uuid4()),
-            conversation_id=conversation_id,
-            envelope_type=envelope_type,
-            from_agent=from_agent,
-            to_agent=to_agent,
-            payload=payload,
-            priority=priority
+        schema = SchemaObject(version="1.0.0");
+        conversation = ConversationObject(id=conversation_id);
+        sender = SenderObject(
+            speakerUri=sender_speakerUri,
+            serviceUrl=sender_serviceUrl
         );
 
-        success = await self.route_envelope(envelope);
+        return OpenFloorEnvelope(
+            schema=schema,
+            conversation=conversation,
+            sender=sender,
+            events=events or []
+        );
 
-        if not success and envelope.retry_count < self._max_retries:
-            envelope.retry_count += 1;
-            await asyncio.sleep(1);  # Brief delay before retry
-            success = await self.route_envelope(envelope);
-
-        if not success:
-            logger.error(
-                "Failed to route envelope after retries",
-                envelope_id=envelope.envelope_id
-            );
-
-        return envelope
-
-    async def broadcast_envelope(
+    async def send_utterance(
         self,
         conversation_id: str,
-        from_agent: str,
-        payload: dict,
-        envelope_type: EnvelopeType = EnvelopeType.MESSAGE,
-        exclude_agents: Optional[list] = None
-    ) -> list[ConversationEnvelope]:
+        sender_speakerUri: str,
+        sender_serviceUrl: Optional[str],
+        target_speakerUri: Optional[str],
+        target_serviceUrl: Optional[str],
+        text: str,
+        private: bool = False
+    ) -> OpenFloorEnvelope:
         """
-        Broadcast envelope to all registered agents
+        Send an utterance event
 
         Args:
             conversation_id: Conversation identifier
-            from_agent: Source agent ID
-            payload: Envelope payload
-            envelope_type: Type of envelope
-            exclude_agents: List of agent IDs to exclude
+            sender_speakerUri: Sender speaker URI
+            sender_serviceUrl: Optional sender service URL
+            target_speakerUri: Optional target speaker URI
+            target_serviceUrl: Optional target service URL
+            text: Utterance text
+            private: Whether utterance is private
 
         Returns:
-            List of created envelopes
+            Created envelope
         """
-        exclude_agents = exclude_agents or [];
-        envelopes = [];
-
-        for agent_id in self._routes.keys():
-            if agent_id == from_agent or agent_id in exclude_agents:
-                continue
-
-            envelope = await self.send_envelope(
-                conversation_id=conversation_id,
-                from_agent=from_agent,
-                to_agent=agent_id,
-                payload=payload,
-                envelope_type=envelope_type
+        to_obj = None;
+        if target_speakerUri:
+            to_obj = ToObject(
+                speakerUri=target_speakerUri,
+                serviceUrl=target_serviceUrl,
+                private=private
             );
-            envelopes.append(envelope);
 
-        return envelopes
+        event = EventObject(
+            to=to_obj,
+            eventType=EventType.UTTERANCE,
+            parameters={
+                "dialogEvent": {
+                    "speakerUri": sender_speakerUri,
+                    "features": {
+                        "text": {
+                            "mimeType": "text/plain",
+                            "tokens": [{"token": text}]
+                        }
+                    }
+                }
+            }
+        );
+
+        envelope = await self.create_envelope(
+            conversation_id=conversation_id,
+            sender_speakerUri=sender_speakerUri,
+            sender_serviceUrl=sender_serviceUrl,
+            events=[event]
+        );
+
+        await self.route_envelope(envelope);
+        return envelope
 
     async def start(self) -> None:
         """Start router processing"""
@@ -200,4 +236,3 @@ class EnvelopeRouter:
         """Stop router processing"""
         self._running = False;
         logger.info("Envelope router stopped");
-

@@ -1,5 +1,5 @@
 """
-Agent Capabilities - Capability definitions for OFP agents
+Agent Capabilities - Capability definitions per OFP 1.0.0
 """
 
 from enum import Enum
@@ -21,12 +21,16 @@ class CapabilityType(str, Enum):
 
 class AgentCapabilities(BaseModel):
     """
-    Agent capabilities definition
+    Agent capabilities definition per OFP 1.0.0
+    
+    Uses speakerUri (unique URI) and serviceUrl (service endpoint)
+    as per specification section 0.6
     """
 
-    agent_id: str = Field(..., description="Agent identifier")
+    speakerUri: str = Field(..., description="Unique URI identifying the agent")
+    serviceUrl: Optional[str] = Field(None, description="URL of the agent service")
     agent_name: str = Field(..., description="Human-readable agent name")
-    agent_version: str = Field(..., description="Agent version")
+    agent_version: str = Field("1.0.0", description="Agent version")
     capabilities: List[CapabilityType] = Field(
         ...,
         description="List of capability types"
@@ -47,10 +51,12 @@ class AgentCapabilities(BaseModel):
         default_factory=datetime.utcnow,
         description="Last heartbeat timestamp"
     )
-    endpoint_url: Optional[str] = Field(
-        None,
-        description="Agent endpoint URL for communication"
-    )
+    # Additional fields per OFP 1.0.0 manifest specification
+    organization: Optional[str] = Field(None, description="Organization name")
+    conversationalName: Optional[str] = Field(None, description="Conversational name")
+    department: Optional[str] = Field(None, description="Department")
+    role: Optional[str] = Field(None, description="Role")
+    synopsis: Optional[str] = Field(None, description="Agent synopsis")
 
     def has_capability(self, capability: CapabilityType) -> bool:
         """
@@ -77,3 +83,19 @@ class AgentCapabilities(BaseModel):
         """Create capabilities from dictionary"""
         return cls(**data)
 
+    def to_identification(self) -> Dict[str, Any]:
+        """
+        Convert to identification object per OFP 1.0.0 conversant format
+        
+        Returns:
+            Identification dictionary
+        """
+        return {
+            "speakerUri": self.speakerUri,
+            "serviceUrl": self.serviceUrl,
+            "organization": self.organization,
+            "conversationalName": self.conversationalName,
+            "department": self.department,
+            "role": self.role,
+            "synopsis": self.synopsis
+        }

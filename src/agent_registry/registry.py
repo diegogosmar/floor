@@ -1,5 +1,5 @@
 """
-Agent Registry - Manages agent registration and capability discovery
+Agent Registry - Manages agent registration and capability discovery per OFP 1.0.0
 """
 
 from typing import Dict, List, Optional
@@ -17,10 +17,12 @@ class AgentRegistry:
     """
     Manages agent registration and capability discovery
     Implements OFP 1.0.0 agent registry
+    Uses speakerUri as unique identifier per specification
     """
 
     def __init__(self) -> None:
         """Initialize agent registry"""
+        # Indexed by speakerUri
         self._agents: Dict[str, AgentCapabilities] = {};
         self._max_agents = settings.REGISTRY_MAX_AGENTS;
         self._heartbeat_timeout = settings.REGISTRY_HEARTBEAT_TIMEOUT;
@@ -41,65 +43,65 @@ class AgentRegistry:
             logger.warning(
                 "Registry full",
                 max_agents=self._max_agents,
-                agent_id=capabilities.agent_id
+                speakerUri=capabilities.speakerUri
             );
             return False
 
-        self._agents[capabilities.agent_id] = capabilities;
+        self._agents[capabilities.speakerUri] = capabilities;
         logger.info(
             "Agent registered",
-            agent_id=capabilities.agent_id,
+            speakerUri=capabilities.speakerUri,
             agent_name=capabilities.agent_name,
             capabilities=capabilities.capabilities
         );
 
         return True
 
-    async def unregister_agent(self, agent_id: str) -> bool:
+    async def unregister_agent(self, speakerUri: str) -> bool:
         """
         Unregister an agent
 
         Args:
-            agent_id: Agent identifier
+            speakerUri: Agent speaker URI
 
         Returns:
             True if unregistered successfully
         """
-        if agent_id not in self._agents:
+        if speakerUri not in self._agents:
             return False
 
-        del self._agents[agent_id];
-        logger.info("Agent unregistered", agent_id=agent_id);
+        del self._agents[speakerUri];
+        logger.info("Agent unregistered", speakerUri=speakerUri);
         return True
 
-    async def update_heartbeat(self, agent_id: str) -> bool:
+    async def update_heartbeat(self, speakerUri: str) -> bool:
         """
         Update agent heartbeat
 
         Args:
-            agent_id: Agent identifier
+            speakerUri: Agent speaker URI
 
         Returns:
             True if heartbeat updated
         """
-        if agent_id not in self._agents:
+        if speakerUri not in self._agents:
             return False
 
-        self._agents[agent_id].update_heartbeat();
-        logger.debug("Heartbeat updated", agent_id=agent_id);
+        self._agents[speakerUri].update_heartbeat();
+        logger.debug("Heartbeat updated", speakerUri=speakerUri);
         return True
 
-    async def get_agent(self, agent_id: str) -> Optional[AgentCapabilities]:
+    async def get_agent(self, speakerUri: str) -> Optional[AgentCapabilities]:
         """
         Get agent capabilities
 
         Args:
-            agent_id: Agent identifier
+            speakerUri: Agent speaker URI
 
         Returns:
             Agent capabilities or None
         """
-        return self._agents.get(agent_id)
+        return self._agents.get(speakerUri)
 
     async def find_agents_by_capability(
         self,
@@ -140,18 +142,18 @@ class AgentRegistry:
         timeout = timedelta(seconds=self._heartbeat_timeout);
         stale_agents = [];
 
-        for agent_id, agent in self._agents.items():
+        for speakerUri, agent in self._agents.items():
             if now - agent.last_heartbeat > timeout:
-                stale_agents.append(agent_id);
+                stale_agents.append(speakerUri);
 
-        for agent_id in stale_agents:
-            await self.unregister_agent(agent_id);
+        for speakerUri in stale_agents:
+            await self.unregister_agent(speakerUri);
 
         if stale_agents:
             logger.info(
                 "Cleaned up stale agents",
                 count=len(stale_agents),
-                agent_ids=stale_agents
+                speakerUris=stale_agents
             );
 
         return len(stale_agents)
@@ -178,4 +180,3 @@ class AgentRegistry:
             except asyncio.CancelledError:
                 pass
             logger.info("Cleanup task stopped");
-
