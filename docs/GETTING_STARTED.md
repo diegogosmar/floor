@@ -99,20 +99,20 @@ curl -X POST http://localhost:8000/api/v1/agents/register \
 }
 ```
 
-### Test 2: Lista Agenti
+### Test 2: List Agents
 
 ```bash
-# Lista tutti gli agenti
+# List all agents
 curl http://localhost:8000/api/v1/agents/ | jq
 
-# Trova agenti per capability
+# Find agents by capability
 curl http://localhost:8000/api/v1/agents/capability/text_generation | jq
 ```
 
 ### Test 3: Floor Control
 
 ```bash
-# Richiedi floor
+# Request floor
 curl -X POST http://localhost:8000/api/v1/floor/request \
   -H "Content-Type: application/json" \
   -d '{
@@ -121,10 +121,10 @@ curl -X POST http://localhost:8000/api/v1/floor/request \
     "priority": 5
   }'
 
-# Verifica chi ha il floor
+# Check floor holder
 curl http://localhost:8000/api/v1/floor/holder/conv_test_001 | jq
 
-# Rilascia floor
+# Release floor
 curl -X POST http://localhost:8000/api/v1/floor/release \
   -H "Content-Type: application/json" \
   -d '{
@@ -133,7 +133,7 @@ curl -X POST http://localhost:8000/api/v1/floor/release \
   }'
 ```
 
-### Test 4: Invio Utterance
+### Test 4: Send Utterance
 
 ```bash
 curl -X POST http://localhost:8000/api/v1/envelopes/utterance \
@@ -146,35 +146,35 @@ curl -X POST http://localhost:8000/api/v1/envelopes/utterance \
   }'
 ```
 
-## 🧪 Test Workflow Completo
+## 🧪 Complete Test Workflow
 
-### Opzione 1: Script Automatico
+### Option 1: Automatic Script
 
 ```bash
-# Esegui test workflow completo
+# Run complete test workflow
 ./examples/test_workflow.sh
 
-# Lo script testa:
-# - Registrazione 3 agenti
-# - Floor control multi-agent
-# - Invio utterance
-# - Discovery per capability
+# The script tests:
+# - Registration of 3 agents
+# - Multi-agent floor control
+# - Utterance sending
+# - Capability discovery
 # - Heartbeat updates
 ```
 
-### Opzione 2: Test Manuale Step-by-Step
+### Option 2: Manual Step-by-Step Test
 
-Vedi `docs/SETUP.md` per istruzioni dettagliate passo-passo.
+See `docs/SETUP.md` for detailed step-by-step instructions.
 
-## 🎯 Test Multi-Agent Scenario
+## 🎯 Multi-Agent Test Scenario
 
-### Scenario: 3 Agenti Collaborano
+### Scenario: 3 Agents Collaborate
 
 ```bash
-# Terminal 1: Avvia API (se non già avviata)
+# Terminal 1: Start API (if not already started)
 docker-compose up -d
 
-# Terminal 2: Registra Agent 1
+# Terminal 2: Register Agent 1
 curl -X POST http://localhost:8000/api/v1/agents/register \
   -H "Content-Type: application/json" \
   -d '{
@@ -183,7 +183,7 @@ curl -X POST http://localhost:8000/api/v1/agents/register \
     "capabilities": ["text_generation"]
   }'
 
-# Terminal 3: Registra Agent 2
+# Terminal 3: Register Agent 2
 curl -X POST http://localhost:8000/api/v1/agents/register \
   -H "Content-Type: application/json" \
   -d '{
@@ -192,7 +192,7 @@ curl -X POST http://localhost:8000/api/v1/agents/register \
     "capabilities": ["image_generation"]
   }'
 
-# Terminal 4: Registra Agent 3
+# Terminal 4: Register Agent 3
 curl -X POST http://localhost:8000/api/v1/agents/register \
   -H "Content-Type: application/json" \
   -d '{
@@ -201,10 +201,10 @@ curl -X POST http://localhost:8000/api/v1/agents/register \
     "capabilities": ["data_analysis"]
   }'
 
-# Ora testa floor control con priorità
+# Now test floor control with priorities
 CONV_ID="conv_multi_001"
 
-# Agent 1 richiede floor (priority 5)
+# Agent 1 requests floor (priority 5)
 curl -X POST http://localhost:8000/api/v1/floor/request \
   -H "Content-Type: application/json" \
   -d "{
@@ -213,7 +213,7 @@ curl -X POST http://localhost:8000/api/v1/floor/request \
     \"priority\": 5
   }"
 
-# Agent 2 richiede floor (priority 3 - sarà in coda)
+# Agent 2 requests floor (priority 3 - will be queued)
 curl -X POST http://localhost:8000/api/v1/floor/request \
   -H "Content-Type: application/json" \
   -d "{
@@ -222,10 +222,10 @@ curl -X POST http://localhost:8000/api/v1/floor/request \
     \"priority\": 3
   }"
 
-# Verifica floor holder (dovrebbe essere agent_text)
+# Check floor holder (should be agent_text)
 curl http://localhost:8000/api/v1/floor/holder/$CONV_ID | jq
 
-# Agent 1 rilascia floor
+# Agent 1 releases floor
 curl -X POST http://localhost:8000/api/v1/floor/release \
   -H "Content-Type: application/json" \
   -d "{
@@ -233,22 +233,22 @@ curl -X POST http://localhost:8000/api/v1/floor/release \
     \"speakerUri\": \"tag:test.com,2025:agent_text\"
   }"
 
-# Verifica nuovo floor holder (dovrebbe essere agent_image)
+# Check new floor holder (should be agent_image)
 curl http://localhost:8000/api/v1/floor/holder/$CONV_ID | jq
 ```
 
-## 🔍 Verifica Funzionamento
+## 🔍 Verify Functionality
 
 ### Check Logs
 
 ```bash
-# Logs API
+# API logs
 docker-compose logs api
 
-# Logs con follow
+# Logs with follow
 docker-compose logs -f api
 
-# Logs specifici servizio
+# Specific service logs
 docker-compose logs postgres
 docker-compose logs redis
 ```
@@ -256,82 +256,82 @@ docker-compose logs redis
 ### Check Status
 
 ```bash
-# Status servizi
+# Service status
 docker-compose ps
 
-# Health check API
+# API health check
 curl http://localhost:8000/health
 
-# Lista agenti registrati
+# List registered agents
 curl http://localhost:8000/api/v1/agents/ | jq
 ```
 
 ### Check Database
 
 ```bash
-# Connetti a PostgreSQL
+# Connect to PostgreSQL
 docker-compose exec postgres psql -U ofp_user -d ofp_db
 
-# Query esempio (se hai tabelle)
+# Example query (if you have tables)
 # SELECT * FROM agents;
 ```
 
 ## 🐛 Troubleshooting
 
-### Problema: Porta 8000 già in uso
+### Issue: Port 8000 already in use
 
 ```bash
-# Trova processo
+# Find process
 lsof -i :8000
 
-# Kill processo o cambia porta in .env
+# Kill process or change port in .env
 # PORT=8001
 ```
 
-### Problema: Servizi non partono
+### Issue: Services don't start
 
 ```bash
-# Verifica log
+# Check logs
 docker-compose logs
 
-# Riavvia servizi
+# Restart services
 docker-compose restart
 
-# Ricostruisci immagini
+# Rebuild images
 docker-compose build --no-cache
 docker-compose up -d
 ```
 
-### Problema: Database connection error
+### Issue: Database connection error
 
 ```bash
-# Verifica PostgreSQL è attivo
+# Verify PostgreSQL is active
 docker-compose ps postgres
 
-# Controlla variabili ambiente
+# Check environment variables
 docker-compose exec api env | grep POSTGRES
 
-# Riavvia PostgreSQL
+# Restart PostgreSQL
 docker-compose restart postgres
 ```
 
-### Problema: Agenti non si registrano
+### Issue: Agents don't register
 
 ```bash
-# Verifica registry è inizializzato
+# Verify registry is initialized
 curl http://localhost:8000/api/v1/agents/
 
-# Controlla log per errori
+# Check logs for errors
 docker-compose logs api | grep -i registry
 
-# Verifica formato speakerUri (deve essere URI valido)
+# Verify speakerUri format (must be valid URI)
 ```
 
-## 📚 Documentazione Aggiuntiva
+## 📚 Additional Documentation
 
-- **Setup Completo**: `docs/SETUP.md`
+- **Complete Setup**: `docs/SETUP.md`
 - **Quick Start**: `docs/QUICKSTART.md`
-- **Architettura**: `docs/ARCHITECTURE_DETAILED.md`
+- **Architecture**: `docs/ARCHITECTURE_DETAILED.md`
 - **API Reference**: `docs/api.md`
 - **Swagger UI**: http://localhost:8000/docs
 
@@ -346,28 +346,28 @@ docker-compose logs api | grep -i registry
 
 ## 💡 Tips
 
-- Usa `jq` per formattare JSON responses: `curl ... | jq`
-- Swagger UI è il modo più facile per esplorare l'API
-- I log sono strutturati JSON, usa `jq` per filtrarli
-- Per sviluppo locale senza Docker, avvia solo postgres/redis con Docker
+- Use `jq` to format JSON responses: `curl ... | jq`
+- Swagger UI is the easiest way to explore the API
+- Logs are structured JSON, use `jq` to filter them
+- For local development without Docker, start only postgres/redis with Docker
 
-## ✅ Checklist Setup
+## ✅ Setup Checklist
 
-- [ ] Python 3.11+ installato
-- [ ] Docker e Docker Compose installati
-- [ ] Virtual environment creato e attivato
-- [ ] Dipendenze installate (`pip install -r requirements.txt`)
-- [ ] File `.env` configurato
-- [ ] Servizi Docker avviati (`docker-compose up -d`)
-- [ ] Health check passa (`curl http://localhost:8000/health`)
-- [ ] Swagger UI accessibile (http://localhost:8000/docs)
-- [ ] Test workflow eseguito con successo
+- [ ] Python 3.11+ installed
+- [ ] Docker and Docker Compose installed
+- [ ] Virtual environment created and activated
+- [ ] Dependencies installed (`pip install -r requirements.txt`)
+- [ ] `.env` file configured
+- [ ] Docker services started (`docker-compose up -d`)
+- [ ] Health check passes (`curl http://localhost:8000/health`)
+- [ ] Swagger UI accessible (http://localhost:8000/docs)
+- [ ] Test workflow executed successfully
 
-## 🆘 Supporto
+## 🆘 Support
 
-Se hai problemi:
-1. Controlla i log: `docker-compose logs`
-2. Verifica documentazione: `docs/`
-3. Controlla Swagger UI per esempi API
-4. Apri un issue nel repository
+If you have issues:
+1. Check logs: `docker-compose logs`
+2. Verify documentation: `docs/`
+3. Check Swagger UI for API examples
+4. Open an issue in the repository
 

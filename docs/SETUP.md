@@ -1,56 +1,56 @@
-# Setup e Testing Guide - Open Floor Protocol Multi-Agent System
+# Setup and Testing Guide - Open Floor Protocol Multi-Agent System
 
-## Indice
+## Table of Contents
 
-1. [Prerequisiti](#prerequisiti)
-2. [Setup Iniziale](#setup-iniziale)
-3. [Avvio del Sistema](#avvio-del-sistema)
-4. [Testing Base](#testing-base)
-5. [Testing Multi-Agent](#testing-multi-agent)
-6. [Pattern di Orchestrazione](#pattern-di-orchestrazione)
+1. [Prerequisites](#prerequisites)
+2. [Initial Setup](#initial-setup)
+3. [System Startup](#system-startup)
+4. [Basic Testing](#basic-testing)
+5. [Multi-Agent Testing](#multi-agent-testing)
+6. [Orchestration Patterns](#orchestration-patterns)
 7. [Troubleshooting](#troubleshooting)
 
-## Prerequisiti
+## Prerequisites
 
 - **Python 3.11+**
-- **Docker e Docker Compose**
+- **Docker and Docker Compose**
 - **Git**
-- **curl** o **HTTPie** per test API
+- **curl** or **HTTPie** for API testing
 
-## Setup Iniziale
+## Initial Setup
 
-### 1. Clone e Setup Ambiente
+### 1. Clone and Environment Setup
 
 ```bash
-# Se non hai già clonato il repository
+# If you haven't already cloned the repository
 cd /Users/diego.gosmar/Documents/OFP/FLOOR
 
-# Crea virtual environment
+# Create virtual environment
 python -m venv venv
-source venv/bin/activate  # Su Windows: venv\Scripts\activate
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-# Installa dipendenze
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-### 2. Configurazione Ambiente
+### 2. Environment Configuration
 
 ```bash
-# Copia file di esempio
+# Copy example file
 cp .env.example .env
 
-# Modifica .env con le tue configurazioni (opzionale per sviluppo locale)
-# Le configurazioni di default funzionano per Docker Compose
+# Modify .env with your configurations (optional for local development)
+# Default configurations work for Docker Compose
 ```
 
-### 3. Verifica Struttura Progetto
+### 3. Verify Project Structure
 
 ```bash
-# Verifica che la struttura sia corretta
+# Verify the structure is correct
 tree -L 3 -I '__pycache__|*.pyc|venv' src/
 ```
 
-Dovresti vedere:
+You should see:
 ```
 src/
 ├── api/              # FastAPI routers
@@ -62,53 +62,53 @@ src/
 └── main.py          # FastAPI app entry point
 ```
 
-## Avvio del Sistema
+## System Startup
 
-### Opzione 1: Docker Compose (Consigliato)
+### Option 1: Docker Compose (Recommended)
 
 ```bash
-# Avvia tutti i servizi
+# Start all services
 docker-compose up -d
 
-# Verifica che i servizi siano attivi
+# Verify services are active
 docker-compose ps
 
-# Visualizza i log
+# View logs
 docker-compose logs -f api
 ```
 
-I servizi saranno disponibili su:
+Services will be available at:
 - **API**: http://localhost:8000
 - **PostgreSQL**: localhost:5432
 - **Redis**: localhost:6379
 - **Swagger UI**: http://localhost:8000/docs
 
-### Opzione 2: Sviluppo Locale
+### Option 2: Local Development
 
 ```bash
-# Avvia solo PostgreSQL e Redis con Docker
+# Start only PostgreSQL and Redis with Docker
 docker-compose up -d postgres redis
 
-# In un altro terminale, avvia l'API
+# In another terminal, start the API
 uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-## Testing Base
+## Basic Testing
 
 ### 1. Health Check
 
 ```bash
-# Verifica che l'API sia attiva
+# Verify API is active
 curl http://localhost:8000/health
 
-# Risposta attesa:
+# Expected response:
 # {"status":"healthy"}
 ```
 
-### 2. Registrazione Agente
+### 2. Agent Registration
 
 ```bash
-# Registra un agente di esempio
+# Register an example agent
 curl -X POST http://localhost:8000/api/v1/agents/register \
   -H "Content-Type: application/json" \
   -d '{
@@ -118,7 +118,7 @@ curl -X POST http://localhost:8000/api/v1/agents/register \
     "serviceUrl": "http://localhost:8001"
   }'
 
-# Risposta attesa:
+# Expected response:
 # {
 #   "success": true,
 #   "speakerUri": "tag:example.com,2025:agent_1",
@@ -126,19 +126,19 @@ curl -X POST http://localhost:8000/api/v1/agents/register \
 # }
 ```
 
-### 3. Lista Agenti Registrati
+### 3. List Registered Agents
 
 ```bash
 curl http://localhost:8000/api/v1/agents/
 
-# Trova agenti per capability
+# Find agents by capability
 curl http://localhost:8000/api/v1/agents/capability/text_generation
 ```
 
 ### 4. Floor Control
 
 ```bash
-# Richiedi floor per una conversazione
+# Request floor for a conversation
 curl -X POST http://localhost:8000/api/v1/floor/request \
   -H "Content-Type: application/json" \
   -d '{
@@ -147,10 +147,10 @@ curl -X POST http://localhost:8000/api/v1/floor/request \
     "priority": 5
   }'
 
-# Verifica chi ha il floor
+# Check floor holder
 curl http://localhost:8000/api/v1/floor/holder/conv_001
 
-# Rilascia floor
+# Release floor
 curl -X POST http://localhost:8000/api/v1/floor/release \
   -H "Content-Type: application/json" \
   -d '{
@@ -159,10 +159,10 @@ curl -X POST http://localhost:8000/api/v1/floor/release \
   }'
 ```
 
-### 5. Invio Utterance
+### 5. Send Utterance
 
 ```bash
-# Invia un utterance
+# Send an utterance
 curl -X POST http://localhost:8000/api/v1/envelopes/utterance \
   -H "Content-Type: application/json" \
   -d '{
@@ -173,10 +173,10 @@ curl -X POST http://localhost:8000/api/v1/envelopes/utterance \
   }'
 ```
 
-### 6. Validazione Envelope
+### 6. Envelope Validation
 
 ```bash
-# Valida un envelope OFP
+# Validate an OFP envelope
 curl -X POST http://localhost:8000/api/v1/envelopes/validate \
   -H "Content-Type: application/json" \
   -d '{
@@ -202,11 +202,11 @@ curl -X POST http://localhost:8000/api/v1/envelopes/validate \
   }'
 ```
 
-## Testing Multi-Agent
+## Multi-Agent Testing
 
-### Script di Test Multi-Agent
+### Multi-Agent Test Script
 
-Crea un file `test_multi_agent.sh`:
+Create a file `test_multi_agent.sh`:
 
 ```bash
 #!/bin/bash
@@ -214,9 +214,9 @@ Crea un file `test_multi_agent.sh`:
 BASE_URL="http://localhost:8000/api/v1"
 CONV_ID="conv_multi_001"
 
-echo "=== Registrazione Agenti ==="
+echo "=== Agent Registration ==="
 
-# Registra Agent 1
+# Register Agent 1
 curl -X POST $BASE_URL/agents/register \
   -H "Content-Type: application/json" \
   -d '{
@@ -226,7 +226,7 @@ curl -X POST $BASE_URL/agents/register \
     "serviceUrl": "http://localhost:8001"
   }'
 
-# Registra Agent 2
+# Register Agent 2
 curl -X POST $BASE_URL/agents/register \
   -H "Content-Type: application/json" \
   -d '{
@@ -236,9 +236,9 @@ curl -X POST $BASE_URL/agents/register \
     "serviceUrl": "http://localhost:8002"
   }'
 
-echo -e "\n=== Floor Control Multi-Agent ==="
+echo -e "\n=== Multi-Agent Floor Control ==="
 
-# Agent 1 richiede floor
+# Agent 1 requests floor
 curl -X POST $BASE_URL/floor/request \
   -H "Content-Type: application/json" \
   -d "{
@@ -247,7 +247,7 @@ curl -X POST $BASE_URL/floor/request \
     \"priority\": 5
   }"
 
-# Agent 2 richiede floor (sarà in coda)
+# Agent 2 requests floor (will be queued)
 curl -X POST $BASE_URL/floor/request \
   -H "Content-Type: application/json" \
   -d "{
@@ -256,10 +256,10 @@ curl -X POST $BASE_URL/floor/request \
     \"priority\": 3
   }"
 
-# Verifica holder
+# Check holder
 curl $BASE_URL/floor/holder/$CONV_ID
 
-# Agent 1 rilascia floor
+# Agent 1 releases floor
 curl -X POST $BASE_URL/floor/release \
   -H "Content-Type: application/json" \
   -d "{
@@ -267,18 +267,18 @@ curl -X POST $BASE_URL/floor/release \
     \"speakerUri\": \"tag:test.com,2025:agent_1\"
   }"
 
-# Verifica nuovo holder (dovrebbe essere agent_2)
+# Check new holder (should be agent_2)
 curl $BASE_URL/floor/holder/$CONV_ID
 ```
 
-Esegui lo script:
+Run the script:
 
 ```bash
 chmod +x test_multi_agent.sh
 ./test_multi_agent.sh
 ```
 
-## Pattern di Orchestrazione
+## Orchestration Patterns
 
 ### 1. Convener-Based Orchestration
 
@@ -287,7 +287,7 @@ from src.orchestration.convener import ConvenerOrchestrator, ConvenerStrategy
 from src.floor_manager.floor_control import FloorControl
 from src.agent_registry.registry import AgentRegistry
 
-# Inizializza componenti
+# Initialize components
 floor_control = FloorControl()
 registry = AgentRegistry()
 convener = ConvenerOrchestrator(
@@ -297,11 +297,11 @@ convener = ConvenerOrchestrator(
     strategy=ConvenerStrategy.ROUND_ROBIN
 )
 
-# Invita partecipanti
+# Invite participants
 await convener.invite_participant("conv_001", "tag:test.com,2025:agent_1")
 await convener.invite_participant("conv_001", "tag:test.com,2025:agent_2")
 
-# Concedi floor al prossimo
+# Grant floor to next
 next_speaker = await convener.grant_floor_to_next("conv_001")
 ```
 
@@ -314,11 +314,11 @@ from src.floor_manager.floor_control import FloorControl
 floor_control = FloorControl()
 collaborative = CollaborativeOrchestrator(floor_control)
 
-# Agenti richiedono floor autonomamente
+# Agents request floor autonomously
 await collaborative.handle_floor_request("conv_001", "tag:test.com,2025:agent_1", priority=5)
 await collaborative.handle_floor_request("conv_001", "tag:test.com,2025:agent_2", priority=3)
 
-# Agente cede floor
+# Agent yields floor
 await collaborative.handle_floor_yield("conv_001", "tag:test.com,2025:agent_1", reason="@complete")
 ```
 
@@ -337,90 +337,89 @@ hybrid = HybridOrchestrator(
     agent_registry=registry
 )
 
-# Delega a specialista
+# Delegate to specialist
 sub_conv_id = await hybrid.delegate_to_specialist(
     "conv_main_001",
     "tag:specialist.com,2025:specialist_1",
     "Analyze this data"
 )
 
-# Richiama delega
+# Recall delegation
 await hybrid.recall_delegation(sub_conv_id)
 ```
 
-## Testing con Pytest
+## Testing with Pytest
 
 ```bash
-# Esegui tutti i test
+# Run all tests
 pytest
 
-# Esegui test specifici
+# Run specific tests
 pytest tests/test_floor_manager.py
 pytest tests/test_envelope_router.py
 pytest tests/test_agent_registry.py
 
-# Con coverage
+# With coverage
 pytest --cov=src --cov-report=html
 
-# Test verbose
+# Verbose tests
 pytest -v
 ```
 
 ## Troubleshooting
 
-### Problema: Porta già in uso
+### Issue: Port already in use
 
 ```bash
-# Verifica quale processo usa la porta
+# Check which process is using the port
 lsof -i :8000
 
-# Modifica PORT nel .env o ferma il processo
+# Modify PORT in .env or stop the process
 ```
 
-### Problema: Database non raggiungibile
+### Issue: Database unreachable
 
 ```bash
-# Verifica che PostgreSQL sia attivo
+# Verify PostgreSQL is active
 docker-compose ps postgres
 
-# Controlla i log
+# Check logs
 docker-compose logs postgres
 
-# Riavvia il servizio
+# Restart service
 docker-compose restart postgres
 ```
 
-### Problema: Agenti non si registrano
+### Issue: Agents don't register
 
 ```bash
-# Verifica che il registry sia inizializzato
+# Verify registry is initialized
 curl http://localhost:8000/api/v1/agents/
 
-# Controlla i log dell'API
+# Check API logs
 docker-compose logs api | grep -i registry
 ```
 
 ### Debug Mode
 
 ```bash
-# Avvia con log level DEBUG
+# Start with DEBUG log level
 LOG_LEVEL=DEBUG uvicorn src.main:app --reload
 
-# Oppure modifica .env
+# Or modify .env
 echo "LOG_LEVEL=DEBUG" >> .env
 ```
 
-## Prossimi Passi
+## Next Steps
 
-1. **Esplora Swagger UI**: http://localhost:8000/docs
-2. **Leggi Architecture Docs**: `docs/architecture.md`
-3. **Vedi API Reference**: `docs/api.md`
-4. **Esempi Docker Compose**: `examples/` (da creare)
+1. **Explore Swagger UI**: http://localhost:8000/docs
+2. **Read Architecture Docs**: `docs/architecture.md`
+3. **See API Reference**: `docs/api.md`
+4. **Docker Compose Examples**: `examples/` (to be created)
 
-## Supporto
+## Support
 
-Per problemi o domande:
-- Controlla i log: `docker-compose logs`
-- Verifica la documentazione OFP: https://github.com/open-voice-interoperability/openfloor-docs
-- Apri un issue nel repository
-
+For issues or questions:
+- Check logs: `docker-compose logs`
+- Verify OFP documentation: https://github.com/open-voice-interoperability/openfloor-docs
+- Open an issue in the repository

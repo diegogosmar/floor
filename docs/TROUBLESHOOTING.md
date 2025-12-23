@@ -1,244 +1,244 @@
 # Troubleshooting Guide - Open Floor Protocol
 
-## Errori Comuni e Soluzioni
+## Common Errors and Solutions
 
-### 1. Errore structlog: `KeyError: 'INFO'`
+### 1. structlog Error: `KeyError: 'INFO'`
 
-**Sintomo**:
+**Symptom**:
 ```
 KeyError: 'INFO'
 File "/app/src/main.py", line 18, in <module>
     wrapper_class=structlog.make_filtering_bound_logger(settings.LOG_LEVEL),
 ```
 
-**Causa**: `structlog.make_filtering_bound_logger()` richiede un livello numerico di logging, non una stringa.
+**Cause**: `structlog.make_filtering_bound_logger()` requires a numeric logging level, not a string.
 
-**Soluzione**: ✅ **FIXATO** - Il codice ora converte automaticamente la stringa in livello logging.
+**Solution**: ✅ **FIXED** - Code now automatically converts string to logging level.
 
-**Verifica**: Riavvia i servizi:
+**Verify**: Restart services:
 ```bash
 docker-compose restart api
 ```
 
-### 2. Errore PostgreSQL: `database "ofp_user" does not exist`
+### 2. PostgreSQL Error: `database "ofp_user" does not exist`
 
-**Sintomo**:
+**Symptom**:
 ```
 FATAL:  database "ofp_user" does not exist
 ```
 
-**Causa**: Qualcosa sta cercando di connettersi usando il nome utente come nome database invece del nome database corretto.
+**Cause**: Something is trying to connect using the username as database name instead of the correct database name.
 
-**Soluzione**: ✅ **FIXATO** - Healthcheck aggiornato per specificare il database corretto.
+**Solution**: ✅ **FIXED** - Healthcheck updated to specify the correct database.
 
-**Verifica**:
+**Verify**:
 ```bash
-# Riavvia i servizi
+# Restart services
 docker-compose down
 docker-compose up -d
 
-# Verifica che PostgreSQL sia pronto
+# Verify PostgreSQL is ready
 docker-compose exec postgres psql -U ofp_user -d ofp_db -c "SELECT 1;"
 ```
 
-### 3. Warning Pydantic: `Field name "schema" shadows an attribute`
+### 3. Pydantic Warning: `Field name "schema" shadows an attribute`
 
-**Sintomo**:
+**Symptom**:
 ```
 UserWarning: Field name "schema" shadows an attribute in parent "BaseModel"
 ```
 
-**Causa**: Il campo `schema` in `SchemaObject` shadowa un attributo di `BaseModel`.
+**Cause**: The `schema` field in `SchemaObject` shadows a `BaseModel` attribute.
 
-**Soluzione**: ✅ **MIGLIORATO** - Aggiunta configurazione per evitare conflitti. È solo un warning e non blocca l'esecuzione.
+**Solution**: ✅ **IMPROVED** - Added configuration to avoid conflicts. It's just a warning and doesn't block execution.
 
-### 4. Porta già in uso
+### 4. Port Already in Use
 
-**Sintomo**:
+**Symptom**:
 ```
 Error: bind: address already in use
 ```
 
-**Soluzione**:
+**Solution**:
 ```bash
-# Trova processo che usa la porta
+# Find process using the port
 lsof -i :8000
 
-# Kill processo o cambia porta in .env
+# Kill process or change port in .env
 # PORT=8001
 ```
 
-### 5. Servizi non partono
+### 5. Services Don't Start
 
-**Sintomo**: `docker-compose up` fallisce
+**Symptom**: `docker-compose up` fails
 
-**Soluzione**:
+**Solution**:
 ```bash
-# Verifica log
+# Check logs
 docker-compose logs
 
-# Ricostruisci immagini
+# Rebuild images
 docker-compose build --no-cache
 
-# Riavvia tutto
+# Restart everything
 docker-compose down -v
 docker-compose up -d
 ```
 
-### 6. API non risponde
+### 6. API Not Responding
 
-**Sintomo**: `curl http://localhost:8000/health` non funziona
+**Symptom**: `curl http://localhost:8000/health` doesn't work
 
-**Soluzione**:
+**Solution**:
 ```bash
-# Verifica che il container sia attivo
+# Verify container is active
 docker-compose ps
 
-# Controlla log API
+# Check API logs
 docker-compose logs api
 
-# Riavvia API
+# Restart API
 docker-compose restart api
 ```
 
-### 7. Agenti non si registrano
+### 7. Agents Don't Register
 
-**Sintomo**: Registrazione agente fallisce
+**Symptom**: Agent registration fails
 
-**Soluzione**:
+**Solution**:
 ```bash
-# Verifica che API sia attiva
+# Verify API is active
 curl http://localhost:8000/health
 
-# Controlla formato speakerUri (deve essere URI valido)
-# Corretto: "tag:example.com,2025:agent_1"
-# Errato: "agent_1"
+# Check speakerUri format (must be valid URI)
+# Correct: "tag:example.com,2025:agent_1"
+# Wrong: "agent_1"
 
-# Verifica log
+# Check logs
 docker-compose logs api | grep -i registry
 ```
 
-### 8. Floor non viene concesso
+### 8. Floor Not Granted
 
-**Sintomo**: Richiesta floor fallisce o non viene concessa
+**Symptom**: Floor request fails or is not granted
 
-**Soluzione**:
+**Solution**:
 ```bash
-# Verifica che agente sia registrato
+# Verify agent is registered
 curl http://localhost:8000/api/v1/agents/ | jq
 
-# Controlla floor holder
+# Check floor holder
 curl http://localhost:8000/api/v1/floor/holder/CONV_ID | jq
 
-# Verifica log floor manager
+# Check floor manager logs
 docker-compose logs api | grep -i floor
 ```
 
-### 9. Import errors in Python
+### 9. Import Errors in Python
 
-**Sintomo**: `ModuleNotFoundError` quando esegui script Python
+**Symptom**: `ModuleNotFoundError` when running Python scripts
 
-**Soluzione**:
+**Solution**:
 ```bash
-# Installa dipendenze
+# Install dependencies
 pip install -r requirements.txt
 
-# Oppure usa PYTHONPATH
+# Or use PYTHONPATH
 PYTHONPATH=. python examples/agents/demo_agents.py
 ```
 
-### 10. Docker Compose warning: `version is obsolete`
+### 10. Docker Compose Warning: `version is obsolete`
 
-**Sintomo**:
+**Symptom**:
 ```
 WARN[0000] docker-compose.yml: the attribute `version` is obsolete
 ```
 
-**Soluzione**: ✅ **FIXATO** - Rimosso attributo `version` da docker-compose.yml (non più necessario in Docker Compose v2+).
+**Solution**: ✅ **FIXED** - Removed `version` attribute from docker-compose.yml (no longer needed in Docker Compose v2+).
 
-## Comandi di Debug Utili
+## Useful Debug Commands
 
-### Verifica Stato Servizi
+### Check Service Status
 
 ```bash
-# Status servizi
+# Service status
 docker-compose ps
 
 # Health check
 curl http://localhost:8000/health
 
-# Lista agenti
+# List agents
 curl http://localhost:8000/api/v1/agents/ | jq
 ```
 
 ### Logs
 
 ```bash
-# Tutti i log
+# All logs
 docker-compose logs
 
-# Solo API
+# API only
 docker-compose logs api
 
 # Follow logs
 docker-compose logs -f api
 
-# Ultimi 50 righe
+# Last 50 lines
 docker-compose logs --tail=50 api
 ```
 
 ### Database
 
 ```bash
-# Connetti a PostgreSQL
+# Connect to PostgreSQL
 docker-compose exec postgres psql -U ofp_user -d ofp_db
 
-# Verifica connessione
+# Verify connection
 docker-compose exec postgres psql -U ofp_user -d ofp_db -c "SELECT version();"
 
-# Lista database
+# List databases
 docker-compose exec postgres psql -U ofp_user -d postgres -c "\l"
 ```
 
 ### Redis
 
 ```bash
-# Connetti a Redis
+# Connect to Redis
 docker-compose exec redis redis-cli
 
 # Ping Redis
 docker-compose exec redis redis-cli ping
 
-# Info Redis
+# Redis info
 docker-compose exec redis redis-cli info
 ```
 
-### Reset Completo
+### Complete Reset
 
 ```bash
-# ATTENZIONE: Cancella tutti i dati!
+# WARNING: Deletes all data!
 docker-compose down -v
 docker-compose up -d
 ```
 
-## Verifica Fix Applicati
+## Verify Applied Fixes
 
-Dopo aver applicato i fix, verifica:
+After applying fixes, verify:
 
 ```bash
-# 1. Riavvia servizi
+# 1. Restart services
 docker-compose restart
 
-# 2. Attendi qualche secondo
+# 2. Wait a few seconds
 sleep 5
 
-# 3. Verifica health
+# 3. Verify health
 curl http://localhost:8000/health
 
-# 4. Controlla log (non dovrebbero esserci errori)
+# 4. Check logs (should not have errors)
 docker-compose logs api | tail -20
 
-# 5. Testa registrazione agente
+# 5. Test agent registration
 curl -X POST http://localhost:8000/api/v1/agents/register \
   -H "Content-Type: application/json" \
   -d '{
@@ -248,12 +248,11 @@ curl -X POST http://localhost:8000/api/v1/agents/register \
   }'
 ```
 
-## Supporto
+## Support
 
-Se i problemi persistono:
+If problems persist:
 
-1. Controlla i log: `docker-compose logs`
-2. Verifica configurazione: `.env` file
-3. Consulta documentazione: `docs/`
-4. Apri un issue nel repository
-
+1. Check logs: `docker-compose logs`
+2. Verify configuration: `.env` file
+3. Consult documentation: `docs/`
+4. Open an issue in the repository

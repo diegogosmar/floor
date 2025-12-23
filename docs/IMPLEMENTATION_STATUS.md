@@ -1,60 +1,60 @@
-# Status Implementazione - Open Floor Protocol Multi-Agent System
+# Implementation Status - Open Floor Protocol Multi-Agent System
 
-## ✅ Implementazione Completata
+## ✅ Completed Implementation
 
-### Architettura Multi-Layer ✅
+### Multi-Layer Architecture ✅
 
 #### 1. Floor Manager Layer ✅
-- ✅ `FloorControl`: Implementa primitive OFP 1.0.0 (requestFloor, grantFloor, revokeFloor, yieldFloor)
-- ✅ `FloorQueue`: Gestione coda richieste con priorità
-- ✅ State machine per transizioni floor
+- ✅ `FloorControl`: Implements OFP 1.0.0 primitives (requestFloor, grantFloor, revokeFloor, yieldFloor)
+- ✅ `FloorQueue`: Priority queue management for requests
+- ✅ State machine for floor transitions
 - ✅ Timeout handling
-- ✅ Supporto multi-party conversations
+- ✅ Multi-party conversation support
 
-**File**: `src/floor_manager/floor_control.py`, `src/floor_manager/floor_queue.py`
+**Files**: `src/floor_manager/floor_control.py`, `src/floor_manager/floor_queue.py`
 
 #### 2. Conversation Envelope Router ✅
-- ✅ `EnvelopeRouter`: Routing basato su speakerUri
-- ✅ `OpenFloorEnvelope`: Struttura conforme OFP 1.0.0
-- ✅ Validazione schema JSON
-- ✅ Supporto eventi privati/pubblici
+- ✅ `EnvelopeRouter`: Routing based on speakerUri
+- ✅ `OpenFloorEnvelope`: Structure conforming to OFP 1.0.0
+- ✅ JSON schema validation
+- ✅ Private/public event support
 - ✅ Retry logic
 
-**File**: `src/envelope_router/envelope.py`, `src/envelope_router/router.py`
+**Files**: `src/envelope_router/envelope.py`, `src/envelope_router/router.py`
 
 #### 3. Agent Capability Registry ✅
-- ✅ `AgentRegistry`: Storage e discovery agenti
-- ✅ `AgentCapabilities`: Definizione capability con speakerUri/serviceUrl
+- ✅ `AgentRegistry`: Storage and discovery of agents
+- ✅ `AgentCapabilities`: Capability definition with speakerUri/serviceUrl
 - ✅ Heartbeat tracking
-- ✅ Cleanup automatico agenti stale
-- ✅ Discovery per capability type
+- ✅ Automatic cleanup of stale agents
+- ✅ Discovery by capability type
 
-**File**: `src/agent_registry/registry.py`, `src/agent_registry/capabilities.py`
+**Files**: `src/agent_registry/registry.py`, `src/agent_registry/capabilities.py`
 
 ### FastAPI REST API ✅
 
-#### Endpoints Implementati:
-- ✅ `POST /api/v1/floor/request` - Richiedi floor
-- ✅ `POST /api/v1/floor/release` - Rilascia floor
-- ✅ `GET /api/v1/floor/holder/{conversation_id}` - Ottieni floor holder
-- ✅ `POST /api/v1/envelopes/send` - Invia envelope completo
-- ✅ `POST /api/v1/envelopes/utterance` - Invia utterance semplificato
-- ✅ `POST /api/v1/envelopes/validate` - Valida envelope
-- ✅ `POST /api/v1/agents/register` - Registra agente
-- ✅ `GET /api/v1/agents/{speakerUri}` - Ottieni agente
-- ✅ `GET /api/v1/agents/capability/{type}` - Trova agenti per capability
-- ✅ `POST /api/v1/agents/heartbeat` - Aggiorna heartbeat
-- ✅ `GET /api/v1/agents/` - Lista agenti
+#### Implemented Endpoints:
+- ✅ `POST /api/v1/floor/request` - Request floor
+- ✅ `POST /api/v1/floor/release` - Release floor
+- ✅ `GET /api/v1/floor/holder/{conversation_id}` - Get floor holder
+- ✅ `POST /api/v1/envelopes/send` - Send complete envelope
+- ✅ `POST /api/v1/envelopes/utterance` - Send simplified utterance
+- ✅ `POST /api/v1/envelopes/validate` - Validate envelope
+- ✅ `POST /api/v1/agents/register` - Register agent
+- ✅ `GET /api/v1/agents/{speakerUri}` - Get agent
+- ✅ `GET /api/v1/agents/capability/{type}` - Find agents by capability
+- ✅ `POST /api/v1/agents/heartbeat` - Update heartbeat
+- ✅ `GET /api/v1/agents/` - List agents
 
-**File**: `src/api/floor.py`, `src/api/envelope.py`, `src/api/registry.py`
+**Files**: `src/api/floor.py`, `src/api/envelope.py`, `src/api/registry.py`
 
-### Pattern di Orchestrazione ✅
+### Orchestration Patterns ✅
 
 #### 1. Convener-Based Orchestration ✅
 - ✅ Round-robin strategy
 - ✅ Priority-based strategy
 - ✅ Context-aware strategy (base)
-- ✅ Invite/uninvite partecipanti
+- ✅ Invite/uninvite participants
 - ✅ Grant/revoke floor
 
 **File**: `src/orchestration/convener.py`
@@ -76,64 +76,64 @@
 
 ### Agent Implementations ✅
 
-- ✅ `BaseAgent`: Classe base astratta per agenti OFP
-- ✅ `ExampleAgent`: Implementazione esempio con speakerUri
-- ✅ Supporto per handle_envelope OFP 1.0.0
+- ✅ `BaseAgent`: Abstract base class for OFP agents
+- ✅ `ExampleAgent`: Example implementation with speakerUri
+- ✅ Support for handle_envelope OFP 1.0.0
 - ✅ Process utterance
 
-**File**: `src/agents/base_agent.py`, `src/agents/example_agent.py`
+**Files**: `src/agents/base_agent.py`, `src/agents/example_agent.py`
 
-### Conformità OFP 1.0.0 ✅
+### OFP 1.0.0 Compliance ✅
 
-- ✅ Struttura envelope con `openFloor` wrapper
-- ✅ Schema object con version
-- ✅ Conversation object con id e conversants
-- ✅ Sender object con speakerUri/serviceUrl
-- ✅ Events array con eventType, to, parameters
+- ✅ Envelope structure with `openFloor` wrapper
+- ✅ Schema object with version
+- ✅ Conversation object with id and conversants
+- ✅ Sender object with speakerUri/serviceUrl
+- ✅ Events array with eventType, to, parameters
 - ✅ Event types: utterance, invite, uninvite, declineInvite, bye, getManifests, publishManifests, requestFloor, grantFloor, revokeFloor, yieldFloor
-- ✅ Identificazione agenti con speakerUri (URI univoco)
+- ✅ Agent identification with speakerUri (unique URI)
 
 ### Testing ✅
 
-- ✅ Test suite pytest per floor_manager
-- ✅ Test suite pytest per envelope_router
-- ✅ Test suite pytest per agent_registry
-- ✅ Test suite pytest per agents
-- ✅ Test workflow script completo
+- ✅ pytest test suite for floor_manager
+- ✅ pytest test suite for envelope_router
+- ✅ pytest test suite for agent_registry
+- ✅ pytest test suite for agents
+- ✅ Complete test workflow script
 
-**File**: `tests/test_*.py`, `examples/test_workflow.sh`
+**Files**: `tests/test_*.py`, `examples/test_workflow.sh`
 
-### Documentazione ✅
+### Documentation ✅
 
-- ✅ README.md con overview e quick start
-- ✅ SETUP.md con setup dettagliato
-- ✅ QUICKSTART.md per avvio rapido
-- ✅ GETTING_STARTED.md con istruzioni complete
-- ✅ ARCHITECTURE_DETAILED.md con architettura dettagliata
-- ✅ API.md con reference API
-- ✅ Swagger UI automatica (/docs)
+- ✅ README.md with overview and quick start
+- ✅ SETUP.md with detailed setup
+- ✅ QUICKSTART.md for quick start
+- ✅ GETTING_STARTED.md with complete instructions
+- ✅ ARCHITECTURE_DETAILED.md with detailed architecture
+- ✅ API.md with API reference
+- ✅ Automatic Swagger UI (/docs)
 
 ### Docker & Deployment ✅
 
-- ✅ Dockerfile per API
-- ✅ docker-compose.yml con PostgreSQL, Redis, API
-- ✅ docker-compose.multi-agent.yml esempio multi-agente
-- ✅ Health checks configurati
-- ✅ Volumes per persistenza dati
+- ✅ Dockerfile for API
+- ✅ docker-compose.yml with PostgreSQL, Redis, API
+- ✅ docker-compose.multi-agent.yml multi-agent example
+- ✅ Health checks configured
+- ✅ Volumes for data persistence
 
-**File**: `docker/Dockerfile`, `docker-compose.yml`, `examples/docker-compose.multi-agent.yml`
+**Files**: `docker/Dockerfile`, `docker-compose.yml`, `examples/docker-compose.multi-agent.yml`
 
-## 🚧 Implementazioni Future (Opzionali)
+## 🚧 Future Implementations (Optional)
 
 ### WebSocket Support
-- [ ] WebSocket endpoint per real-time communication
+- [ ] WebSocket endpoint for real-time communication
 - [ ] Bidirectional envelope streaming
 - [ ] Connection management
 
 ### Semantic Cache Integration
-- [ ] Integrazione caching semantico per ottimizzazione
-- [ ] Context caching per conversazioni
-- [ ] Similarity search per cache hits
+- [ ] Semantic caching integration for optimization
+- [ ] Context caching for conversations
+- [ ] Similarity search for cache hits
 
 ### Observability
 - [ ] Prometheus metrics
@@ -141,87 +141,86 @@
 - [ ] Performance monitoring dashboard
 
 ### Database Persistence
-- [ ] SQLAlchemy models per agent registry
+- [ ] SQLAlchemy models for agent registry
 - [ ] Conversation history storage
 - [ ] Alembic migrations
 
 ### Security Enhancements
 - [ ] Authentication (JWT/OAuth)
-- [ ] Authorization per agenti
+- [ ] Authorization for agents
 - [ ] Rate limiting
-- [ ] Input sanitization avanzata
+- [ ] Advanced input sanitization
 
 ### Advanced Features
 - [ ] Multi-protocol support (WebSocket, HTTP/2, gRPC)
-- [ ] Load balancing per agenti
+- [ ] Load balancing for agents
 - [ ] Circuit breaker pattern
-- [ ] Message queuing avanzato (RabbitMQ/Kafka)
+- [ ] Advanced message queuing (RabbitMQ/Kafka)
 
-## 📊 Statistiche Implementazione
+## 📊 Implementation Statistics
 
-- **File Python**: ~20 file
-- **Linee di Codice**: ~3000+ linee
-- **Test Cases**: ~15+ test
-- **API Endpoints**: 11 endpoints REST
-- **Pattern Orchestrazione**: 3 pattern implementati
-- **Conformità OFP**: 100% struttura envelope, event types principali
+- **Python Files**: ~20 files
+- **Lines of Code**: ~3000+ lines
+- **Test Cases**: ~15+ tests
+- **API Endpoints**: 11 REST endpoints
+- **Orchestration Patterns**: 3 patterns implemented
+- **OFP Compliance**: 100% envelope structure, main event types
 
-## 🎯 Come Usare
+## 🎯 How to Use
 
-### Avvio Rapido
+### Quick Start
 
 ```bash
 # 1. Setup
 docker-compose up -d
 
-# 2. Verifica
+# 2. Verify
 curl http://localhost:8000/health
 
 # 3. Test
 ./examples/test_workflow.sh
 
-# 4. Esplora
+# 4. Explore
 open http://localhost:8000/docs
 ```
 
-### Documentazione Principale
+### Main Documentation
 
-1. **Per iniziare**: `docs/GETTING_STARTED.md`
-2. **Setup dettagliato**: `docs/SETUP.md`
-3. **Architettura**: `docs/ARCHITECTURE_DETAILED.md`
-4. **API Reference**: `docs/api.md` o http://localhost:8000/docs
+1. **To get started**: `docs/GETTING_STARTED.md`
+2. **Detailed setup**: `docs/SETUP.md`
+3. **Architecture**: `docs/ARCHITECTURE_DETAILED.md`
+4. **API Reference**: `docs/api.md` or http://localhost:8000/docs
 
-## ✅ Checklist Conformità
+## ✅ Compliance Checklist
 
-- [x] Struttura envelope OFP 1.0.0
-- [x] Event types principali
-- [x] Identificazione agenti (speakerUri/serviceUrl)
+- [x] OFP 1.0.0 envelope structure
+- [x] Main event types
+- [x] Agent identification (speakerUri/serviceUrl)
 - [x] Floor control primitives
-- [x] Agent registry e discovery
+- [x] Agent registry and discovery
 - [x] Envelope routing
 - [x] REST API endpoints
 - [x] Docker deployment
 - [x] Test suite
-- [x] Documentazione completa
+- [x] Complete documentation
 
-## 🎓 Prossimi Passi Consigliati
+## 🎓 Recommended Next Steps
 
-1. **Testa il sistema**: Esegui `./examples/test_workflow.sh`
-2. **Esplora Swagger UI**: http://localhost:8000/docs
-3. **Crea il tuo agente**: Estendi `BaseAgent`
-4. **Testa pattern orchestrazione**: Vedi esempi in `src/orchestration/`
-5. **Integra con i tuoi agenti**: Usa REST API per integrazione
+1. **Test the system**: Run `./examples/test_workflow.sh`
+2. **Explore Swagger UI**: http://localhost:8000/docs
+3. **Create your agent**: Extend `BaseAgent`
+4. **Test orchestration patterns**: See examples in `src/orchestration/`
+5. **Integrate with your agents**: Use REST API for integration
 
-## 📝 Note
+## 📝 Notes
 
-- Il sistema è **production-ready** per scenari base
-- Per produzione enterprise, considerare: authentication, monitoring, scaling
-- WebSocket support può essere aggiunto facilmente se necessario
-- Semantic cache può essere integrato come middleware
+- The system is **production-ready** for basic scenarios
+- For enterprise production, consider: authentication, monitoring, scaling
+- WebSocket support can be easily added if needed
+- Semantic cache can be integrated as middleware
 
-## 🔗 Riferimenti
+## 🔗 References
 
 - **OFP Specification**: https://github.com/open-voice-interoperability/openfloor-docs
-- **Repository**: Questo progetto
-- **Documentazione**: `docs/` directory
-
+- **Repository**: This project
+- **Documentation**: `docs/` directory
