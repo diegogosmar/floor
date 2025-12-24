@@ -109,7 +109,109 @@ DEMO: Multi-Agent Conversation with Floor Control
 ...
 ```
 
-### Option 2: Manual Testing with curl
+### Option 2: Testing with LLM Agents (Real AI)
+
+**Note**: Demo agents use hardcoded responses. For real AI-powered agents that use LLM models (OpenAI, Anthropic, Ollama), use LLM agents:
+
+#### Prerequisites
+
+```bash
+# Install LLM provider libraries
+pip install openai  # For OpenAI GPT models
+# pip install anthropic  # For Anthropic Claude models
+# pip install ollama  # For local LLM (optional)
+
+# Set API key (required for OpenAI/Anthropic)
+export OPENAI_API_KEY="sk-..."
+# export ANTHROPIC_API_KEY="sk-ant-..."  # For Anthropic
+```
+
+#### Quick Test
+
+```bash
+# Quick test to verify your API key works
+python examples/agents/quick_llm_test.py
+```
+
+This will:
+- ✅ Check if `OPENAI_API_KEY` is set
+- ✅ Make a simple API call to OpenAI
+- ✅ Show the response
+
+#### Full LLM Agent Examples
+
+```bash
+# Run complete examples with multiple providers
+python examples/agents/llm_agent_example.py
+```
+
+This demonstrates:
+- ✅ OpenAI GPT-4o-mini agent
+- ✅ OpenAI GPT-4o agent
+- ✅ Ollama local LLM agent (if Ollama is running)
+- ✅ Multi-LLM agent conversation
+
+**Example Output:**
+```
+🚀 LLM Agent Examples
+============================================================
+
+Example: OpenAI Agent
+============================================================
+✅ Using OPENAI_API_KEY: sk-xxxxx...
+📨 Received message: Hello! Can you help me understand how floor control works?
+🤖 Processing with OpenAI...
+💬 Agent response: Sure! Floor control is a method used in discussions...
+```
+
+#### Supported LLM Providers
+
+**OpenAI:**
+- Models: `gpt-4o-mini`, `gpt-4o`, `gpt-4`, `gpt-3.5-turbo`
+- Requires: `OPENAI_API_KEY` environment variable
+- Cost: Pay-per-use (see OpenAI pricing)
+
+**Anthropic:**
+- Models: `claude-3-haiku-20240307`, `claude-3-sonnet-20240229`, `claude-3-opus-20240229`
+- Requires: `ANTHROPIC_API_KEY` environment variable
+- Cost: Pay-per-use (see Anthropic pricing)
+
+**Ollama (Local):**
+- Models: Any model available in Ollama (`llama3`, `mistral`, etc.)
+- Requires: Ollama installed and running (`ollama serve`)
+- Cost: Free (runs locally on your machine)
+
+#### Using LLM Agents with Floor Manager
+
+LLM agents can be registered and used with the Floor Manager just like demo agents:
+
+```python
+from src.agents.llm_agent import LLMAgent
+import httpx
+
+# Create LLM agent
+agent = LLMAgent(
+    speakerUri="tag:example.com,2025:llm_agent",
+    agent_name="AI Assistant",
+    llm_provider="openai",
+    model_name="gpt-4o-mini"
+)
+
+# Register with Floor Manager
+async with httpx.AsyncClient() as client:
+    await client.post(
+        "http://localhost:8000/api/v1/agents/register",
+        json={
+            "speakerUri": agent.speakerUri,
+            "agent_name": agent.agent_name,
+            "capabilities": ["text_generation"]
+        }
+    )
+```
+
+📖 **See**: [LLM Integration Guide](LLM_INTEGRATION.md) for complete documentation.
+
+### Option 3: Manual Testing with curl
 
 #### 1. Register Example Agents
 
@@ -394,12 +496,14 @@ docker-compose logs api | grep -i floor
 
 1. **Explore Swagger UI**: http://localhost:8000/docs
 2. **Modify demo agents**: See `examples/agents/demo_agents.py`
-3. **Create your agent**: Extend `DemoAgent` or `BaseAgent`
-4. **Test orchestration patterns**: See `src/orchestration/`
+3. **Try LLM agents**: See `examples/agents/llm_agent_example.py` and [LLM Integration Guide](LLM_INTEGRATION.md)
+4. **Create your agent**: Extend `DemoAgent`, `BaseAgent`, or `LLMAgent`
+5. **Test orchestration patterns**: See `src/orchestration/`
 
 ## References
 
 - **Complete Setup**: `docs/SETUP.md`
 - **Architecture**: `docs/ARCHITECTURE_DETAILED.md`
+- **LLM Integration**: `docs/LLM_INTEGRATION.md` - How to use real LLM providers
 - **API Reference**: http://localhost:8000/docs
 - **Quick Start**: `docs/QUICKSTART.md`

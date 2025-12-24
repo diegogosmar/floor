@@ -108,6 +108,33 @@ open http://localhost:8000/docs
 # Or visit: http://localhost:8000/docs
 ```
 
+#### 4. Test with LLM Agents (Optional)
+
+**Note**: Demo agents use hardcoded responses. For real AI-powered agents, use LLM agents:
+
+```bash
+# Install LLM provider libraries
+pip install openai  # For OpenAI
+# pip install anthropic  # For Anthropic
+# pip install ollama  # For local LLM (optional)
+
+# Set API key (if using OpenAI)
+export OPENAI_API_KEY="sk-..."
+
+# Quick test to verify API key works
+python examples/agents/quick_llm_test.py
+
+# Full LLM agent examples (OpenAI, Anthropic, Ollama)
+python examples/agents/llm_agent_example.py
+```
+
+**Supported Providers:**
+- **OpenAI**: GPT-4, GPT-4o, GPT-4o-mini, GPT-3.5-turbo
+- **Anthropic**: Claude 3 (Haiku, Sonnet, Opus)
+- **Ollama**: Local LLM models (requires `ollama serve`)
+
+📖 **See**: [LLM Integration Guide](docs/LLM_INTEGRATION.md) for detailed instructions.
+
 ### Quick Manual Test
 
 ```bash
@@ -139,6 +166,7 @@ curl http://localhost:8000/api/v1/floor/holder/conv_test
 - **⚙️ Detailed Setup**: [docs/SETUP.md](docs/SETUP.md)
 - **🏗️ Architecture**: [docs/ARCHITECTURE_DETAILED.md](docs/ARCHITECTURE_DETAILED.md)
 - **🤖 Agent Integration**: [docs/OFP_AGENT_INTEGRATION.md](docs/OFP_AGENT_INTEGRATION.md) - Manifest, floor control, OFP compliance with **interactive diagrams** 📊
+- **🧠 LLM Integration**: [docs/LLM_INTEGRATION.md](docs/LLM_INTEGRATION.md) - How to use real LLM providers (OpenAI, Anthropic, Ollama)
 - **📖 Quick Reference**: [docs/QUICKSTART.md](docs/QUICKSTART.md)
 
 ## Development
