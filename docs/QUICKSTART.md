@@ -93,7 +93,14 @@ For a detailed guide on how to launch and test the system:
 1. **Read complete documentation**: `docs/SETUP.md`
 2. **Explore orchestration patterns**: `src/orchestration/`
 3. **Create your agent**: See `src/agents/example_agent.py`
-4. **Test with pytest**: `pytest tests/`
+4. **Test with pytest**: 
+   ```bash
+   # Install pytest-asyncio first
+   pip install pytest-asyncio
+   
+   # Run tests
+   pytest tests/
+   ```
 
 ## Useful Commands
 

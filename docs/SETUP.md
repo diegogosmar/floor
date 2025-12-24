@@ -350,6 +350,18 @@ await hybrid.recall_delegation(sub_conv_id)
 
 ## Testing with Pytest
 
+**Important**: First install `pytest-asyncio` (required for async tests):
+
+```bash
+# Install pytest-asyncio
+pip install pytest-asyncio
+
+# Verify installation
+pip list | grep pytest-asyncio
+```
+
+Then run tests:
+
 ```bash
 # Run all tests
 pytest
@@ -365,6 +377,8 @@ pytest --cov=src --cov-report=html
 # Verbose tests
 pytest -v
 ```
+
+**Troubleshooting**: If you see "async def functions are not natively supported", see [Testing Guide](TESTING.md).
 
 ## Troubleshooting
 

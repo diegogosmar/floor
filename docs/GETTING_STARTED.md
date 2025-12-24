@@ -342,7 +342,14 @@ docker-compose logs api | grep -i registry
 3. **Test Orchestration Patterns**: See examples in `src/orchestration/`
 4. **Create Your Agent**: Extend `BaseAgent` in `src/agents/`
 5. **Use Real LLM Agents**: See `docs/LLM_INTEGRATION.md` to integrate OpenAI, Anthropic, etc.
-6. **Run Test Suite**: `pytest tests/`
+6. **Run Test Suite**: 
+   ```bash
+   # First, install pytest-asyncio (required for async tests)
+   pip install pytest-asyncio
+   
+   # Then run tests
+   pytest tests/
+   ```
 
 ## 💡 Tips
 
