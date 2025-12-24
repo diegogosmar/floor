@@ -170,11 +170,27 @@ curl http://localhost:8000/api/v1/floor/holder/conv_test
 - **🏗️ Architecture**: [docs/ARCHITECTURE_DETAILED.md](docs/ARCHITECTURE_DETAILED.md)
 - **🤖 Agent Integration**: [docs/OFP_AGENT_INTEGRATION.md](docs/OFP_AGENT_INTEGRATION.md) - Manifest, floor control, OFP compliance with **interactive diagrams** 📊
 - **🧠 LLM Integration**: [docs/LLM_INTEGRATION.md](docs/LLM_INTEGRATION.md) - How to use real LLM providers (OpenAI, Anthropic, Ollama)
+- **🧪 Testing**: [docs/TESTING.md](docs/TESTING.md) - How to run tests and troubleshoot pytest-asyncio issues
 - **📖 Quick Reference**: [docs/QUICKSTART.md](docs/QUICKSTART.md)
 
 ## Development
 
 ### Running Tests
+
+**Important**: Make sure `pytest-asyncio` is installed in your virtual environment:
+
+```bash
+# Install test dependencies (if not already installed)
+pip install -r requirements.txt
+
+# Verify pytest-asyncio is installed
+pip list | grep pytest-asyncio
+
+# If missing, install it explicitly
+pip install pytest-asyncio>=0.23.0
+```
+
+Then run tests:
 
 ```bash
 # Run all tests
@@ -186,6 +202,8 @@ pytest --cov=src --cov-report=html
 # Run specific test file
 pytest tests/test_floor_manager.py
 ```
+
+**Troubleshooting**: If you see "async def functions are not natively supported", see [Testing Guide](docs/TESTING.md) for detailed troubleshooting steps.
 
 ### Code Quality
 
