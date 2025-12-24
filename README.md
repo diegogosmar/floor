@@ -1,6 +1,6 @@
 # Open Floor Protocol (OFP) Multi-Agent System
 
-A Python-based implementation of the Open Floor Protocol 1.0.0 specification for multi-agent conversation management and floor control.
+A Python-based implementation of the Open Floor Protocol 1.0.1 specification for multi-agent conversation management and floor control.
 
 ## Overview
 
@@ -13,7 +13,7 @@ This project implements a multi-agent system following the Open Floor Protocol (
 
 ## Architecture
 
-### Multi-Layer Architecture per OFP 1.0.0
+### Multi-Layer Architecture per OFP 1.0.1
 
 ```
 src/
@@ -28,8 +28,8 @@ src/
 
 ### Three Main Layers
 
-1. **Floor Manager Layer** (also called "Convener" in the specifications): Manages floor control primitives (requestFloor, grantFloor, revokeFloor, yieldFloor) and coordinates conversational turns
-2. **Conversation Envelope Router**: Routes OFP 1.0.0 compliant JSON envelopes between heterogeneous agents
+1. **Floor Manager Layer** (also called "Convener" in the specifications): Manages floor control primitives (requestFloor, grantFloor, revokeFloor, yieldFloor) as an autonomous state machine. The Floor Manager IS the Convener per OFP 1.0.1, making all floor decisions autonomously.
+2. **Conversation Envelope Router**: Routes OFP 1.0.1 compliant JSON envelopes between heterogeneous agents
 3. **Agent Capability Registry**: Maintains agent manifests per Assistant Manifest Specification, enabling dynamic capability discovery
 
 📊 **Visual Architecture Diagrams**: See [Agent Integration Guide](docs/OFP_AGENT_INTEGRATION.md) for interactive Mermaid diagrams showing the complete system architecture, integration flow, floor control state machine, and capability discovery.
@@ -256,13 +256,20 @@ Once the server is running, access the interactive API documentation:
 - **Swagger UI**: http://localhost:8000/docs
 - **ReDoc**: http://localhost:8000/redoc
 
-## Open Floor Protocol 1.0.0
+## Open Floor Protocol 1.0.1
 
-This implementation follows the Open Floor Protocol 1.0.0 specification for:
-- Floor control primitives
-- Conversation envelope format
+This implementation follows the Open Floor Protocol 1.0.1 specification for:
+- Floor control primitives (autonomous state machine with convener)
+- Conversation envelope format (with assignedFloorRoles and floorGranted)
 - Agent capability discovery
 - Message routing and delivery
+- Privacy flag handling (only for utterance events)
+
+**Key OFP 1.0.1 Features**:
+- Floor Manager acts as autonomous Convener
+- `assignedFloorRoles` and `floorGranted` in conversation object
+- `acceptInvite` event support
+- Privacy flag only respected for utterance events
 
 ## Contributing
 

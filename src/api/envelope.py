@@ -1,5 +1,5 @@
 """
-Conversation Envelope API endpoints per OFP 1.0.0
+Conversation Envelope API endpoints per OFP 1.0.1
 """
 
 from fastapi import APIRouter, HTTPException, Depends
@@ -53,7 +53,7 @@ async def send_envelope(
     envelope_router: EnvelopeRouter = Depends(get_envelope_router)
 ) -> dict:
     """
-    Send a conversation envelope per OFP 1.0.0
+    Send a conversation envelope per OFP 1.0.1
     
     Accepts full OpenFloorEnvelope JSON structure
     """
@@ -90,7 +90,7 @@ async def send_utterance(
     envelope_router: EnvelopeRouter = Depends(get_envelope_router)
 ) -> dict:
     """
-    Send an utterance event per OFP 1.0.0
+    Send an utterance event per OFP 1.0.1
     
     Simplified endpoint for sending text utterances
     """
@@ -123,7 +123,7 @@ async def validate_envelope(
     envelope: Dict[str, Any]
 ) -> dict:
     """
-    Validate an envelope against OFP 1.0.0 schema
+    Validate an envelope against OFP 1.0.1 schema
     """
     try:
         ofp_envelope = OpenFloorEnvelope.from_dict(envelope);

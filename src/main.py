@@ -38,7 +38,7 @@ logger = structlog.get_logger()
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
-    description="Open Floor Protocol 1.0.0 Multi-Agent System",
+    description="Open Floor Protocol 1.0.1 Multi-Agent System",
     docs_url="/docs",
     redoc_url="/redoc",
 )

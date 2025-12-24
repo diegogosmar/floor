@@ -1,5 +1,5 @@
 """
-Floor Management API endpoints per OFP 1.0.0
+Floor Management API endpoints per OFP 1.0.1
 """
 
 from fastapi import APIRouter, HTTPException, Depends
@@ -53,7 +53,7 @@ async def request_floor(
     floor_control: FloorControl = Depends(get_floor_control)
 ) -> FloorResponse:
     """
-    Request floor for a conversation per OFP 1.0.0
+    Request floor for a conversation per OFP 1.0.1
     
     Implements requestFloor event behavior
     """
@@ -84,7 +84,7 @@ async def release_floor(
     floor_control: FloorControl = Depends(get_floor_control)
 ) -> dict:
     """
-    Release floor for a conversation per OFP 1.0.0
+    Release floor for a conversation per OFP 1.0.1
     
     Implements yieldFloor event behavior
     """
@@ -120,10 +120,15 @@ async def get_floor_holder(
     Get current floor holder for a conversation
     """
     holder = await floor_control.get_floor_holder(conversation_id);
+    
+    # Get conversation metadata per OFP 1.0.1 (includes assignedFloorRoles and floorGranted)
+    metadata = floor_control.get_conversation_metadata(conversation_id);
 
     return {
         "conversation_id": conversation_id,
         "holder": holder,
-        "has_floor": holder is not None
+        "has_floor": holder is not None,
+        "assignedFloorRoles": metadata.get("assignedFloorRoles"),
+        "floorGranted": metadata.get("floorGranted")
     };
 

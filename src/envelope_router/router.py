@@ -1,5 +1,8 @@
 """
-Envelope Router - Routes conversation envelopes between agents per OFP 1.0.0
+Envelope Router - Routes conversation envelopes between agents per OFP 1.0.1
+
+Per OFP 1.0.1: Privacy flag is only respected for utterance events.
+For all other events, the privacy flag is ignored.
 """
 
 from typing import Optional, Dict, Callable, List
@@ -24,7 +27,7 @@ logger = structlog.get_logger()
 class EnvelopeRouter:
     """
     Routes conversation envelopes between agents
-    Implements OFP 1.0.0 envelope routing
+    Implements OFP 1.0.1 envelope routing
     """
 
     def __init__(self) -> None:
@@ -66,7 +69,7 @@ class EnvelopeRouter:
 
     async def route_envelope(self, envelope: OpenFloorEnvelope) -> bool:
         """
-        Route envelope to target agents based on events
+        Route envelope to target agents based on events per OFP 1.0.1
 
         Args:
             envelope: Open Floor envelope to route
@@ -77,6 +80,13 @@ class EnvelopeRouter:
         routed = False;
 
         for event in envelope.events:
+            # OFP 1.0.1: Privacy flag only respected for utterance events
+            is_private = (
+                event.to is not None
+                and event.to.private
+                and event.eventType == EventType.UTTERANCE
+            );
+
             # If no 'to' section, event is for all recipients
             if event.to is None:
                 # Broadcast to all registered agents except sender
@@ -103,6 +113,36 @@ class EnvelopeRouter:
                 logger.warning("Event has 'to' section but no speakerUri");
                 continue;
 
+            # For private utterance events, only route to intended recipient
+            if is_private:
+                if target_speakerUri not in self._routes:
+                    logger.warning(
+                        "No route found for private event recipient",
+                        speakerUri=target_speakerUri
+                    );
+                    continue;
+                
+                try:
+                    await asyncio.wait_for(
+                        self._routes[target_speakerUri](envelope),
+                        timeout=self._timeout
+                    );
+                    routed = True;
+                    logger.debug(
+                        "Private utterance routed",
+                        speakerUri=target_speakerUri
+                    );
+                except Exception as e:
+                    logger.error(
+                        "Private routing error",
+                        speakerUri=target_speakerUri,
+                        error=str(e)
+                    );
+                continue;
+
+            # For non-utterance events or non-private utterances:
+            # Privacy flag is ignored per OFP 1.0.1
+            # Route to intended recipient
             if target_speakerUri not in self._routes:
                 logger.warning(
                     "No route found for agent",
@@ -154,7 +194,7 @@ class EnvelopeRouter:
         Returns:
             Created envelope
         """
-        schema = SchemaObject(version="1.0.0");
+        schema = SchemaObject(version="1.0.1");
         conversation = ConversationObject(id=conversation_id);
         sender = SenderObject(
             speakerUri=sender_speakerUri,
