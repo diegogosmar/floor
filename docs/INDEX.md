@@ -38,12 +38,19 @@
    - What's planned
    - Compliance checklist
 
+8. **[DATABASE_ARCHITECTURE.md](DATABASE_ARCHITECTURE.md)** - Database Architecture
+   - PostgreSQL configuration and usage
+   - Redis configuration and usage
+   - Current in-memory vs. future persistent storage
+   - Migration path and best practices
+
 ## 🎯 Use Case Guides
 
 ### For Developers
 
 - **Setup**: [SETUP.md](SETUP.md)
 - **Architecture**: [ARCHITECTURE_DETAILED.md](ARCHITECTURE_DETAILED.md)
+- **Database**: [DATABASE_ARCHITECTURE.md](DATABASE_ARCHITECTURE.md)
 - **API**: [api.md](api.md) or http://localhost:8000/docs
 
 ### For Quick Testing
@@ -55,6 +62,7 @@
 ### For Understanding the System
 
 - **Architecture**: [ARCHITECTURE_DETAILED.md](ARCHITECTURE_DETAILED.md)
+- **Database**: [DATABASE_ARCHITECTURE.md](DATABASE_ARCHITECTURE.md)
 - **Status**: [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md)
 - **README**: `../README.md`
 
