@@ -113,7 +113,10 @@ open http://localhost:8000/docs
 **Note**: Demo agents use hardcoded responses. For real AI-powered agents, use LLM agents:
 
 ```bash
-# Install LLM provider libraries
+# First, install project dependencies (required)
+pip install -r requirements.txt
+
+# Then install LLM provider libraries
 pip install openai  # For OpenAI
 # pip install anthropic  # For Anthropic
 # pip install ollama  # For local LLM (optional)

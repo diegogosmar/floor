@@ -116,7 +116,10 @@ DEMO: Multi-Agent Conversation with Floor Control
 #### Prerequisites
 
 ```bash
-# Install LLM provider libraries
+# First, install project dependencies (REQUIRED - includes structlog, httpx, etc.)
+pip install -r requirements.txt
+
+# Then install LLM provider libraries
 pip install openai  # For OpenAI GPT models
 # pip install anthropic  # For Anthropic Claude models
 # pip install ollama  # For local LLM (optional)
@@ -455,15 +458,28 @@ curl http://localhost:8000/api/v1/floor/holder/$CONV_ID | jq
 
 ### Problem: Python Script Cannot Find Modules
 
+**Error**: `ModuleNotFoundError: No module named 'structlog'` (or other modules)
+
+**Solution**: Install project dependencies first:
+
 ```bash
 # Make sure you're in the project root directory
 cd /path/to/floor
 
-# Install dependencies
-pip install httpx
+# Install all project dependencies (REQUIRED)
+pip install -r requirements.txt
 
-# Run with PYTHONPATH
-PYTHONPATH=. python examples/agents/demo_agents.py
+# Then try again
+python examples/agents/quick_llm_test.py
+```
+
+**Note**: For LLM agents, you also need:
+```bash
+# Install project dependencies first
+pip install -r requirements.txt
+
+# Then install LLM provider
+pip install openai  # or anthropic, ollama
 ```
 
 ### Problem: Agents Don't Register
