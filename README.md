@@ -28,7 +28,7 @@ src/
 
 ### Three Main Layers
 
-1. **Floor Manager Layer**: Manages floor control primitives (requestFloor, grantFloor, revokeFloor, yieldFloor) and coordinates conversational turns
+1. **Floor Manager Layer** (also called "Convener" in the specifications): Manages floor control primitives (requestFloor, grantFloor, revokeFloor, yieldFloor) and coordinates conversational turns
 2. **Conversation Envelope Router**: Routes OFP 1.0.0 compliant JSON envelopes between heterogeneous agents
 3. **Agent Capability Registry**: Maintains agent manifests per Assistant Manifest Specification, enabling dynamic capability discovery
 
