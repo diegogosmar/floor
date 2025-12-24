@@ -5,7 +5,7 @@ Conversation Envelope - OFP 1.0.1 Interoperable Conversation Envelope Specificat
 from datetime import datetime
 from enum import Enum
 from typing import Optional, Dict, Any, List
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class EventType(str, Enum):
@@ -40,9 +40,10 @@ class SchemaObject(BaseModel):
         description="URL to JSON schema for validation"
     )
     
-    class Config:
+    model_config = ConfigDict(
         # Avoid shadowing BaseModel.schema
-        json_schema_extra = {"examples": [{"version": "1.0.1"}]}
+        json_schema_extra={"examples": [{"version": "1.0.1"}]}
+    )
 
 
 class ConversantIdentification(BaseModel):
@@ -152,11 +153,12 @@ class OpenFloorEnvelope(BaseModel):
     sender: SenderObject = Field(..., description="Sender information")
     events: List[EventObject] = Field(..., description="List of events")
 
-    class Config:
-        populate_by_name = True  # Allow both alias "schema" and attribute name "schema_obj"
-        json_encoders = {
+    model_config = ConfigDict(
+        populate_by_name=True,  # Allow both alias "schema" and attribute name "schema_obj"
+        json_encoders={
             datetime: lambda v: v.isoformat()
         }
+    )
 
     def to_dict(self) -> dict:
         """Convert envelope to dictionary with openFloor wrapper"""

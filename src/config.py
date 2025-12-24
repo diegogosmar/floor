@@ -3,6 +3,7 @@ Application configuration using Pydantic settings
 """
 
 from pydantic_settings import BaseSettings
+from pydantic import ConfigDict
 from typing import List
 
 
@@ -76,10 +77,11 @@ class Settings(BaseSettings):
     CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:8000"]
     CORS_CREDENTIALS: bool = True
 
-    class Config:
-        env_file = ".env"
-        case_sensitive = True
-        extra = "ignore"  # Ignore extra environment variables (like DATABASE_URL, REDIS_URL)
+    model_config = ConfigDict(
+        env_file=".env",
+        case_sensitive=True,
+        extra="ignore"  # Ignore extra environment variables (like DATABASE_URL, REDIS_URL)
+    )
 
 
 settings = Settings()
