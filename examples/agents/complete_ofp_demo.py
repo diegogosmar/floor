@@ -141,7 +141,7 @@ async def demonstrate_floor_control(conversation_id: str):
     coordinator = OFPDemoAgent(
         speakerUri="tag:demo.com,2025:coordinator",
         agent_name="Coordinator Agent",
-        capabilities=[CapabilityType.TEXT_GENERATION, CapabilityType.ORCHESTRATION],
+        capabilities=[CapabilityType.TEXT_GENERATION],
         priority=10  # Highest priority
     )
     
