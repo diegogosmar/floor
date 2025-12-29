@@ -29,7 +29,10 @@ class OFPDemoAgent(ExampleAgent):
     """Demo agent that interacts with Floor Manager API"""
     
     def __init__(self, speakerUri: str, agent_name: str, capabilities: list, priority: int = 5):
-        super().__init__(speakerUri, agent_name, capabilities=capabilities)
+        # ExampleAgent doesn't take capabilities parameter, it sets them internally
+        super().__init__(speakerUri, agent_name)
+        # Override capabilities_list with our custom capabilities
+        self.capabilities_list = capabilities
         self.priority = priority
         self.client = httpx.AsyncClient(timeout=30.0)
         
