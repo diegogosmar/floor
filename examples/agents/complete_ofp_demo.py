@@ -17,14 +17,15 @@ import os
 # Add project root to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../.."))
 
-from src.agents.base_agent import DemoAgent
+from src.agents.example_agent import ExampleAgent
 from src.agent_registry.capabilities import CapabilityType
+from src.envelope_router.envelope import OpenFloorEnvelope, EventObject, EventType
 
 # Floor Manager API base URL
 FLOOR_API = "http://localhost:8000/api/v1"
 
 
-class OFPDemoAgent(DemoAgent):
+class OFPDemoAgent(ExampleAgent):
     """Demo agent that interacts with Floor Manager API"""
     
     def __init__(self, speakerUri: str, agent_name: str, capabilities: list, priority: int = 5):
