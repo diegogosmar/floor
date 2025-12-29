@@ -83,25 +83,39 @@ curl http://localhost:8000/health
 
 #### 3. Test with Demo Agents
 
-**Option A: Python Script (Recommended)**
+**Option A: Complete OFP Flow Demo** ⭐ **RECOMMENDED**
+```bash
+# Demonstrates COMPLETE Open Floor Protocol 1.0.1 flow:
+# • Agent registration with manifests
+# • getManifests (capability discovery)  
+# • requestFloor with priority queue
+# • grantFloor by autonomous Convener
+# • Floor yield and handoff between agents
+
+python examples/agents/complete_ofp_demo.py
+```
+
+This shows the **real OFP protocol in action** with the Floor Manager API. See [Complete OFP Demo Guide](examples/agents/COMPLETE_OFP_DEMO.md) for details.
+
+**Option B: Basic Floor Control Demo**
 ```bash
 # Install dependency if needed
 pip install httpx
 
-# Test complete multi-agent conversation
+# Test basic multi-agent conversation
 python examples/agents/demo_agents.py
 
 # Test floor control priority
 python examples/agents/demo_agents.py priority
 ```
 
-**Option B: Bash Script**
+**Option C: Bash Script**
 ```bash
 # Complete workflow test
 ./examples/test_workflow.sh
 ```
 
-**Option C: Swagger UI (Interactive)**
+**Option D: Swagger UI (Interactive)**
 ```bash
 # Open in browser
 open http://localhost:8000/docs
@@ -166,6 +180,7 @@ curl http://localhost:8000/api/v1/floor/holder/conv_test
 ### 📚 Complete Documentation
 
 - **🚀 How to Launch and Test**: [docs/LAUNCH_AND_TEST.md](docs/LAUNCH_AND_TEST.md) ⭐ **START HERE**
+- **🎭 Complete OFP Demo**: [examples/agents/COMPLETE_OFP_DEMO.md](examples/agents/COMPLETE_OFP_DEMO.md) - Full protocol flow with manifests, floor control, priority queue
 - **⚙️ Detailed Setup**: [docs/SETUP.md](docs/SETUP.md)
 - **🏗️ Architecture**: [docs/ARCHITECTURE_DETAILED.md](docs/ARCHITECTURE_DETAILED.md)
 - **🤖 Agent Integration**: [docs/OFP_AGENT_INTEGRATION.md](docs/OFP_AGENT_INTEGRATION.md) - Manifest, floor control, OFP compliance with **interactive diagrams** 📊
