@@ -41,12 +41,26 @@ curl http://localhost:8000/health
 
 ### Step 3: Test with Demo Agents ⭐
 
-**Option A: Python Script (Recommended)**
+**Option A: Complete OFP Flow Demo** ⭐⭐⭐ **RECOMMENDED**
+```bash
+# Demonstrates COMPLETE Open Floor Protocol 1.0.1 flow:
+# • Agent registration with manifests
+# • getManifests (capability discovery)  
+# • requestFloor with priority queue
+# • grantFloor by autonomous Convener
+# • Floor yield and handoff between agents
+
+python examples/agents/complete_ofp_demo.py
+```
+
+This shows the **real OFP protocol in action** with the Floor Manager API. See output example below.
+
+**Option B: Basic Floor Control Demo**
 ```bash
 # Install httpx if needed
 pip install httpx
 
-# Test complete multi-agent conversation
+# Test basic multi-agent conversation
 python examples/agents/demo_agents.py
 
 # Test floor control priority
@@ -63,13 +77,13 @@ python examples/agents/demo_agents.py priority
 > - `examples/agents/quick_llm_test.py` - Quick LLM test
 > - `docs/LLM_INTEGRATION.md` - Complete LLM integration guide
 
-**Option B: Swagger UI (Interactive)**
+**Option C: Swagger UI (Interactive)**
 ```bash
 # Open in browser
 open http://localhost:8000/docs
 ```
 
-**Option C: Bash Script**
+**Option D: Bash Script**
 ```bash
 # Complete workflow test
 ./examples/test_workflow.sh
