@@ -10,7 +10,7 @@ from typing import Optional
 import structlog
 
 from src.floor_manager.floor_control import FloorControl
-from src.envelope_router.envelope import EventType
+from src.floor_manager.envelope import EventType
 
 logger = structlog.get_logger()
 

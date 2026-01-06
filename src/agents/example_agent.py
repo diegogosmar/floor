@@ -1,13 +1,12 @@
 """
-Example Agent - Example implementation of BaseAgent per OFP 1.0.0
+Example Agent - Example implementation of BaseAgent per OFP 1.0.1
 """
 
 from typing import Optional
 import structlog
 
 from src.agents.base_agent import BaseAgent
-from src.agent_registry.capabilities import CapabilityType
-from src.envelope_router.envelope import (
+from src.floor_manager.envelope import (
     OpenFloorEnvelope,
     EventType,
     EventObject,
@@ -19,7 +18,7 @@ logger = structlog.get_logger()
 
 class ExampleAgent(BaseAgent):
     """
-    Example agent implementation per OFP 1.0.0
+    Example agent implementation per OFP 1.0.1
     """
 
     def __init__(
@@ -27,16 +26,15 @@ class ExampleAgent(BaseAgent):
         speakerUri: str = "tag:example.com,2025:example_agent",
         agent_name: str = "Example Agent",
         serviceUrl: Optional[str] = None,
-        agent_version: str = "1.0.0"
+        agent_version: str = "1.0.1"
     ) -> None:
         """Initialize example agent"""
         super().__init__(
             speakerUri=speakerUri,
             agent_name=agent_name,
             serviceUrl=serviceUrl,
-            agent_version=agent_version,
-            capabilities=[CapabilityType.TEXT_GENERATION]
-        );
+            agent_version=agent_version
+        )
 
     async def handle_envelope(
         self,
@@ -118,14 +116,14 @@ class ExampleAgent(BaseAgent):
             return None;
 
         # Create response envelope
-        from src.envelope_router.envelope import (
+        from src.floor_manager.envelope import (
             SchemaObject,
             ConversationObject,
             SenderObject
-        );
+        )
 
         response_envelope = OpenFloorEnvelope(
-            schema_obj=SchemaObject(version="1.0.0"),
+            schema_obj=SchemaObject(version="1.0.1"),
             conversation=ConversationObject(id=envelope.conversation.id),
             sender=SenderObject(
                 speakerUri=self.speakerUri,

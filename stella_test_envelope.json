@@ -1,0 +1,60 @@
+{
+  "schema": {
+    "version": "1.0.1",
+    "url": "https://github.com/open-voice-interoperability/openfloor-docs"
+  },
+  "conversation": {
+    "id": "test_stella_001",
+    "assignedFloorRoles": {
+      "convener": "tag:floor.manager,2025:convener"
+    },
+    "floorGranted": {
+      "speakerUri": "tag:example.com,2025:test_agent",
+      "grantedAt": "2026-01-06T13:33:55.214196+00:00"
+    }
+  },
+  "sender": {
+    "speakerUri": "tag:example.com,2025:test_agent",
+    "serviceUrl": "http://localhost:8000/api/v1/envelope"
+  },
+  "events": [
+    {
+      "to": {
+        "speakerUri": "tag:stella.ovon,2025:agent",
+        "private": false
+      },
+      "eventType": "utterance",
+      "parameters": {
+        "dialogEvent": {
+          "speakerUri": "tag:example.com,2025:test_agent",
+          "span": {
+            "startTime": "2026-01-06T13:33:55.214555+00:00"
+          },
+          "features": {
+            "text": {
+              "mimeType": "text/plain",
+              "tokens": [
+                {
+                  "token": "Hello",
+                  "links": {}
+                },
+                {
+                  "token": "from",
+                  "links": {}
+                },
+                {
+                  "token": "Floor",
+                  "links": {}
+                },
+                {
+                  "token": "Manager!",
+                  "links": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -18,26 +18,33 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../.."))
 
 from src.agents.example_agent import ExampleAgent
-from src.agent_registry.capabilities import CapabilityType
-from src.envelope_router.envelope import OpenFloorEnvelope, EventObject, EventType
+from src.floor_manager.envelope import OpenFloorEnvelope, EventObject, EventType
 
 # Floor Manager API base URL
 FLOOR_API = "http://localhost:8000/api/v1"
 
 
 class OFPDemoAgent(ExampleAgent):
-    """Demo agent that interacts with Floor Manager API"""
+    """
+    Demo agent that interacts with Floor Manager API
     
-    def __init__(self, speakerUri: str, agent_name: str, capabilities: list, priority: int = 5):
-        # ExampleAgent doesn't take capabilities parameter, it sets them internally
+    ⚠️ WARNING: This demo uses old registration API which is NOT part of OFP 1.0.1
+    Use complete_ofp_demo_simple.py for OFP 1.0.1 compliant demo instead.
+    """
+    
+    def __init__(self, speakerUri: str, agent_name: str, priority: int = 5):
         super().__init__(speakerUri, agent_name)
-        # Override capabilities_list with our custom capabilities
-        self.capabilities_list = capabilities
         self.priority = priority
         self.client = httpx.AsyncClient(timeout=30.0)
         
     async def register_with_floor(self):
-        """Register agent with Floor Manager"""
+        """
+        Register agent with Floor Manager
+        
+        ⚠️ WARNING: Agent registration is NOT part of OFP 1.0.1
+        This will fail if the /agents/register endpoint doesn't exist.
+        Use complete_ofp_demo_simple.py instead.
+        """
         print(f"\n📝 Registering {self.agent_name}...")
         
         response = await self.client.post(
@@ -46,7 +53,6 @@ class OFPDemoAgent(ExampleAgent):
                 "speakerUri": self.speakerUri,
                 "agent_name": self.agent_name,
                 "agent_version": self.agent_version,
-                "capabilities": [cap.value for cap in self.capabilities_list],
                 "serviceUrl": self.serviceUrl
             }
         )
@@ -144,21 +150,18 @@ async def demonstrate_floor_control(conversation_id: str):
     coordinator = OFPDemoAgent(
         speakerUri="tag:demo.com,2025:coordinator",
         agent_name="Coordinator Agent",
-        capabilities=[CapabilityType.TEXT_GENERATION],
         priority=10  # Highest priority
     )
     
     analyst = OFPDemoAgent(
         speakerUri="tag:demo.com,2025:analyst",
         agent_name="Data Analyst Agent",
-        capabilities=[CapabilityType.DATA_ANALYSIS],
         priority=7
     )
     
     assistant = OFPDemoAgent(
         speakerUri="tag:demo.com,2025:assistant",
         agent_name="Assistant Agent",
-        capabilities=[CapabilityType.TEXT_GENERATION],
         priority=5
     )
     

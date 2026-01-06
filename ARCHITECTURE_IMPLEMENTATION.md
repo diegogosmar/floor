@@ -514,3 +514,4 @@ def test_api_request_floor(client):
 
 **Summary**: The Floor Manager uses a **Layered + Hexagonal Architecture** with clean separation between presentation (FastAPI), application (FloorManager orchestrator), domain (FloorControl logic), and models (Pydantic). This enables testability, OFP 1.0.1 compliance, and future extensibility.
 
+

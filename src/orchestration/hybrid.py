@@ -14,7 +14,7 @@ import structlog
 
 from src.floor_manager.floor_control import FloorControl
 # Note: Agent registry removed per OFP 1.0.1
-from src.envelope_router.envelope import OpenFloorEnvelope
+from src.floor_manager.envelope import OpenFloorEnvelope
 
 logger = structlog.get_logger()
 

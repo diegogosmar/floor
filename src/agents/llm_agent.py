@@ -7,8 +7,7 @@ import structlog
 import os
 
 from src.agents.base_agent import BaseAgent
-from src.agent_registry.capabilities import CapabilityType
-from src.envelope_router.envelope import (
+from src.floor_manager.envelope import (
     OpenFloorEnvelope,
     EventType,
     EventObject,
@@ -50,8 +49,7 @@ class LLMAgent(BaseAgent):
             speakerUri=speakerUri,
             agent_name=agent_name,
             serviceUrl=serviceUrl,
-            agent_version=agent_version,
-            capabilities=[CapabilityType.TEXT_GENERATION]
+            agent_version=agent_version
         ) 
 
         self.llm_provider = llm_provider.lower()
@@ -302,14 +300,14 @@ Be concise, helpful, and collaborative with other agents in the conversation."""
             return None 
 
         # Create response envelope
-        from src.envelope_router.envelope import (
+        from src.floor_manager.envelope import (
             SchemaObject,
             ConversationObject,
             SenderObject
-        ) 
+        )
 
         response_envelope = OpenFloorEnvelope(
-            schema_obj=SchemaObject(version="1.0.0"),
+            schema_obj=SchemaObject(version="1.0.1"),
             conversation=ConversationObject(id=envelope.conversation.id),
             sender=SenderObject(
                 speakerUri=self.speakerUri,

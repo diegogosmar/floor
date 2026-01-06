@@ -12,7 +12,7 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../.."))
 
 from src.agents.llm_agent import LLMAgent
-from src.envelope_router.envelope import (
+from src.floor_manager.envelope import (
     OpenFloorEnvelope,
     SchemaObject,
     ConversationObject,

@@ -9,6 +9,7 @@ import logging
 
 from src.config import settings
 from src.api import floor_router, envelope_router
+from src.api.websocket import create_sse_endpoint, create_websocket_endpoint
 
 # Convert LOG_LEVEL string to logging level
 LOG_LEVEL_MAP = {
@@ -56,6 +57,10 @@ app.add_middleware(
 app.include_router(floor_router)
 app.include_router(envelope_router)
 # Note: Agent registry removed - not part of OFP 1.0.1 specification
+
+# Add real-time endpoints (SSE and WebSocket)
+create_sse_endpoint(floor_router)  # SSE endpoint for one-way updates
+create_websocket_endpoint(app)  # WebSocket endpoint for bidirectional updates
 
 
 @app.on_event("startup")

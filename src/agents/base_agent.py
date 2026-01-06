@@ -1,21 +1,24 @@
 """
-Base Agent - Base class for OFP 1.0.0 agents
+Base Agent - Base class for OFP 1.0.1 agents
 """
 
 from abc import ABC, abstractmethod
 from typing import Optional, Dict, Any
 import structlog
 
-from src.agent_registry.capabilities import AgentCapabilities, CapabilityType
-from src.envelope_router.envelope import OpenFloorEnvelope, EventType, EventObject
+from src.floor_manager.envelope import OpenFloorEnvelope, EventType, EventObject
 
 logger = structlog.get_logger()
 
 
 class BaseAgent(ABC):
     """
-    Base class for Open Floor Protocol 1.0.0 agents
-    Uses speakerUri and serviceUrl per OFP 1.0.0 specification
+    Base class for Open Floor Protocol 1.0.1 agents
+    
+    Per OFP 1.0.1:
+    - Agents identified only by speakerUri
+    - NO agent registry or capabilities registry
+    - Agents communicate via Floor Manager
     """
 
     def __init__(
@@ -23,39 +26,21 @@ class BaseAgent(ABC):
         speakerUri: str,
         agent_name: str,
         serviceUrl: Optional[str] = None,
-        agent_version: str = "1.0.0",
-        capabilities: Optional[list[CapabilityType]] = None
+        agent_version: str = "1.0.1"
     ) -> None:
         """
         Initialize base agent
 
         Args:
-            speakerUri: Unique URI identifying the agent (per OFP 1.0.0)
+            speakerUri: Unique URI identifying the agent (per OFP 1.0.1)
             agent_name: Human-readable agent name
             serviceUrl: Optional service URL
             agent_version: Agent version
-            capabilities: List of agent capabilities
         """
-        self.speakerUri = speakerUri;
-        self.serviceUrl = serviceUrl;
-        self.agent_name = agent_name;
-        self.agent_version = agent_version;
-        self.capabilities_list = capabilities or [];
-
-    def get_capabilities(self) -> AgentCapabilities:
-        """
-        Get agent capabilities definition
-
-        Returns:
-            Agent capabilities object
-        """
-        return AgentCapabilities(
-            speakerUri=self.speakerUri,
-            serviceUrl=self.serviceUrl,
-            agent_name=self.agent_name,
-            agent_version=self.agent_version,
-            capabilities=self.capabilities_list
-        );
+        self.speakerUri = speakerUri
+        self.serviceUrl = serviceUrl
+        self.agent_name = agent_name
+        self.agent_version = agent_version
 
     @abstractmethod
     async def handle_envelope(
@@ -95,8 +80,8 @@ class BaseAgent(ABC):
 
     async def start(self) -> None:
         """Start agent"""
-        logger.info("Agent started", speakerUri=self.speakerUri);
+        logger.info("Agent started", speakerUri=self.speakerUri)
 
     async def stop(self) -> None:
         """Stop agent"""
-        logger.info("Agent stopped", speakerUri=self.speakerUri);
+        logger.info("Agent stopped", speakerUri=self.speakerUri)

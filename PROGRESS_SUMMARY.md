@@ -218,3 +218,4 @@
 
 **Status**: This refactoring aligns the codebase with OFP 1.0.1 official specification. The architecture now correctly implements the Floor Manager as specified, removing unnecessary components (agent registry, separate envelope router) and clarifying terminology (Convener Agent vs Floor Manager).
 
+

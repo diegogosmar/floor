@@ -4,7 +4,7 @@ Tests for Agents per OFP 1.0.0
 
 import pytest
 from src.agents.example_agent import ExampleAgent
-from src.envelope_router.envelope import (
+from src.floor_manager.envelope import (
     OpenFloorEnvelope,
     EventType,
     EventObject,
@@ -13,56 +13,45 @@ from src.envelope_router.envelope import (
     SenderObject,
     ToObject
 )
-from src.agent_registry.capabilities import CapabilityType
+# CapabilityType removed in OFP 1.0.1 refactoring
 
 
 @pytest.mark.asyncio
 async def test_example_agent_initialization() -> None:
-    """Test example agent initialization"""
+    """Test example agent initialization per OFP 1.0.1"""
     agent = ExampleAgent(
         speakerUri="tag:test.com,2025:test_agent",
         agent_name="Test Agent"
-    );
+    )
 
-    assert agent.speakerUri == "tag:test.com,2025:test_agent";
-    assert agent.agent_name == "Test Agent";
-    assert CapabilityType.TEXT_GENERATION in agent.capabilities_list
-
-
-@pytest.mark.asyncio
-async def test_example_agent_capabilities() -> None:
-    """Test example agent capabilities"""
-    agent = ExampleAgent();
-    capabilities = agent.get_capabilities();
-
-    assert capabilities.speakerUri == agent.speakerUri;
-    assert capabilities.agent_name == agent.agent_name;
-    assert len(capabilities.capabilities) > 0
+    assert agent.speakerUri == "tag:test.com,2025:test_agent"
+    assert agent.agent_name == "Test Agent"
+    # Note: capabilities removed in OFP 1.0.1 refactoring
 
 
 @pytest.mark.asyncio
 async def test_example_agent_process_utterance() -> None:
     """Test example agent utterance processing"""
-    agent = ExampleAgent();
+    agent = ExampleAgent()
 
     response = await agent.process_utterance(
         "conv_1",
         "Hello, world!",
         "tag:test.com,2025:sender"
-    );
+    )
 
-    assert response is not None;
+    assert response is not None
     assert "Hello, world!" in response
 
 
 @pytest.mark.asyncio
 async def test_example_agent_handle_envelope() -> None:
-    """Test example agent envelope handling"""
-    agent = ExampleAgent();
-    sender_speakerUri = "tag:test.com,2025:sender";
+    """Test example agent envelope handling per OFP 1.0.1"""
+    agent = ExampleAgent()
+    sender_speakerUri = "tag:test.com,2025:sender"
 
     envelope = OpenFloorEnvelope(
-        schema=SchemaObject(version="1.0.0"),
+        schema_obj=SchemaObject(version="1.0.1"),
         conversation=ConversationObject(id="conv_1"),
         sender=SenderObject(speakerUri=sender_speakerUri),
         events=[
@@ -82,9 +71,9 @@ async def test_example_agent_handle_envelope() -> None:
                 }
             )
         ]
-    );
+    )
 
-    response = await agent.handle_envelope(envelope);
-    assert response is not None;
-    assert len(response.events) > 0;
+    response = await agent.handle_envelope(envelope)
+    assert response is not None
+    assert len(response.events) > 0
     assert response.sender.speakerUri == agent.speakerUri

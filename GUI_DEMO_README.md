@@ -1,40 +1,122 @@
 # 🎨 GUI Demo - Interactive Floor Manager
 
+## 🚀 Come Lanciare le App (Quick Guide)
+
+### Opzione 1: Script Automatico (Consigliato) 🎯
+
+**Usa lo script interattivo:**
+```bash
+./run_gui.sh
+```
+
+Lo script ti chiederà quale GUI vuoi lanciare!
+
+**OPPURE usa gli script rapidi:**
+```bash
+# Standard GUI
+./run_gui_standard.sh
+
+# Real-Time GUI
+./run_gui_realtime.sh
+```
+
+### Opzione 2: Comandi Manuali
+
+**1️⃣ Avvia Floor Manager** (Terminal 1):
+```bash
+docker-compose up
+```
+
+**2️⃣ Lancia una delle due GUI** (Terminal 2):
+
+**Versione Standard** (consigliata per iniziare):
+```bash
+streamlit run streamlit_app.py
+```
+
+**OPPURE Versione Real-Time** (con aggiornamenti automatici):
+```bash
+streamlit run streamlit_app_realtime.py
+```
+
+**3️⃣ Apri il browser**: Si apre automaticamente su `http://localhost:8501`
+
+---
+
+## 📋 Two Versions Available
+
+This project includes **two Streamlit GUI applications**:
+
+| Version | File | Real-Time Updates | Use Case |
+|---------|------|-------------------|----------|
+| **Standard** | `streamlit_app.py` | ❌ No (manual refresh) | Learning, simple demos |
+| **Real-Time** | `streamlit_app_realtime.py` | ✅ Yes (automatic) | Live demos, monitoring |
+
 ## ✨ Features
 
-- 💬 **Real-time Chat Interface** - Chat with AI agents
+- 💬 **Chat Interface** - Chat with AI agents
 - 🎤 **Floor Status Display** - See who has the floor
 - 👥 **Multiple Agents** - Budget Analyst, Travel Agent, Coordinator
 - 🤖 **AI Powered** - GPT-4o-mini for intelligent responses
 - 🎯 **Priority Queue** - Visual floor control with priorities
 - 📊 **Observer/Participant Modes** - Watch or join conversations
+- ⚡ **Real-Time Updates** - Available in real-time version (SSE)
 
 ---
 
 ## 🚀 Quick Start
 
-### 1. Install Dependencies
+### Step 1: Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 # Streamlit will be installed automatically
 ```
 
-### 2. Start Floor Manager
+### Step 2: Start Floor Manager
 
+**Open Terminal 1** and run:
 ```bash
-# Terminal 1
+cd /Users/diego.gosmar/Documents/OFP/FLOOR
 docker-compose up
 ```
 
-### 3. Launch GUI
+**Wait for**: `Application startup complete` message
+
+### Step 3: Launch GUI
+
+**Open Terminal 2** (keep Terminal 1 running) and choose ONE option:
+
+#### Option A: Standard GUI (Recommended for first time)
 
 ```bash
-# Terminal 2
+cd /Users/diego.gosmar/Documents/OFP/FLOOR
 streamlit run streamlit_app.py
 ```
 
-**Opens automatically in browser:** `http://localhost:8501`
+**What happens:**
+- Browser opens automatically at `http://localhost:8501`
+- Floor status updates when you interact with page
+- Simple HTTP polling (no JavaScript)
+
+#### Option B: Real-Time GUI (With automatic updates)
+
+```bash
+cd /Users/diego.gosmar/Documents/OFP/FLOOR
+streamlit run streamlit_app_realtime.py
+```
+
+**What happens:**
+- Browser opens automatically at `http://localhost:8501`
+- Floor status updates **automatically** without refresh
+- Uses SSE (Server-Sent Events) for real-time updates
+
+### 🎯 Which One to Use?
+
+- **First time?** → Use **Standard GUI** (`streamlit_app.py`)
+- **Need real-time updates?** → Use **Real-Time GUI** (`streamlit_app_realtime.py`)
+
+**Both open at**: `http://localhost:8501`
 
 ---
 
@@ -49,7 +131,8 @@ streamlit run streamlit_app.py
 
 2. **Check Floor Status**
    - Sidebar shows current floor holder
-   - Updates automatically
+   - **Standard version**: Updates on interaction/refresh
+   - **Real-Time version**: Updates automatically via SSE
 
 ### Observer Mode (Watch Demo)
 
@@ -164,6 +247,69 @@ In `streamlit_app.py`, line ~180:
 ```python
 model_name="gpt-4o-mini"  # Change to "gpt-4o" for better quality
 ```
+
+---
+
+## 🔍 Differences Between Versions
+
+### Standard GUI (`streamlit_app.py`)
+
+- ✅ **100% Streamlit Python** - No JavaScript
+- ✅ **Simple HTTP polling** - Updates on interaction
+- ✅ **Perfect for learning** - Easy to understand
+- ❌ **No automatic updates** - Requires manual refresh/interaction
+
+### Real-Time GUI (`streamlit_app_realtime.py`)
+
+- ✅ **95% Streamlit, 5% JavaScript** - Small SSE component
+- ✅ **Automatic updates** - Floor status updates in real-time
+- ✅ **SSE support** - Server-Sent Events for one-way updates
+- ✅ **Perfect for live demos** - See changes instantly
+- ⚠️ **Slightly more complex** - Uses JavaScript for SSE
+
+**Recommendation**: Start with Standard, upgrade to Real-Time if needed!
+
+---
+
+## 🧪 Testing
+
+### Quick Test
+
+```bash
+# 1. Start Floor Manager
+docker-compose up
+
+# 2. Test Standard GUI
+streamlit run streamlit_app.py
+
+# 3. Test Real-Time GUI (in another terminal)
+streamlit run streamlit_app_realtime.py
+```
+
+### Verify Real-Time Updates
+
+1. Open Real-Time GUI
+2. Open browser DevTools (F12) → Console tab
+3. Request floor from command line:
+   ```bash
+   curl -X POST http://localhost:8000/api/v1/floor/request \
+     -H "Content-Type: application/json" \
+     -d '{"conversation_id": "streamlit_chat_001", "speakerUri": "tag:test,2025:agent", "priority": 5}'
+   ```
+4. Watch GUI: Floor status should update **automatically**!
+
+### Detailed Testing Steps
+
+1. **Start Floor Manager**: `docker-compose up`
+2. **Open GUI**: `streamlit run streamlit_app_realtime.py`
+3. **Open browser DevTools** (F12) → Console tab
+4. **Request floor from command line**:
+   ```bash
+   curl -X POST http://localhost:8000/api/v1/floor/request \
+     -H "Content-Type: application/json" \
+     -d '{"conversation_id": "streamlit_chat_001", "speakerUri": "tag:test,2025:agent", "priority": 5}'
+   ```
+5. **Watch GUI**: Floor status should update automatically!
 
 ---
 
@@ -283,10 +429,21 @@ railway up
 
 ---
 
-**Ready to try? Run:**
+**Ready to try? Use the launcher script:**
 ```bash
+./run_gui.sh
+```
+
+**OPPURE lancia manualmente:**
+```bash
+# Standard version (recommended first)
 streamlit run streamlit_app.py
+
+# Real-time version (with automatic updates)
+streamlit run streamlit_app_realtime.py
 ```
 
 🎉 **Enjoy your interactive Floor Manager!**
+
+
 

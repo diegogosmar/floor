@@ -19,7 +19,7 @@ import structlog
 
 from src.floor_manager.floor_control import FloorControl
 # Note: Agent registry removed per OFP 1.0.1 - agents identified only by speakerUri
-from src.envelope_router.envelope import (
+from src.floor_manager.envelope import (
     OpenFloorEnvelope,
     EventType,
     EventObject,
