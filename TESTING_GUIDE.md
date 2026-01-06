@@ -7,7 +7,7 @@ Complete guide for testing the OFP 1.0.1 compliant Floor Manager.
 ### Step 1: Start Services
 
 ```bash
-cd /Users/diego.gosmar/Documents/OFP/FLOOR
+cd /path/to/floor
 
 # Start Floor Manager and dependencies
 docker-compose up -d
@@ -230,7 +230,7 @@ curl -X POST http://localhost:8000/api/v1/envelopes/utterance \
 #### 4.1 Run Python Tests
 
 ```bash
-cd /Users/diego.gosmar/Documents/OFP/FLOOR
+cd /path/to/floor
 
 # Install test dependencies
 pip install pytest pytest-asyncio
@@ -413,7 +413,7 @@ After running all tests, you should see:
 Run this one-liner to verify everything works:
 
 ```bash
-cd /Users/diego.gosmar/Documents/OFP/FLOOR && \
+cd /path/to/floor && \
 docker-compose up -d && \
 sleep 5 && \
 curl http://localhost:8000/health && \
