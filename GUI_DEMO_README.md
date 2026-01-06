@@ -77,7 +77,7 @@ pip install -r requirements.txt
 
 **Open Terminal 1** and run:
 ```bash
-cd /Users/diego.gosmar/Documents/OFP/FLOOR
+cd /path/to/floor
 docker-compose up
 ```
 
@@ -90,7 +90,7 @@ docker-compose up
 #### Option A: Standard GUI (Recommended for first time)
 
 ```bash
-cd /Users/diego.gosmar/Documents/OFP/FLOOR
+cd /path/to/floor
 streamlit run streamlit_app.py
 ```
 
@@ -102,7 +102,7 @@ streamlit run streamlit_app.py
 #### Option B: Real-Time GUI (With automatic updates)
 
 ```bash
-cd /Users/diego.gosmar/Documents/OFP/FLOOR
+cd /path/to/floor
 streamlit run streamlit_app_realtime.py
 ```
 
