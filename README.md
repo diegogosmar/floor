@@ -360,11 +360,35 @@ This implementation follows the Open Floor Protocol 1.0.1 specification for:
 
 ## Contributing
 
-1. Create a feature branch
-2. Make your changes
-3. Add tests
-4. Ensure all tests pass
-5. Submit a pull request
+We welcome contributions! Here's how to get started:
+
+1. **Fork the repository** on GitHub
+2. **Clone your fork** and create a feature branch
+3. **Make your changes** following our [coding standards](CONTRIBUTING.md#coding-standards)
+4. **Add tests** for new functionality
+5. **Ensure all tests pass**: `pytest`
+6. **Update documentation** if needed
+7. **Submit a Pull Request** - We'll review and merge it!
+
+📖 **For detailed guidelines**, see [CONTRIBUTING.md](CONTRIBUTING.md) - It includes:
+- Complete development setup instructions
+- Pull Request process and best practices
+- Coding standards and style guide
+- Testing requirements
+- Commit message conventions
+- OFP 1.0.1 compliance guidelines
+
+**Quick PR Process:**
+- Fork → Branch → Code → Test → PR → Review → Merge ✅
+
+## Related Projects
+
+This implementation is part of the Open Floor Protocol implementations collection:
+
+- **floor-implementations**: https://github.com/open-voice-interoperability/floor-implementations
+  - Collection of different Floor Manager implementations
+  - This Python implementation is included in the collection
+  - See [docs/ADD_TO_FLOOR_IMPLEMENTATIONS.md](docs/ADD_TO_FLOOR_IMPLEMENTATIONS.md) for details
 
 ## Support
 
