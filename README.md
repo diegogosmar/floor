@@ -4,41 +4,75 @@ A Python-based implementation of the Open Floor Protocol 1.0.1 specification for
 
 ## Overview
 
-This project implements a multi-agent system following the Open Floor Protocol (OFP) specification, providing:
+This project implements the **Floor Manager** per Open Floor Protocol (OFP) 1.0.1 specification, providing:
 
-- **Floor Control**: Management of conversation floor primitives
-- **Envelope Routing**: Conversation envelope routing between agents
-- **Agent Registry**: Capability discovery and agent registration
-- **Agent Implementations**: Base classes and example agents
+- **Floor Manager**: Core OFP component managing floor control and envelope routing
+- **Floor Control Logic**: Minimal floor management behaviors (requestFloor → grantFloor, yieldFloor, etc.)
+- **Envelope Processing**: OFP 1.0.1 compliant JSON envelope handling
+- **Agent Support**: Base classes and example agents for testing
+
+**Per OFP 1.0.1**: No central agent registry (agents identified only by speakerUri). Dynamic discovery via getManifests/publishManifests events.
 
 ## Architecture
 
-### Multi-Layer Architecture per OFP 1.0.1
+### System Architecture per OFP 1.0.1
 
 ```
 src/
-├── floor_manager/     # Floor Manager Layer - Floor control primitives
-├── envelope_router/   # Conversation Envelope Router - OFP envelope routing
-├── agent_registry/   # Agent Capability Registry - Manifest & discovery
-├── agents/           # Agent implementations (BaseAgent, ExampleAgent)
-├── orchestration/    # Orchestration patterns (Convener, Collaborative, Hybrid)
-├── api/              # FastAPI REST endpoints
-└── main.py          # FastAPI application entry point
+├── floor_manager/     # Floor Manager (core OFP component)
+│   ├── manager.py       # Main Floor Manager (includes envelope routing)
+│   ├── floor_control.py # Floor control logic (minimal behaviors)
+│   └── envelope.py      # OFP 1.0.1 envelope models
+├── agents/            # Agent implementations (BaseAgent, ExampleAgent, LLMAgent)
+├── orchestration/     # Optional orchestration patterns (Convener Agent, etc.)
+├── api/               # FastAPI REST endpoints
+│   ├── floor.py         # Floor control API
+│   └── envelope.py      # Envelope processing API
+└── main.py            # FastAPI application entry point
 ```
 
-### Three Main Layers
+### Floor Manager (Core OFP 1.0.1 Component)
 
-1. **Floor Manager Layer** (also called "Convener" in the specifications): Manages floor control primitives (requestFloor, grantFloor, revokeFloor, yieldFloor) as an autonomous state machine. The Floor Manager IS the Convener per OFP 1.0.1, making all floor decisions autonomously.
-2. **Conversation Envelope Router**: Routes OFP 1.0.1 compliant JSON envelopes between heterogeneous agents
-3. **Agent Capability Registry**: Maintains agent manifests per Assistant Manifest Specification, enabling dynamic capability discovery
+The **Floor Manager** is the central component per OFP Specification Section 0.4.3:
 
-📊 **Visual Architecture Diagrams**: See [Agent Integration Guide](docs/OFP_AGENT_INTEGRATION.md) for interactive Mermaid diagrams showing the complete system architecture, integration flow, floor control state machine, and capability discovery.
+```
+┌─────────────────────────────────────────────┐
+│           FLOOR MANAGER                     │
+│  (Implements OFP 1.0.1 Spec Section 2.2)   │
+│                                             │
+│  • Envelope Processing & Routing (built-in) │
+│  • Floor Control Logic (minimal behaviors)  │
+│  • Priority Queue Management                │
+│  • Conversation State Management            │
+└─────────────────────────────────────────────┘
+                    ↕
+            OFP 1.0.1 Envelopes
+                    ↕
+    ┌──────────┐  ┌──────────┐  ┌──────────┐
+    │ Agent A  │  │ Agent B  │  │ Agent C  │
+    └──────────┘  └──────────┘  └──────────┘
+```
 
-### Orchestration Patterns
+**Key Features**:
+1. **Envelope Routing** (built-in): Routes OFP envelopes between agents (no separate router component)
+2. **Floor Control**: Implements minimal floor management behaviors (Spec Section 2.2)
+3. **Priority Queue**: Manages floor requests by priority
+4. **State Machine**: Floor as autonomous state machine
 
-- **Convener-Based**: Explicit floor management by convener agent (round-robin, priority-based, context-aware)
+**Important Terminology** (per OFP 1.0.1 Spec):
+- **Floor Manager** = Our system component (what this project implements)
+- **Convener Agent** = Optional AGENT that mediates conversations (like a meeting chair)
+- The Floor Manager can work standalone OR delegate to a Convener Agent if present
+
+📊 **Visual Architecture Diagrams**: See [OFP 1.0.1 Spec Analysis](docs/OFP_1.0.1_OFFICIAL_SPEC_ANALYSIS.md) for detailed architecture based on official specification.
+
+### Optional Orchestration Patterns
+
+- **Convener Agent Pattern**: Optional agent that mediates conversations (per OFP Spec Section 0.4.3)
 - **Collaborative**: Autonomous floor negotiation with minimal arbitration
 - **Hybrid Delegation**: Master agent delegates to specialists while maintaining control
+
+**Note**: These are optional patterns. The Floor Manager works without them.
 
 ## Technology Stack
 
@@ -179,13 +213,14 @@ curl http://localhost:8000/api/v1/floor/holder/conv_test
 
 ### 📚 Complete Documentation
 
-- **🚀 How to Launch and Test**: [docs/LAUNCH_AND_TEST.md](docs/LAUNCH_AND_TEST.md) ⭐ **START HERE**
-- **🎭 Complete OFP Demo**: [examples/agents/COMPLETE_OFP_DEMO.md](examples/agents/COMPLETE_OFP_DEMO.md) - Full protocol flow with manifests, floor control, priority queue
+- **🚀 How to Launch and Test**: [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) ⭐ **START HERE**
+- **📋 OFP 1.0.1 Spec Analysis**: [docs/OFP_1.0.1_OFFICIAL_SPEC_ANALYSIS.md](docs/OFP_1.0.1_OFFICIAL_SPEC_ANALYSIS.md) - Official specification analysis and compliance
+- **🔄 Refactoring Status**: [REFACTORING_STATUS.md](REFACTORING_STATUS.md) - Current refactoring progress per OFP 1.0.1
+- **🎭 Simple OFP Demo**: [examples/agents/complete_ofp_demo_simple.py](examples/agents/complete_ofp_demo_simple.py) - Floor control without agent registration
 - **⚙️ Detailed Setup**: [docs/SETUP.md](docs/SETUP.md)
 - **🏗️ Architecture**: [docs/ARCHITECTURE_DETAILED.md](docs/ARCHITECTURE_DETAILED.md)
-- **🤖 Agent Integration**: [docs/OFP_AGENT_INTEGRATION.md](docs/OFP_AGENT_INTEGRATION.md) - Manifest, floor control, OFP compliance with **interactive diagrams** 📊
 - **🧠 LLM Integration**: [docs/LLM_INTEGRATION.md](docs/LLM_INTEGRATION.md) - How to use real LLM providers (OpenAI, Anthropic, Ollama)
-- **🧪 Testing**: [docs/TESTING.md](docs/TESTING.md) - How to run tests and troubleshoot pytest-asyncio issues
+- **🧪 Testing**: [docs/TESTING.md](docs/TESTING.md) - How to run tests
 - **📖 Quick Reference**: [docs/QUICKSTART.md](docs/QUICKSTART.md)
 
 ## Development

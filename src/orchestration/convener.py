@@ -1,13 +1,16 @@
 """
 Convener-Based Orchestration Pattern per OFP 1.0.1
 
-NOTE: This is an ORCHESTRATION PATTERN, not the Floor Manager's Convener component.
-Per OFP 1.0.1, the Floor Manager itself acts as the Convener for floor control.
-This orchestrator provides higher-level conversation flow patterns.
+IMPORTANT TERMINOLOGY NOTE:
+This is an ORCHESTRATION PATTERN implementing a "Convener Agent" per OFP Spec Section 0.4.3.
+A Convener Agent is an OPTIONAL AGENT that mediates conversations (like a meeting chair).
 
-A convener agent explicitly manages the floor, inviting/disinviting participants
-and granting floor to agents according to defined logic (round-robin, priority-based, context-aware).
-Useful for structured workflows.
+This is NOT the Floor Manager component. The Floor Manager (src/floor_manager/) 
+implements the core OFP floor control logic.
+
+This orchestrator provides higher-level conversation flow patterns where a Convener
+Agent explicitly manages conversation flow using strategies like round-robin, 
+priority-based, or context-aware turn-taking.
 """
 
 from typing import List, Optional, Dict
