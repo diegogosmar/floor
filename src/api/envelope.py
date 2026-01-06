@@ -1,5 +1,7 @@
 """
 Conversation Envelope API endpoints per OFP 1.0.1
+
+Per OFP 1.0.1: Envelope routing is part of Floor Manager, not a separate component.
 """
 
 from fastapi import APIRouter, HTTPException, Depends
@@ -7,8 +9,8 @@ from pydantic import BaseModel
 from typing import Optional, Dict, Any
 import structlog
 
-from src.envelope_router.router import EnvelopeRouter
-from src.envelope_router.envelope import (
+from src.floor_manager.manager import FloorManager
+from src.floor_manager.envelope import (
     OpenFloorEnvelope,
     EventType,
     EventObject,
@@ -17,18 +19,22 @@ from src.envelope_router.envelope import (
 
 logger = structlog.get_logger()
 
-router = APIRouter(prefix="/api/v1/envelopes", tags=["Envelope Routing"])
+router = APIRouter(prefix="/api/v1/envelopes", tags=["Envelope Processing"])
 
-# Global router instance (in production, use dependency injection)
-_envelope_router: Optional[EnvelopeRouter] = None
+# Global Floor Manager instance (in production, use dependency injection)
+_floor_manager: Optional[FloorManager] = None
 
 
-def get_envelope_router() -> EnvelopeRouter:
-    """Get envelope router instance"""
-    global _envelope_router
-    if _envelope_router is None:
-        _envelope_router = EnvelopeRouter();
-    return _envelope_router
+def get_floor_manager() -> FloorManager:
+    """
+    Get Floor Manager instance
+    
+    Per OFP 1.0.1: Floor Manager includes envelope routing
+    """
+    global _floor_manager
+    if _floor_manager is None:
+        _floor_manager = FloorManager();
+    return _floor_manager
 
 
 class SendEnvelopeRequest(BaseModel):
@@ -50,12 +56,13 @@ class SendUtteranceRequest(BaseModel):
 @router.post("/send", response_model=dict)
 async def send_envelope(
     request: SendEnvelopeRequest,
-    envelope_router: EnvelopeRouter = Depends(get_envelope_router)
+    floor_manager: FloorManager = Depends(get_floor_manager)
 ) -> dict:
     """
     Send a conversation envelope per OFP 1.0.1
     
-    Accepts full OpenFloorEnvelope JSON structure
+    Accepts full OpenFloorEnvelope JSON structure.
+    Floor Manager processes and routes the envelope.
     """
     try:
         envelope = OpenFloorEnvelope.from_dict(request.envelope);
@@ -66,18 +73,18 @@ async def send_envelope(
             event_count=len(envelope.events)
         );
 
-        success = await envelope_router.route_envelope(envelope);
+        success = await floor_manager.process_envelope(envelope);
 
         if not success:
             raise HTTPException(
                 status_code=400,
-                detail="Failed to route envelope"
+                detail="Failed to process envelope"
             );
 
         return {
             "success": True,
             "conversation_id": envelope.conversation.id,
-            "events_routed": len(envelope.events)
+            "events_processed": len(envelope.events)
         };
     except Exception as e:
         logger.error("Error sending envelope", error=str(e));
@@ -87,12 +94,13 @@ async def send_envelope(
 @router.post("/utterance", response_model=dict)
 async def send_utterance(
     request: SendUtteranceRequest,
-    envelope_router: EnvelopeRouter = Depends(get_envelope_router)
+    floor_manager: FloorManager = Depends(get_floor_manager)
 ) -> dict:
     """
     Send an utterance event per OFP 1.0.1
     
-    Simplified endpoint for sending text utterances
+    Simplified endpoint for sending text utterances.
+    Floor Manager processes and routes the utterance.
     """
     logger.info(
         "Sending utterance",
@@ -101,7 +109,7 @@ async def send_utterance(
         target=request.target_speakerUri
     );
 
-    envelope = await envelope_router.send_utterance(
+    envelope = await floor_manager.send_utterance(
         conversation_id=request.conversation_id,
         sender_speakerUri=request.sender_speakerUri,
         sender_serviceUrl=request.sender_serviceUrl,
