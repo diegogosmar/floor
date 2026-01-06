@@ -1,8 +1,24 @@
-# Getting Started - How to Launch and Test the Floor Manager
+# Getting Started - OFP 1.0.1 Floor Manager
+
+This guide will help you get the **Open Floor Protocol 1.0.1 Floor Manager** up and running quickly.
+
+## What is the Floor Manager?
+
+Per [OFP 1.0.1 Specification](https://github.com/open-voice-interoperability/openfloor-docs/blob/working_group/specifications/ConversationEnvelope/1.0.1/InteroperableConvEnvSpec.md), the Floor Manager is the central component that:
+
+- **Routes conversation envelopes** between agents (built-in functionality)
+- **Manages floor control** (requestFloor, grantFloor, yieldFloor, revokeFloor)
+- **Implements minimal floor management behaviors** (Spec Section 2.2)
+- **Acts as the conversational "hub"** for multi-agent coordination
+
+**Important Notes**:
+- ✅ Per OFP 1.0.1: **NO central agent registry** (agents identified only by `speakerUri`)
+- ✅ Envelope routing is **built into** Floor Manager (not a separate component)
+- ✅ "Convener" in spec = optional AGENT that mediates (not our system component)
 
 ## 🚀 Quick Start
 
-> **💡 For a complete step-by-step guide, see [docs/LAUNCH_AND_TEST.md](LAUNCH_AND_TEST.md)**
+> **💡 For complete details, see [OFP 1.0.1 Spec Analysis](OFP_1.0.1_OFFICIAL_SPEC_ANALYSIS.md)**
 
 ### Prerequisites
 
@@ -31,12 +47,14 @@ sleep 5
 docker-compose ps
 ```
 
-### Step 2: Verify Installation
+### Step 2: Health Check
 
 ```bash
-# Health check
+# Check Floor Manager health
 curl http://localhost:8000/health
-# Response: {"status":"healthy"}
+
+# Expected response:
+# {"status":"healthy"}
 ```
 
 ### Step 3: Test with Demo Agents ⭐
@@ -44,16 +62,19 @@ curl http://localhost:8000/health
 **Option A: Complete OFP Flow Demo** ⭐⭐⭐ **RECOMMENDED**
 ```bash
 # Demonstrates COMPLETE Open Floor Protocol 1.0.1 flow:
-# • Agent registration with manifests
-# • getManifests (capability discovery)  
+# • Agents identified only by speakerUri (NO registration)
 # • requestFloor with priority queue
-# • grantFloor by autonomous Convener
+# • grantFloor by Floor Manager (autonomous decision)
 # • Floor yield and handoff between agents
 
-python examples/agents/complete_ofp_demo.py
+python examples/agents/complete_ofp_demo_simple.py
 ```
 
-This shows the **real OFP protocol in action** with the Floor Manager API. See output example below.
+This shows the **real OFP 1.0.1 protocol** with the Floor Manager API:
+- ✅ No agent registration (per spec)
+- ✅ Floor Manager makes autonomous decisions
+- ✅ Priority-based floor control
+- See output example below.
 
 **Option B: Basic Floor Control Demo**
 ```bash
@@ -89,41 +110,174 @@ open http://localhost:8000/docs
 ./examples/test_workflow.sh
 ```
 
-## 📋 Test Base
+## 📊 Complete OFP Demo Output
 
-### Test 1: Agent Registration
+When you run `python examples/agents/complete_ofp_demo_simple.py`, you'll see:
 
-```bash
-curl -X POST http://localhost:8000/api/v1/agents/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "speakerUri": "tag:test.com,2025:agent_1",
-    "agent_name": "Test Agent",
-    "capabilities": ["text_generation"],
-    "serviceUrl": "http://localhost:8001"
-  }'
+```
+======================================================================
+🚀 COMPLETE OPEN FLOOR PROTOCOL 1.0.1 DEMONSTRATION
+======================================================================
+
+This demo shows:
+  1. Agents identified only by speakerUri (no registration)
+  2. requestFloor with priority
+  3. Floor Manager grants floor autonomously
+  4. Agent utterances
+  5. yieldFloor and floor handoff
+
+🏥 Checking Floor Manager health...
+   ✅ Floor Manager is running and healthy
+
+======================================================================
+STEP 1: Create Agents (No Registration Required)
+======================================================================
+
+📝 Per OFP 1.0.1: Agents are identified only by speakerUri
+   NO central registry or registration process exists
+
+   ✅ Created: Coordinator Agent (priority: 10)
+   ✅ Created: Data Analyst Agent (priority: 7)
+   ✅ Created: Assistant Agent (priority: 5)
+
+======================================================================
+STEP 2: Floor Requests (Priority Queue)
+======================================================================
+
+💡 All agents will request floor. Watch Floor Manager grant by priority!
+
+🙋 Assistant Agent requesting floor (priority: 5)...
+   ✅ Floor GRANTED to Assistant Agent
+
+🙋 Data Analyst Agent requesting floor (priority: 7)...
+   ⏳ Data Analyst Agent queued for floor
+
+🙋 Coordinator Agent requesting floor (priority: 10)...
+   ⏳ Coordinator Agent queued for floor
+
+======================================================================
+STEP 3: Check Floor Holder
+======================================================================
+
+🎤 Current floor holder: Assistant Agent
+   URI: tag:demo.com,2025:assistant
+   Floor Manager: tag:floor.manager,2025:manager
+
+======================================================================
+STEP 4: Agents Speak (Priority Order)
+======================================================================
+
+💬 Assistant Agent: 'Hello! I'm ready to assist.'
+
+👋 Assistant Agent yielding floor...
+   ✅ Floor released by Assistant Agent
+
+💬 Data Analyst Agent: 'I've analyzed the data. Here are my findings...'
+
+👋 Data Analyst Agent yielding floor...
+   ✅ Floor released by Data Analyst Agent
+
+💬 Coordinator Agent: 'Excellent work everyone! Let's proceed.'
+
+👋 Coordinator Agent yielding floor...
+   ✅ Floor released by Coordinator Agent
+
+======================================================================
+✅ DEMO COMPLETED SUCCESSFULLY!
+======================================================================
+
+📝 Summary:
+   ✓ Agents created (no registration needed per OFP 1.0.1)
+   ✓ Floor requested by multiple agents
+   ✓ Floor Manager granted floor by priority
+   ✓ Agents spoke in order
+   ✓ Floor yielded properly
+
+======================================================================
+🎓 Understanding the Flow
+======================================================================
+
+The Floor Manager acts as an autonomous state machine:
+
+1. REQUEST: Agents request floor with priority (no registration)
+2. QUEUE: Floor Manager maintains priority queue of requests
+3. GRANT: Floor Manager grants floor to highest priority agent
+4. SPEAK: Agent with floor can send utterances
+5. YIELD: Agent yields floor when done
+6. NEXT: Floor Manager grants floor to next agent in queue
+7. REPEAT: Steps 4-6 repeat until conversation ends
+
+This is the core of OFP 1.0.1 floor control!
 ```
 
-**Expected response**:
-```json
-{
-  "success": true,
-  "speakerUri": "tag:test.com,2025:agent_1",
-  "capabilities": {...}
-}
+**Key Observations** (Per OFP 1.0.1):
+- ✅ **No agent registration** - Agents identified only by speakerUri
+- ✅ **Floor Manager** grants floor autonomously (priority queue)
+- ✅ **Minimal behaviors** implemented (Spec Section 2.2)
+- ✅ Priority queue: higher priority agents get floor first
+
+## 🎉 Success!
+
+You now have:
+- ✅ **Floor Manager running** (OFP 1.0.1 compliant)
+- ✅ **Multi-agent system working** (no registration needed)
+- ✅ **Complete OFP 1.0.1 protocol demonstrated**
+- ✅ **Floor control with priority queue** working
+- ✅ **Envelope routing** integrated in Floor Manager
+
+## 🔍 What Just Happened? (OFP 1.0.1 Architecture)
+
+Per [OFP 1.0.1 Specification](https://github.com/open-voice-interoperability/openfloor-docs/blob/working_group/specifications/ConversationEnvelope/1.0.1/InteroperableConvEnvSpec.md):
+
+### Floor Manager (Your Running System)
+
+The Floor Manager is the central OFP component that:
+
+1. **Receives Envelopes**: Agents send OFP 1.0.1 JSON envelopes
+2. **Routes Messages**: Built-in routing to target agents (not a separate component)
+3. **Manages Floor Control**: Processes requestFloor, grantFloor, yieldFloor, revokeFloor
+4. **Priority Queue**: Manages floor requests by priority
+5. **Autonomous Decisions**: Makes floor control decisions automatically
+
+### Architecture Diagram
+
+```
+┌─────────────────────────────────────────────┐
+│         FLOOR MANAGER                       │
+│    (OFP 1.0.1 Spec Section 2.2)            │
+│                                             │
+│  • Envelope Processing & Routing            │
+│  • Floor Control Logic                      │
+│  • Priority Queue Management                │
+│  • Conversation State Management            │
+└─────────────────────────────────────────────┘
+                    ↕
+            OFP 1.0.1 Envelopes
+                    ↕
+    ┌──────────┐  ┌──────────┐  ┌──────────┐
+    │ Agent A  │  │ Agent B  │  │ Agent C  │
+    │ (no reg) │  │ (no reg) │  │ (no reg) │
+    └──────────┘  └──────────┘  └──────────┘
 ```
 
-### Test 2: List Agents
+### Key Concepts
 
-```bash
-# List all agents
-curl http://localhost:8000/api/v1/agents/ | jq
+1. **No Agent Registration**: Per OFP 1.0.1, agents are identified ONLY by their `speakerUri` in envelopes. No central registry exists.
 
-# Find agents by capability
-curl http://localhost:8000/api/v1/agents/capability/text_generation | jq
-```
+2. **Floor Manager = Hub**: The Floor Manager acts as the central "hub" that coordinates all conversation flow.
 
-### Test 3: Floor Control
+3. **Minimal Behaviors**: The Floor Manager implements minimal floor management behaviors per Spec Section 2.2:
+   - requestFloor → grantFloor (if available) or queue
+   - yieldFloor → grantFloor to next in queue
+   - Priority-based queue management
+
+4. **Envelope Routing Built-In**: Routing is not a separate component; it's built into the Floor Manager.
+
+5. **Convener Agent (Optional)**: The spec mentions an optional "Convener Agent" that can mediate conversations (like a meeting chair). This is NOT our Floor Manager - it's an optional external agent.
+
+## 📋 Next Steps
+
+### Test Floor Control API Directly
 
 ```bash
 # Request floor
@@ -147,7 +301,7 @@ curl -X POST http://localhost:8000/api/v1/floor/release \
   }'
 ```
 
-### Test 4: Send Utterance
+### Send Utterances
 
 ```bash
 curl -X POST http://localhost:8000/api/v1/envelopes/utterance \
@@ -155,240 +309,75 @@ curl -X POST http://localhost:8000/api/v1/envelopes/utterance \
   -d '{
     "conversation_id": "conv_test_001",
     "sender_speakerUri": "tag:test.com,2025:agent_1",
-    "target_speakerUri": "tag:test.com,2025:agent_2",
-    "text": "Hello, can you help me?"
+    "text": "Hello from Agent 1!",
+    "private": false
   }'
 ```
 
-## 🧪 Complete Test Workflow
+### Test with LLM Agents (Optional)
 
-### Option 1: Automatic Script
+See [LLM Integration Guide](LLM_INTEGRATION.md) for using real AI agents with OpenAI, Anthropic, or Ollama.
 
-```bash
-# Run complete test workflow
-./examples/test_workflow.sh
+## 🔧 Troubleshooting
 
-# The script tests:
-# - Registration of 3 agents
-# - Multi-agent floor control
-# - Utterance sending
-# - Capability discovery
-# - Heartbeat updates
-```
-
-### Option 2: Manual Step-by-Step Test
-
-See `docs/SETUP.md` for detailed step-by-step instructions.
-
-## 🎯 Multi-Agent Test Scenario
-
-### Scenario: 3 Agents Collaborate
+### Floor Manager not responding
 
 ```bash
-# Terminal 1: Start API (if not already started)
-docker-compose up -d
-
-# Terminal 2: Register Agent 1
-curl -X POST http://localhost:8000/api/v1/agents/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "speakerUri": "tag:test.com,2025:agent_text",
-    "agent_name": "Text Agent",
-    "capabilities": ["text_generation"]
-  }'
-
-# Terminal 3: Register Agent 2
-curl -X POST http://localhost:8000/api/v1/agents/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "speakerUri": "tag:test.com,2025:agent_image",
-    "agent_name": "Image Agent",
-    "capabilities": ["image_generation"]
-  }'
-
-# Terminal 4: Register Agent 3
-curl -X POST http://localhost:8000/api/v1/agents/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "speakerUri": "tag:test.com,2025:agent_data",
-    "agent_name": "Data Agent",
-    "capabilities": ["data_analysis"]
-  }'
-
-# Now test floor control with priorities
-CONV_ID="conv_multi_001"
-
-# Agent 1 requests floor (priority 5)
-curl -X POST http://localhost:8000/api/v1/floor/request \
-  -H "Content-Type: application/json" \
-  -d "{
-    \"conversation_id\": \"$CONV_ID\",
-    \"speakerUri\": \"tag:test.com,2025:agent_text\",
-    \"priority\": 5
-  }"
-
-# Agent 2 requests floor (priority 3 - will be queued)
-curl -X POST http://localhost:8000/api/v1/floor/request \
-  -H "Content-Type: application/json" \
-  -d "{
-    \"conversation_id\": \"$CONV_ID\",
-    \"speakerUri\": \"tag:test.com,2025:agent_image\",
-    \"priority\": 3
-  }"
-
-# Check floor holder (should be agent_text)
-curl http://localhost:8000/api/v1/floor/holder/$CONV_ID | jq
-
-# Agent 1 releases floor
-curl -X POST http://localhost:8000/api/v1/floor/release \
-  -H "Content-Type: application/json" \
-  -d "{
-    \"conversation_id\": \"$CONV_ID\",
-    \"speakerUri\": \"tag:test.com,2025:agent_text\"
-  }"
-
-# Check new floor holder (should be agent_image)
-curl http://localhost:8000/api/v1/floor/holder/$CONV_ID | jq
-```
-
-## 🔍 Verify Functionality
-
-### Check Logs
-
-```bash
-# API logs
-docker-compose logs api
-
-# Logs with follow
-docker-compose logs -f api
-
-# Specific service logs
-docker-compose logs postgres
-docker-compose logs redis
-```
-
-### Check Status
-
-```bash
-# Service status
+# Check if services are running
 docker-compose ps
 
-# API health check
-curl http://localhost:8000/health
-
-# List registered agents
-curl http://localhost:8000/api/v1/agents/ | jq
-```
-
-### Check Database
-
-```bash
-# Connect to PostgreSQL
-docker-compose exec postgres psql -U ofp_user -d ofp_db
-
-# Example query (if you have tables)
-# SELECT * FROM agents;
-```
-
-## 🐛 Troubleshooting
-
-### Issue: Port 8000 already in use
-
-```bash
-# Find process
-lsof -i :8000
-
-# Kill process or change port in .env
-# PORT=8001
-```
-
-### Issue: Services don't start
-
-```bash
 # Check logs
-docker-compose logs
+docker-compose logs api
 
 # Restart services
 docker-compose restart
+```
 
-# Rebuild images
-docker-compose build --no-cache
+### Port already in use
+
+```bash
+# Stop existing services
+docker-compose down
+
+# Check what's using port 8000
+lsof -i :8000
+
+# Start again
 docker-compose up -d
 ```
 
-### Issue: Database connection error
+### Python module errors
 
 ```bash
-# Verify PostgreSQL is active
-docker-compose ps postgres
+# Make sure you're in the project directory
+cd /path/to/floor
 
-# Check environment variables
-docker-compose exec api env | grep POSTGRES
+# Install dependencies
+pip install -r requirements.txt
 
-# Restart PostgreSQL
-docker-compose restart postgres
+# For async tests
+pip install pytest-asyncio
 ```
 
-### Issue: Agents don't register
+## 📚 Additional Resources
 
-```bash
-# Verify registry is initialized
-curl http://localhost:8000/api/v1/agents/
+- **OFP 1.0.1 Specification**: [Official Spec](https://github.com/open-voice-interoperability/openfloor-docs/blob/working_group/specifications/ConversationEnvelope/1.0.1/InteroperableConvEnvSpec.md)
+- **Spec Analysis**: [OFP_1.0.1_OFFICIAL_SPEC_ANALYSIS.md](OFP_1.0.1_OFFICIAL_SPEC_ANALYSIS.md)
+- **Architecture Details**: [ARCHITECTURE_DETAILED.md](ARCHITECTURE_DETAILED.md)
+- **LLM Integration**: [LLM_INTEGRATION.md](LLM_INTEGRATION.md)
+- **Testing Guide**: [TESTING.md](TESTING.md)
 
-# Check logs for errors
-docker-compose logs api | grep -i registry
+## 🎯 What Makes This OFP 1.0.1 Compliant?
 
-# Verify speakerUri format (must be valid URI)
-```
+✅ **No Central Registry**: Agents identified only by speakerUri (Spec Section 0.5)
+✅ **Floor Manager as Hub**: Central component coordinating conversation (Spec Section 0.2)
+✅ **Minimal Behaviors**: Implements required floor management behaviors (Spec Section 2.2)
+✅ **Envelope Routing**: Built into Floor Manager, not separate (Spec Section 0.2)
+✅ **Privacy Flag**: Only respected for utterance events (Spec Section 2.2)
+✅ **Conversation Metadata**: Includes assignedFloorRoles and floorGranted (Spec Section 1.6)
+✅ **Floor Control Events**: requestFloor, grantFloor, yieldFloor, revokeFloor (Spec Sections 1.19-1.22)
 
-## 📚 Additional Documentation
+---
 
-- **Complete Setup**: `docs/SETUP.md`
-- **Quick Start**: `docs/QUICKSTART.md`
-- **Architecture**: `docs/ARCHITECTURE_DETAILED.md`
-- **API Reference**: `docs/api.md`
-- **Swagger UI**: http://localhost:8000/docs
-
-## 🎓 Next Steps
-
-1. **Explore Swagger UI**: http://localhost:8000/docs
-2. **Read Architecture**: `docs/ARCHITECTURE_DETAILED.md`
-3. **Test Orchestration Patterns**: See examples in `src/orchestration/`
-4. **Create Your Agent**: Extend `BaseAgent` in `src/agents/`
-5. **Use Real LLM Agents**: See `docs/LLM_INTEGRATION.md` to integrate OpenAI, Anthropic, etc.
-6. **Run Test Suite**: 
-   ```bash
-   # First, install pytest-asyncio (required for async tests)
-   pip install pytest-asyncio
-   
-   # Then run tests
-   pytest tests/
-   ```
-
-## 💡 Tips
-
-- Use `jq` to format JSON responses: `curl ... | jq`
-- Swagger UI is the easiest way to explore the API
-- Logs are structured JSON, use `jq` to filter them
-- For local development without Docker, start only postgres/redis with Docker
-
-## ✅ Setup Checklist
-
-- [ ] Python 3.11+ installed
-- [ ] Docker and Docker Compose installed
-- [ ] Virtual environment created and activated
-- [ ] Dependencies installed (`pip install -r requirements.txt`)
-- [ ] `.env` file configured
-- [ ] Docker services started (`docker-compose up -d`)
-- [ ] Health check passes (`curl http://localhost:8000/health`)
-- [ ] Swagger UI accessible (http://localhost:8000/docs)
-- [ ] Test workflow executed successfully
-
-## 🆘 Support
-
-If you have issues:
-1. Check logs: `docker-compose logs`
-2. Verify documentation: `docs/`
-3. Check Swagger UI for API examples
-4. Open an issue in the repository
+**Ready to build multi-agent systems?** Start with the demo above, then explore the [LLM Integration Guide](LLM_INTEGRATION.md) to connect real AI agents!
 
