@@ -42,6 +42,7 @@ ENV/
 .coverage
 htmlcov/
 .tox/
+stella_test_envelope.json  # Generated test files
 
 # Logs
 *.log

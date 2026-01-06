@@ -131,7 +131,26 @@ python examples/agents/complete_ofp_demo.py
 
 This shows the **real OFP protocol in action** with the Floor Manager API. See [Complete OFP Demo Guide](examples/agents/COMPLETE_OFP_DEMO.md) for details.
 
-**Option B: Basic Floor Control Demo**
+**Option B: Interactive GUI Demo** 🎨 **NEW!**
+
+```bash
+# Install Streamlit (if not already installed)
+pip install streamlit
+
+# Launch interactive web GUI
+streamlit run streamlit_app.py
+```
+
+Opens in browser at `http://localhost:8501`. Features:
+- 💬 Real-time chat with AI agents
+- 🎤 Visual floor status display
+- 👥 Multiple agents (Budget Analyst, Travel Agent, Coordinator)
+- 🤖 AI-powered responses (GPT-4o-mini)
+- 🎯 Priority queue visualization
+
+📖 **See**: [GUI Demo Guide](docs/GUI_DEMO.md) for detailed instructions.
+
+**Option C: Basic Floor Control Demo**
 ```bash
 # Install dependency if needed
 pip install httpx
