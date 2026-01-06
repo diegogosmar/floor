@@ -214,3 +214,6 @@ docker-compose logs api
 - **Floor Manager API**: http://localhost:8000/docs (Swagger UI)
 - **Architecture**: `docs/ARCHITECTURE_DETAILED.md`
 
+
+
+

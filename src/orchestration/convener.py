@@ -1,5 +1,9 @@
 """
-Convener-Based Orchestration Pattern per OFP 1.0.0
+Convener-Based Orchestration Pattern per OFP 1.0.1
+
+NOTE: This is an ORCHESTRATION PATTERN, not the Floor Manager's Convener component.
+Per OFP 1.0.1, the Floor Manager itself acts as the Convener for floor control.
+This orchestrator provides higher-level conversation flow patterns.
 
 A convener agent explicitly manages the floor, inviting/disinviting participants
 and granting floor to agents according to defined logic (round-robin, priority-based, context-aware).
@@ -11,7 +15,7 @@ from enum import Enum
 import structlog
 
 from src.floor_manager.floor_control import FloorControl
-from src.agent_registry.registry import AgentRegistry
+# Note: Agent registry removed per OFP 1.0.1 - agents identified only by speakerUri
 from src.envelope_router.envelope import (
     OpenFloorEnvelope,
     EventType,
@@ -40,7 +44,6 @@ class ConvenerOrchestrator:
         self,
         convener_speakerUri: str,
         floor_control: FloorControl,
-        agent_registry: AgentRegistry,
         strategy: ConvenerStrategy = ConvenerStrategy.ROUND_ROBIN
     ) -> None:
         """
@@ -49,12 +52,13 @@ class ConvenerOrchestrator:
         Args:
             convener_speakerUri: Speaker URI of the convener agent
             floor_control: Floor control instance
-            agent_registry: Agent registry instance
             strategy: Orchestration strategy
+        
+        Note: No agent registry needed per OFP 1.0.1 - agents are identified
+              only by their speakerUri in envelopes.
         """
         self.convener_speakerUri = convener_speakerUri;
         self.floor_control = floor_control;
-        self.agent_registry = agent_registry;
         self.strategy = strategy;
         self._participants: Dict[str, dict] = {};
         self._turn_order: List[str] = [];
@@ -71,20 +75,16 @@ class ConvenerOrchestrator:
 
         Args:
             conversation_id: Conversation identifier
-            participant_speakerUri: Participant speaker URI
+            participant_speakerUri: Participant speaker URI (no registry lookup needed)
             priority: Participant priority
 
         Returns:
             True if invited successfully
+        
+        Note: Per OFP 1.0.1, no agent registry exists. Agents are simply identified
+              by their speakerUri when they send envelopes.
         """
-        agent = await self.agent_registry.get_agent(participant_speakerUri);
-        if not agent:
-            logger.warning(
-                "Cannot invite unknown agent",
-                speakerUri=participant_speakerUri
-            );
-            return False;
-
+        # No registry lookup needed - just track the participant
         self._participants[participant_speakerUri] = {
             "priority": priority,
             "invited": True

@@ -8,7 +8,7 @@ import structlog
 import logging
 
 from src.config import settings
-from src.api import floor_router, envelope_router, registry_router
+from src.api import floor_router, envelope_router
 
 # Convert LOG_LEVEL string to logging level
 LOG_LEVEL_MAP = {
@@ -55,7 +55,7 @@ app.add_middleware(
 # Include API routers
 app.include_router(floor_router)
 app.include_router(envelope_router)
-app.include_router(registry_router)
+# Note: Agent registry removed - not part of OFP 1.0.1 specification
 
 
 @app.on_event("startup")

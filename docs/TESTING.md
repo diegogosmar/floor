@@ -124,3 +124,6 @@ asyncio_mode = auto
 
 The `asyncio_mode = auto` setting automatically detects async test functions and runs them with pytest-asyncio.
 
+
+
+

@@ -1,16 +1,19 @@
 """
-Hybrid Delegation Model per OFP 1.0.0
+Hybrid Delegation Model per OFP 1.0.1
 
 A master agent maintains primary floor and temporarily delegates to specialist
 agents via sub-conversations, maintaining overall control and context.
 Ideal for complex tasks requiring diverse expertise.
+
+NOTE: Per OFP 1.0.1, no agent registry exists. Agents are identified only
+      by their speakerUri in envelopes.
 """
 
 from typing import Optional, Dict, List
 import structlog
 
 from src.floor_manager.floor_control import FloorControl
-from src.agent_registry.registry import AgentRegistry
+# Note: Agent registry removed per OFP 1.0.1
 from src.envelope_router.envelope import OpenFloorEnvelope
 
 logger = structlog.get_logger()
@@ -26,8 +29,7 @@ class HybridOrchestrator:
     def __init__(
         self,
         master_speakerUri: str,
-        floor_control: FloorControl,
-        agent_registry: AgentRegistry
+        floor_control: FloorControl
     ) -> None:
         """
         Initialize hybrid orchestrator
@@ -35,11 +37,12 @@ class HybridOrchestrator:
         Args:
             master_speakerUri: Master agent speaker URI
             floor_control: Floor control instance
-            agent_registry: Agent registry instance
+        
+        Note: No agent registry needed per OFP 1.0.1 - agents are identified
+              only by their speakerUri in envelopes.
         """
         self.master_speakerUri = master_speakerUri;
         self.floor_control = floor_control;
-        self.agent_registry = agent_registry;
         self._delegations: Dict[str, dict] = {}  # conversation_id -> delegation info
 
     async def delegate_to_specialist(
