@@ -8,7 +8,7 @@ NOTE: "Convener" in OFP spec refers to an optional AGENT that mediates conversat
       not this component. This is the Floor Manager's built-in floor control logic.
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from typing import Optional, Dict, Any
 from enum import Enum
 import structlog
@@ -109,7 +109,7 @@ class FloorControl:
         request = {
             "speakerUri": speakerUri,
             "priority": priority,
-            "timestamp": datetime.utcnow()
+            "timestamp": datetime.now(UTC)
         }
         self._floor_requests[conversation_id].append(request);
         self._floor_requests[conversation_id].sort(
@@ -173,7 +173,7 @@ class FloorControl:
 
         holder = self._floor_holders[conversation_id];
         # Check if floor grant has expired
-        if datetime.utcnow() - holder["granted_at"] > timedelta(
+        if datetime.now(UTC) - holder["granted_at"] > timedelta(
             seconds=self._max_hold_time
         ):
             await self._revoke_floor(conversation_id, reason="@timeout");
@@ -187,7 +187,7 @@ class FloorControl:
         
         Floor Manager decision. Updates floorGranted in conversation metadata.
         """
-        granted_at = datetime.utcnow();
+        granted_at = datetime.now(UTC);
         self._floor_holders[conversation_id] = {
             "speakerUri": speakerUri,
             "granted_at": granted_at

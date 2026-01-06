@@ -6,6 +6,7 @@ set -e
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 echo "🧪 OFP Floor Manager - Test Suite"
@@ -16,10 +17,8 @@ echo ""
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [ -f "$SCRIPT_DIR/venv/bin/python" ]; then
     PYTHON_CMD="$SCRIPT_DIR/venv/bin/python"
-    echo "Using venv Python: $PYTHON_CMD"
 elif [ -f "$SCRIPT_DIR/myenv/bin/python" ]; then
     PYTHON_CMD="$SCRIPT_DIR/myenv/bin/python"
-    echo "Using myenv Python: $PYTHON_CMD"
 elif command -v python3 &> /dev/null; then
     PYTHON_CMD="python3"
 elif command -v python &> /dev/null; then
@@ -56,39 +55,143 @@ if ! $PYTHON_CMD -c "import pytest_asyncio" 2>/dev/null; then
     $PYTHON_CMD -m pip install pytest-asyncio>=0.23.0
 fi
 
-echo ""
-
-# Run tests with different options based on arguments
-if [ "$1" == "-v" ] || [ "$1" == "--verbose" ]; then
-    echo "Running tests with verbose output..."
-    $PYTEST_CMD -v
-elif [ "$1" == "-c" ] || [ "$1" == "--coverage" ]; then
-    echo "Running tests with coverage..."
-    $PYTEST_CMD --cov=src --cov-report=html --cov-report=term
+# If arguments provided, use direct mode (backward compatibility)
+if [ "$1" != "" ] && [ "$1" != "-i" ] && [ "$1" != "--interactive" ]; then
+    case "$1" in
+        -v|--verbose)
+            echo "Running tests with verbose output..."
+            $PYTEST_CMD -v
+            ;;
+        -c|--coverage)
+            echo "Running tests with coverage..."
+            $PYTEST_CMD --cov=src --cov-report=html --cov-report=term
+            echo ""
+            echo -e "${GREEN}✅ Coverage report generated in htmlcov/index.html${NC}"
+            ;;
+        -f|--floor)
+            echo "Running floor manager tests only..."
+            $PYTEST_CMD tests/test_floor_manager.py -v
+            ;;
+        -a|--agents)
+            echo "Running agent tests only..."
+            $PYTEST_CMD tests/test_agents.py -v
+            ;;
+        -h|--help)
+            echo "Usage: ./run_tests.sh [OPTIONS]"
+            echo ""
+            echo "Options:"
+            echo "  (no args)    Interactive menu"
+            echo "  -i, --interactive    Interactive menu"
+            echo "  -v, --verbose    Run all tests with verbose output"
+            echo "  -c, --coverage  Run all tests with coverage report"
+            echo "  -f, --floor      Run floor manager tests only"
+            echo "  -a, --agents     Run agent tests only"
+            echo "  -h, --help       Show this help"
+            exit 0
+            ;;
+        *)
+            echo -e "${YELLOW}Unknown option: $1${NC}"
+            echo "Use -h or --help for usage information"
+            exit 1
+            ;;
+    esac
     echo ""
-    echo -e "${GREEN}✅ Coverage report generated in htmlcov/index.html${NC}"
-elif [ "$1" == "-f" ] || [ "$1" == "--floor" ]; then
-    echo "Running floor manager tests only..."
-    $PYTEST_CMD tests/test_floor_manager.py -v
-elif [ "$1" == "-a" ] || [ "$1" == "--agents" ]; then
-    echo "Running agent tests only..."
-    $PYTEST_CMD tests/test_agents.py -v
-elif [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
-    echo "Usage: ./run_tests.sh [OPTIONS]"
-    echo ""
-    echo "Options:"
-    echo "  (no args)    Run all tests"
-    echo "  -v, --verbose    Run with verbose output"
-    echo "  -c, --coverage  Run with coverage report"
-    echo "  -f, --floor      Run floor manager tests only"
-    echo "  -a, --agents    Run agent tests only"
-    echo "  -h, --help       Show this help"
+    echo -e "${GREEN}✅ Tests completed!${NC}"
     exit 0
-else
-    echo "Running all tests..."
-    $PYTEST_CMD
 fi
+
+# Interactive menu mode
+echo -e "${BLUE}Quale test vuoi eseguire?${NC}"
+echo ""
+echo "1) Tutti i test (pytest)"
+echo "2) Test Floor Manager"
+echo "3) Test Agenti"
+echo "4) Test con coverage report"
+echo "5) Test Streamlit GUI"
+echo "6) Test WebSocket/SSE endpoint"
+echo ""
+read -p "Scegli un'opzione [1-6]: " choice
+
+case $choice in
+    1)
+        echo ""
+        echo -e "${GREEN}🧪 Esecuzione di tutti i test...${NC}"
+        echo ""
+        $PYTEST_CMD -v
+        ;;
+    2)
+        echo ""
+        echo -e "${GREEN}🧪 Esecuzione test Floor Manager...${NC}"
+        echo ""
+        $PYTEST_CMD tests/test_floor_manager.py -v
+        ;;
+    3)
+        echo ""
+        echo -e "${GREEN}🧪 Esecuzione test Agenti...${NC}"
+        echo ""
+        $PYTEST_CMD tests/test_agents.py -v
+        ;;
+    4)
+        echo ""
+        echo -e "${GREEN}🧪 Esecuzione test con coverage...${NC}"
+        echo ""
+        $PYTEST_CMD --cov=src --cov-report=html --cov-report=term
+        echo ""
+        echo -e "${GREEN}✅ Coverage report generated in htmlcov/index.html${NC}"
+        ;;
+    5)
+        echo ""
+        echo -e "${GREEN}🧪 Test Streamlit GUI...${NC}"
+        echo ""
+        if [ -f "test_streamlit.sh" ]; then
+            ./test_streamlit.sh
+        else
+            echo -e "${YELLOW}⚠️  test_streamlit.sh non trovato!${NC}"
+            echo ""
+            echo "Verifica manualmente:"
+            echo "  1. Avvia Floor Manager: docker-compose up"
+            echo "  2. Avvia Streamlit: streamlit run streamlit_app.py"
+        fi
+        ;;
+    6)
+        echo ""
+        echo -e "${GREEN}🧪 Test WebSocket/SSE endpoint...${NC}"
+        echo ""
+        echo "Verifica che Floor Manager sia avviato (docker-compose up)"
+        echo ""
+        
+        # Test health endpoint
+        echo "1️⃣ Testing health endpoint..."
+        if curl -s http://localhost:8000/health > /dev/null 2>&1; then
+            echo -e "${GREEN}   ✅ Floor Manager is running${NC}"
+        else
+            echo -e "${RED}   ❌ Floor Manager is NOT running!${NC}"
+            echo "   Start it with: docker-compose up"
+            exit 1
+        fi
+        
+        # Test SSE endpoint
+        echo ""
+        echo "2️⃣ Testing SSE endpoint..."
+        if curl -s -N --max-time 2 http://localhost:8000/api/v1/events/floor/test_001 2>&1 | head -1 | grep -q "data:"; then
+            echo -e "${GREEN}   ✅ SSE endpoint is working${NC}"
+        else
+            echo -e "${YELLOW}   ⚠️  SSE endpoint might not be working (check manually)${NC}"
+        fi
+        
+        # Test WebSocket endpoint (basic check)
+        echo ""
+        echo "3️⃣ WebSocket endpoint available at:"
+        echo "   ws://localhost:8000/api/v1/ws/floor/test_001"
+        echo ""
+        echo -e "${GREEN}✅ WebSocket/SSE tests completed!${NC}"
+        ;;
+    *)
+        echo ""
+        echo -e "${YELLOW}❌ Opzione non valida!${NC}"
+        exit 1
+        ;;
+esac
 
 echo ""
 echo -e "${GREEN}✅ Tests completed!${NC}"
-
