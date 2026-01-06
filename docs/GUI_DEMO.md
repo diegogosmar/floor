@@ -13,6 +13,8 @@ This GUI demo provides a user-friendly web interface to interact with the Open F
 - 🎯 **Priority Queue Visualization** - See how floor control prioritizes agents
 - 📊 **Two Modes** - Observer mode (watch automated demo) or Participant mode (interact directly)
 - 🔄 **Auto-Refresh** - Floor status updates automatically
+- 🚀 **Easy Launch Scripts** - Use `./run_gui.sh` for interactive menu or quick launchers
+- ⚡ **Two GUI Versions** - Standard (simple) and Real-Time (with SSE automatic updates)
 
 ## Quick Start
 
@@ -42,6 +44,31 @@ Wait for: `Application startup complete` message
 
 #### Step 2: Launch GUI
 
+**Option A: Use the interactive launcher script (Recommended)** 🎯
+
+```bash
+# Terminal 2: Use the interactive menu
+./run_gui.sh
+```
+
+The script will ask you which GUI to launch:
+- **1) Standard GUI** - `streamlit_app.py` (recommended for first time)
+- **2) Real-Time GUI** - `streamlit_app_realtime.py` (with automatic updates via SSE)
+- **3) Both** - Launch both on different ports (8501 and 8502)
+- **4) Floor Manager only** - Just start the backend
+
+**Option B: Use quick launcher scripts**
+
+```bash
+# Standard GUI
+./run_gui_standard.sh
+
+# OR Real-Time GUI
+./run_gui_realtime.sh
+```
+
+**Option C: Manual command**
+
 ```bash
 # Terminal 2: Start the Streamlit GUI
 streamlit run streamlit_app.py
@@ -59,6 +86,20 @@ The GUI will automatically open in your browser at `http://localhost:8501`
 2. **Select Mode**
    - **Observer**: Watch automated multi-agent conversation
    - **Participant**: Chat directly with AI agents
+
+## Two GUI Versions Available
+
+This project includes **two Streamlit GUI applications**:
+
+| Version | File | Real-Time Updates | Use Case |
+|---------|------|-------------------|----------|
+| **Standard** | `streamlit_app.py` | ❌ No (manual refresh) | Learning, simple demos, first-time users |
+| **Real-Time** | `streamlit_app_realtime.py` | ✅ Yes (automatic via SSE) | Live demos, monitoring, real-time monitoring |
+
+**Quick Launch:**
+- Standard: `./run_gui_standard.sh` or `streamlit run streamlit_app.py`
+- Real-Time: `./run_gui_realtime.sh` or `streamlit run streamlit_app_realtime.py`
+- Interactive Menu: `./run_gui.sh` (choose from menu)
 
 ## Usage Guide
 
