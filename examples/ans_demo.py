@@ -12,6 +12,12 @@ ANS (Agent Name Server) is like DNS but for OFP agents.
 
 import asyncio
 import httpx
+import sys
+import os
+
+# Add parent directory to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
 from src.ans.client import ANSClient
 from src.ans.models import ManifestData, ConversantIdentification
 
