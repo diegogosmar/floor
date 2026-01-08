@@ -39,7 +39,7 @@ logger = structlog.get_logger()
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
-    description="Open Floor Protocol 1.0.1 Multi-Agent System",
+    description="Open Floor Protocol 1.1 Multi-Agent System",
     docs_url="/docs",
     redoc_url="/redoc",
 )
@@ -56,7 +56,7 @@ app.add_middleware(
 # Include API routers
 app.include_router(floor_router)
 app.include_router(envelope_router)
-# Note: Agent registry removed - not part of OFP 1.0.1 specification
+# Note: Agent registry removed - not part of OFP 1.1 specification
 
 # Add real-time endpoints (SSE and WebSocket)
 create_sse_endpoint(floor_router)  # SSE endpoint for one-way updates

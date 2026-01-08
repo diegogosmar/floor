@@ -1,28 +1,28 @@
 # Open Floor Protocol (OFP) Multi-Agent System
 
-A Python-based implementation of the Open Floor Protocol 1.0.1 specification for multi-agent conversation management and floor control.
+A Python-based implementation of the Open Floor Protocol 1.1 specification for multi-agent conversation management and floor control.
 
 ## Overview
 
-This project implements the **Floor Manager** per Open Floor Protocol (OFP) 1.0.1 specification, providing:
+This project implements the **Floor Manager** per Open Floor Protocol (OFP) 1.1 specification, providing:
 
 - **Floor Manager**: Core OFP component managing floor control and envelope routing
 - **Floor Control Logic**: Minimal floor management behaviors (requestFloor → grantFloor, yieldFloor, etc.)
-- **Envelope Processing**: OFP 1.0.1 compliant JSON envelope handling
+- **Envelope Processing**: OFP 1.1 compliant JSON envelope handling
 - **Agent Support**: Base classes and example agents for testing
 
-**Per OFP 1.0.1**: No central agent registry (agents identified only by speakerUri). Dynamic discovery via getManifests/publishManifests events.
+**Per OFP 1.1**: No central agent registry (agents identified only by speakerUri). Dynamic discovery via getManifests/publishManifests events.
 
 ## Architecture
 
-### System Architecture per OFP 1.0.1
+### System Architecture per OFP 1.1
 
 ```
 src/
 ├── floor_manager/     # Floor Manager (core OFP component)
 │   ├── manager.py       # Main Floor Manager (includes envelope routing)
 │   ├── floor_control.py # Floor control logic (minimal behaviors)
-│   └── envelope.py      # OFP 1.0.1 envelope models
+│   └── envelope.py      # OFP 1.1 envelope models
 ├── agents/            # Agent implementations (BaseAgent, ExampleAgent, LLMAgent)
 ├── orchestration/     # Optional orchestration patterns (Convener Agent, etc.)
 ├── api/               # FastAPI REST endpoints
@@ -31,14 +31,14 @@ src/
 └── main.py            # FastAPI application entry point
 ```
 
-### Floor Manager (Core OFP 1.0.1 Component)
+### Floor Manager (Core OFP 1.1 Component)
 
 The **Floor Manager** is the central component per OFP Specification Section 0.4.3:
 
 ```
 ┌─────────────────────────────────────────────┐
 │           FLOOR MANAGER                     │
-│  (Implements OFP 1.0.1 Spec Section 2.2)   │
+│  (Implements OFP 1.1 Spec Section 2.2)   │
 │                                             │
 │  • Envelope Processing & Routing (built-in) │
 │  • Floor Control Logic (minimal behaviors)  │
@@ -46,7 +46,7 @@ The **Floor Manager** is the central component per OFP Specification Section 0.4
 │  • Conversation State Management            │
 └─────────────────────────────────────────────┘
                     ↕
-            OFP 1.0.1 Envelopes
+            OFP 1.1 Envelopes
                     ↕
     ┌──────────┐  ┌──────────┐  ┌──────────┐
     │ Agent A  │  │ Agent B  │  │ Agent C  │
@@ -59,12 +59,12 @@ The **Floor Manager** is the central component per OFP Specification Section 0.4
 3. **Priority Queue**: Manages floor requests by priority
 4. **State Machine**: Floor as autonomous state machine
 
-**Important Terminology** (per OFP 1.0.1 Spec):
+**Important Terminology** (per OFP 1.1 Spec):
 - **Floor Manager** = Our system component (what this project implements)
 - **Convener Agent** = Optional AGENT that mediates conversations (like a meeting chair)
 - The Floor Manager can work standalone OR delegate to a Convener Agent if present
 
-📊 **Visual Architecture Diagrams**: See [OFP 1.0.1 Spec Analysis](docs/OFP_1.0.1_OFFICIAL_SPEC_ANALYSIS.md) for detailed architecture based on official specification.
+📊 **Visual Architecture Diagrams**: See [OFP 1.1 Spec Analysis](docs/OFP_1.0.1_OFFICIAL_SPEC_ANALYSIS.md) for detailed architecture based on official specification.
 
 ### Optional Orchestration Patterns
 
@@ -233,8 +233,8 @@ curl http://localhost:8000/api/v1/floor/holder/conv_test
 ### 📚 Complete Documentation
 
 - **🚀 How to Launch and Test**: [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) ⭐ **START HERE**
-- **📋 OFP 1.0.1 Spec Analysis**: [docs/OFP_1.0.1_OFFICIAL_SPEC_ANALYSIS.md](docs/OFP_1.0.1_OFFICIAL_SPEC_ANALYSIS.md) - Official specification analysis and compliance
-- **🔄 Refactoring Status**: [REFACTORING_STATUS.md](REFACTORING_STATUS.md) - Current refactoring progress per OFP 1.0.1
+- **📋 OFP 1.1 Spec Analysis**: [docs/OFP_1.0.1_OFFICIAL_SPEC_ANALYSIS.md](docs/OFP_1.0.1_OFFICIAL_SPEC_ANALYSIS.md) - Official specification analysis and compliance
+- **🔄 Refactoring Status**: [REFACTORING_STATUS.md](REFACTORING_STATUS.md) - Current refactoring progress per OFP 1.1
 - **🎭 Simple OFP Demo**: [examples/agents/complete_ofp_demo_simple.py](examples/agents/complete_ofp_demo_simple.py) - Floor control without agent registration
 - **⚙️ Detailed Setup**: [docs/SETUP.md](docs/SETUP.md)
 - **🏗️ Architecture**: [docs/ARCHITECTURE_DETAILED.md](docs/ARCHITECTURE_DETAILED.md)
@@ -343,16 +343,16 @@ Once the server is running, access the interactive API documentation:
 - **Swagger UI**: http://localhost:8000/docs
 - **ReDoc**: http://localhost:8000/redoc
 
-## Open Floor Protocol 1.0.1
+## Open Floor Protocol 1.1
 
-This implementation follows the Open Floor Protocol 1.0.1 specification for:
+This implementation follows the Open Floor Protocol 1.1 specification for:
 - Floor control primitives (autonomous state machine with convener)
 - Conversation envelope format (with assignedFloorRoles and floorGranted)
 - Agent capability discovery
 - Message routing and delivery
 - Privacy flag handling (only for utterance events)
 
-**Key OFP 1.0.1 Features**:
+**Key OFP 1.1 Features**:
 - Floor Manager acts as autonomous Convener
 - `assignedFloorRoles` and `floorGranted` in conversation object
 - `acceptInvite` event support
@@ -376,7 +376,7 @@ We welcome contributions! Here's how to get started:
 - Coding standards and style guide
 - Testing requirements
 - Commit message conventions
-- OFP 1.0.1 compliance guidelines
+- OFP 1.1 compliance guidelines
 
 **Quick PR Process:**
 - Fork → Branch → Code → Test → PR → Review → Merge ✅

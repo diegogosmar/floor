@@ -1,10 +1,10 @@
-# Agent Examples - OFP 1.0.1 Compliant
+# Agent Examples - OFP 1.1 Compliant
 
-This directory contains example agents demonstrating the Open Floor Protocol 1.0.1.
+This directory contains example agents demonstrating the Open Floor Protocol 1.1.
 
 ## 🎯 Quick Start - Complete OFP Demo
 
-**RECOMMENDED**: Start here to see the full OFP 1.0.1 protocol in action:
+**RECOMMENDED**: Start here to see the full OFP 1.1 protocol in action:
 
 ```bash
 # Make sure Floor Manager is running
@@ -15,7 +15,7 @@ python examples/agents/complete_ofp_demo_simple.py
 ```
 
 **What it demonstrates**:
-- ✅ Agents identified only by speakerUri (NO registration per OFP 1.0.1)
+- ✅ Agents identified only by speakerUri (NO registration per OFP 1.1)
 - ✅ Floor Manager makes autonomous floor control decisions
 - ✅ Priority-based floor request queue
 - ✅ Floor yield and handoff between agents
@@ -27,13 +27,13 @@ See [COMPLETE_OFP_DEMO.md](COMPLETE_OFP_DEMO.md) for detailed documentation.
 ### Demo Agents (No Registration Required)
 
 #### `complete_ofp_demo_simple.py` ⭐ **RECOMMENDED**
-Complete demonstration of OFP 1.0.1 protocol:
+Complete demonstration of OFP 1.1 protocol:
 - Agents identified only by speakerUri (per spec)
 - Floor Manager autonomous decision making
 - Priority queue management
 - Floor handoff between agents
 
-**Per OFP 1.0.1**: No agent registration exists. Agents simply send envelopes with their speakerUri.
+**Per OFP 1.1**: No agent registration exists. Agents simply send envelopes with their speakerUri.
 
 #### `demo_agents.py`
 Basic floor control demonstration:
@@ -64,19 +64,19 @@ python examples/agents/quick_llm_test.py
 #### `llm_agent_standalone.py`
 Standalone LLM agent (can run independently)
 
-## 🏗️ Architecture (OFP 1.0.1)
+## 🏗️ Architecture (OFP 1.1)
 
 ```
 ┌─────────────────────────────────────┐
 │       FLOOR MANAGER                 │
-│  (OFP 1.0.1 Spec Section 2.2)      │
+│  (OFP 1.1 Spec Section 2.2)      │
 │                                     │
 │  • Envelope Processing & Routing    │
 │  • Floor Control Logic              │
 │  • Priority Queue Management        │
 └─────────────────────────────────────┘
               ↕
-      OFP 1.0.1 Envelopes
+      OFP 1.1 Envelopes
               ↕
    ┌──────────┐  ┌──────────┐
    │ Agent A  │  │ Agent B  │
@@ -85,14 +85,14 @@ Standalone LLM agent (can run independently)
 ```
 
 **Key Points**:
-- ✅ **No Agent Registration**: Per OFP 1.0.1, agents are identified only by `speakerUri` in envelopes
+- ✅ **No Agent Registration**: Per OFP 1.1, agents are identified only by `speakerUri` in envelopes
 - ✅ **Floor Manager**: Central component that routes envelopes and manages floor control
 - ✅ **Dynamic Discovery**: Agents can use getManifests/publishManifests for dynamic capability discovery (not implemented yet)
 
-## 🎓 OFP 1.0.1 Key Concepts
+## 🎓 OFP 1.1 Key Concepts
 
 ### 1. No Central Registry
-Per [OFP 1.0.1 Spec Section 0.5](https://github.com/open-voice-interoperability/openfloor-docs/blob/working_group/specifications/ConversationEnvelope/1.0.1/InteroperableConvEnvSpec.md):
+Per [OFP 1.1 Spec Section 0.5](https://github.com/open-voice-interoperability/openfloor-docs/blob/working_group/specifications/ConversationEnvelope/1.0.1/InteroperableConvEnvSpec.md):
 - Agents are identified ONLY by their `speakerUri` in envelopes
 - No registration or central registry exists
 - Discovery is dynamic via getManifests/publishManifests events
@@ -159,14 +159,14 @@ async with httpx.AsyncClient() as client:
 
 ## 🔧 Creating Your Own Agent
 
-### Minimal OFP 1.0.1 Agent
+### Minimal OFP 1.1 Agent
 
 ```python
 import httpx
 
 class MinimalOFPAgent:
     def __init__(self, speaker_uri: str):
-        # No registration needed per OFP 1.0.1
+        # No registration needed per OFP 1.1
         self.speakerUri = speaker_uri
         self.client = httpx.AsyncClient()
     
@@ -240,11 +240,11 @@ python examples/agents/llm_agent_example.py
 ## 📖 Documentation
 
 - **Getting Started**: [../../docs/GETTING_STARTED.md](../../docs/GETTING_STARTED.md)
-- **OFP 1.0.1 Spec Analysis**: [../../docs/OFP_1.0.1_OFFICIAL_SPEC_ANALYSIS.md](../../docs/OFP_1.0.1_OFFICIAL_SPEC_ANALYSIS.md)
+- **OFP 1.1 Spec Analysis**: [../../docs/OFP_1.0.1_OFFICIAL_SPEC_ANALYSIS.md](../../docs/OFP_1.0.1_OFFICIAL_SPEC_ANALYSIS.md)
 - **LLM Integration**: [../../docs/LLM_INTEGRATION.md](../../docs/LLM_INTEGRATION.md)
 - **Complete OFP Demo**: [COMPLETE_OFP_DEMO.md](COMPLETE_OFP_DEMO.md)
 
-## 🎯 OFP 1.0.1 Compliance
+## 🎯 OFP 1.1 Compliance
 
 These examples demonstrate:
 
@@ -257,10 +257,10 @@ These examples demonstrate:
 
 ## 🔗 References
 
-- [OFP 1.0.1 Official Specification](https://github.com/open-voice-interoperability/openfloor-docs/blob/working_group/specifications/ConversationEnvelope/1.0.1/InteroperableConvEnvSpec.md)
+- [OFP 1.1 Official Specification](https://github.com/open-voice-interoperability/openfloor-docs/blob/working_group/specifications/ConversationEnvelope/1.0.1/InteroperableConvEnvSpec.md)
 - [Floor Manager API Documentation](http://localhost:8000/docs)
 
 ---
 
-**Ready to build OFP 1.0.1 compliant agents?** Start with `complete_ofp_demo_simple.py` to see the protocol in action!
+**Ready to build OFP 1.1 compliant agents?** Start with `complete_ofp_demo_simple.py` to see the protocol in action!
 

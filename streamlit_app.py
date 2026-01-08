@@ -421,7 +421,7 @@ with st.expander("ℹ️ How to Use"):
     - ✅ Real-time floor status
     - ✅ Priority-based turn-taking
     - ✅ OpenAI GPT-4o-mini integration
-    - ✅ OFP 1.0.1 compliant
+    - ✅ OFP 1.1 compliant
     """)
 
 # Debug info (collapsible)

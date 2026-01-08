@@ -454,9 +454,9 @@ git commit -m "feat(api): add floor status endpoint
 
 ## Project-Specific Guidelines
 
-### OFP 1.0.1 Compliance
+### OFP 1.1 Compliance
 
-- **Always follow OFP 1.0.1 specification**
+- **Always follow OFP 1.1 specification**
 - Envelope format must match spec exactly
 - Floor control primitives must be compliant
 - Test with official OFP test suite if available
@@ -464,7 +464,7 @@ git commit -m "feat(api): add floor status endpoint
 ### Architecture Decisions
 
 - **Floor Manager** is the central component
-- **No agent registry** (per OFP 1.0.1)
+- **No agent registry** (per OFP 1.1)
 - **Envelope routing** is built into Floor Manager
 - **Priority queue** manages floor requests
 
@@ -500,4 +500,5 @@ Thank you for contributing! 🙏
 4. Opening a Pull Request
 
 We look forward to your contributions! 🚀
+
 

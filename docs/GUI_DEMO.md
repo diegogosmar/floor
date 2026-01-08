@@ -2,7 +2,7 @@
 
 ## Overview
 
-This GUI demo provides a user-friendly web interface to interact with the Open Floor Protocol (OFP) 1.0.1 Floor Manager. Users can chat with AI agents, observe floor control in action, and see priority-based turn-taking in real-time.
+This GUI demo provides a user-friendly web interface to interact with the Open Floor Protocol (OFP) 1.1 Floor Manager. Users can chat with AI agents, observe floor control in action, and see priority-based turn-taking in real-time.
 
 ## Features
 
