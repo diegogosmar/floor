@@ -235,6 +235,23 @@ else:
     # Observer mode
     st.info("👁️ **Observer Mode** - Watch agents communicate (set to Participant to join)")
     
+    # Custom brown button style for primary buttons
+    st.markdown("""
+    <style>
+    button[kind="primary"] {
+        background-color: #8B4513 !important;
+        color: white !important;
+        border: none !important;
+    }
+    button[kind="primary"]:hover {
+        background-color: #A0522D !important;
+    }
+    button[kind="primary"]:focus {
+        background-color: #8B4513 !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
     # Auto-run demo button
     if st.button("▶️ Run Automated Demo", type="primary"):
         if not api_key:
