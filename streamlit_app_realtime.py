@@ -298,19 +298,19 @@ if st.session_state.user_mode == "participant":
 else:
     st.info("👁️ **Observer Mode** - Watch agents communicate (set to Participant to join)")
     
-    # Custom brown button style for primary buttons
+    # Custom green button style for primary buttons
     st.markdown("""
     <style>
     button[kind="primary"] {
-        background-color: #8B4513 !important;
+        background-color: #28a745 !important;
         color: white !important;
         border: none !important;
     }
     button[kind="primary"]:hover {
-        background-color: #A0522D !important;
+        background-color: #218838 !important;
     }
     button[kind="primary"]:focus {
-        background-color: #8B4513 !important;
+        background-color: #28a745 !important;
     }
     </style>
     """, unsafe_allow_html=True)
