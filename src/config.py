@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     POSTGRES_PORT: int = 5432
     POSTGRES_DB: str = "ofp_db"
     POSTGRES_USER: str = "ofp_user"
-    POSTGRES_PASSWORD: str = "ofp_password"
+    POSTGRES_PASSWORD: str = ""  # Must be set via environment variable POSTGRES_PASSWORD
 
     @property
     def DATABASE_URL(self) -> str:
@@ -69,7 +69,7 @@ class Settings(BaseSettings):
     REGISTRY_MAX_AGENTS: int = 1000
 
     # Security
-    SECRET_KEY: str = "your-secret-key-change-in-production"
+    SECRET_KEY: str = ""  # Must be set via environment variable SECRET_KEY (required in production)
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 

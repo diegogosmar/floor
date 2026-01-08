@@ -88,7 +88,11 @@ async def send_envelope(
         };
     except Exception as e:
         logger.error("Error sending envelope", error=str(e));
-        raise HTTPException(status_code=400, detail=str(e));
+        # Don't expose internal error details to clients
+        raise HTTPException(
+            status_code=400,
+            detail="Failed to process envelope. Please check envelope format and try again."
+        );
 
 
 @router.post("/utterance", response_model=dict)
@@ -141,8 +145,10 @@ async def validate_envelope(
             "conversation_id": ofp_envelope.conversation.id
         };
     except Exception as e:
+        # Log full error server-side, return generic message to client
+        logger.error("Envelope validation failed", error=str(e));
         return {
             "valid": False,
-            "error": str(e)
+            "error": "Invalid envelope format. Please check the envelope structure."
         };
 

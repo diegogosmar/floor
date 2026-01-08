@@ -60,7 +60,25 @@ async def websocket_floor_endpoint(websocket: WebSocket, conversation_id: str) -
     
     Usage:
         ws://localhost:8000/ws/floor/{conversation_id}
+    
+    SECURITY NOTE: In production, add:
+    - Origin validation (check websocket.headers.get("origin"))
+    - Authentication token validation
+    - Rate limiting per IP/user
+    - Connection limits per conversation_id
     """
+    # TODO: Add origin validation in production
+    # origin = websocket.headers.get("origin")
+    # if origin not in settings.CORS_ORIGINS:
+    #     await websocket.close(code=1008, reason="Origin not allowed")
+    #     return
+    
+    # TODO: Add authentication token validation in production
+    # token = websocket.query_params.get("token")
+    # if not validate_token(token):
+    #     await websocket.close(code=1008, reason="Authentication required")
+    #     return
+    
     await websocket.accept()
     active_websockets.add(websocket)
     
@@ -113,6 +131,12 @@ async def sse_event_generator(conversation_id: str):
     
     Usage:
         GET /events/floor/{conversation_id}
+    
+    SECURITY NOTE: In production, add:
+    - Request origin validation
+    - Authentication token validation
+    - Rate limiting per IP/user
+    - Connection limits per conversation_id
     """
     # Create queue for this conversation
     queue = asyncio.Queue()

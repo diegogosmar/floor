@@ -1,0 +1,354 @@
+# Cursor Rules - Python Project Development Standards
+
+## Project Context
+- Python-based application development
+- Uses FastAPI for REST API and WebSocket/SSE endpoints
+- Follows best practices for secure, maintainable code
+
+## Code Style & Standards
+
+### Python
+- Follow PEP 8 style guide
+- Use type hints for all function parameters and return types
+- Use async/await for asynchronous operations
+- Use f-strings for string formatting
+- Prefer pathlib over os.path for file operations
+- Use dataclasses or Pydantic models for data structures
+
+### Naming Conventions
+- Use snake_case for functions and variables
+- Use PascalCase for classes
+- Use UPPER_CASE for constants
+- Use descriptive names - avoid abbreviations unless widely understood
+
+### Documentation
+- Add docstrings to all public functions and classes (Google style)
+- Update README.md when adding new features
+- Keep CONTRIBUTING.md up to date
+- Document API endpoints in docstrings
+
+### Testing
+- Write tests for all new features
+- Use pytest for testing
+- Aim for >80% code coverage
+- Test both success and error cases
+
+## Architecture Rules
+
+### Component Structure
+- Keep components modular and testable
+- Use dependency injection where appropriate
+- Separate business logic from API endpoints
+- Organize code by feature/domain (not by technical layer)
+- Keep API endpoints separate from business logic
+
+### Error Handling
+- Use appropriate HTTP status codes
+- Return clear error messages
+- Log errors appropriately
+- Never expose sensitive information in error messages
+
+## Security Rules - STRICT ENFORCEMENT
+
+### 🔒 Sensitive Data Management (CRITICAL)
+
+#### Secrets & Credentials
+- **NEVER** commit API keys, passwords, tokens, or secrets to git
+- **NEVER** hardcode credentials in source code
+- **NEVER** log sensitive data (passwords, tokens, API keys, personal info)
+- **ALWAYS** use environment variables for secrets (via `os.getenv()` or `python-dotenv`)
+- **ALWAYS** use `.env` files (must be in `.gitignore`)
+- **ALWAYS** validate that `.env` is in `.gitignore` before committing
+- **ALWAYS** use `python-dotenv` to load environment variables
+- **NEVER** expose secrets in error messages or stack traces
+- **NEVER** include secrets in debug output or print statements
+
+#### Personal Information (PII)
+- **NEVER** log or expose user personal information (emails, names, addresses)
+- **NEVER** store PII in plain text
+- **ALWAYS** sanitize PII before logging (use placeholders like `[REDACTED]`)
+- **ALWAYS** encrypt sensitive data at rest if stored
+- **NEVER** include PII in git commits or PR descriptions
+
+#### API Keys & Tokens
+- **NEVER** include API keys in code, config files, or documentation
+- **ALWAYS** use environment variables: `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, etc.
+- **ALWAYS** validate API keys are set before using them
+- **NEVER** expose API keys in URLs, headers (if logged), or responses
+- **ALWAYS** rotate keys if accidentally exposed
+- **NEVER** share API keys in screenshots, logs, or error messages
+
+#### File Paths & System Access
+- **NEVER** use user-provided paths without validation
+- **ALWAYS** validate and sanitize file paths
+- **ALWAYS** prevent directory traversal attacks (check for `..` and `/`)
+- **ALWAYS** use `pathlib.Path` for path operations (safer than string manipulation)
+- **NEVER** allow arbitrary file system access
+- **ALWAYS** restrict file operations to designated directories
+
+### 🛡️ Input Validation & Sanitization
+
+#### API Input Validation
+- **ALWAYS** validate all input data using Pydantic models
+- **ALWAYS** set strict validation rules (reject invalid data, don't sanitize silently)
+- **ALWAYS** validate data types, ranges, and formats
+- **NEVER** trust user input - validate everything
+- **ALWAYS** use Pydantic validators for complex validation logic
+- **NEVER** bypass validation for "convenience"
+
+#### SQL Injection Prevention
+- **NEVER** use string concatenation for SQL queries
+- **ALWAYS** use parameterized queries or ORM methods
+- **NEVER** use `eval()` or `exec()` with user input
+- **ALWAYS** validate input before database operations
+
+#### XSS Prevention
+- **ALWAYS** sanitize user-generated content before rendering
+- **ALWAYS** use proper encoding (HTML, URL, JavaScript) based on context
+- **NEVER** render raw user input in HTML/JavaScript
+- **ALWAYS** use framework-sanitized rendering methods
+
+### 🔐 Authentication & Authorization
+
+#### Authentication
+- **ALWAYS** use secure authentication mechanisms
+- **NEVER** store passwords in plain text
+- **ALWAYS** use password hashing (bcrypt, argon2) if storing passwords
+- **NEVER** implement custom crypto - use proven libraries
+- **ALWAYS** validate tokens/credentials on every request
+- **NEVER** trust client-side authentication state
+
+#### Authorization
+- **ALWAYS** check permissions before allowing actions
+- **ALWAYS** implement principle of least privilege
+- **NEVER** rely on client-side authorization checks
+- **ALWAYS** validate authorization server-side
+
+### 🌐 Network Security
+
+#### HTTP/HTTPS
+- **ALWAYS** use HTTPS in production (never HTTP)
+- **ALWAYS** validate SSL certificates
+- **NEVER** disable SSL verification (even in development)
+- **ALWAYS** use secure headers (CORS, CSP, HSTS)
+- **NEVER** expose internal network details in responses
+
+#### API Security
+- **ALWAYS** implement rate limiting for public APIs
+- **ALWAYS** validate request origins (CORS)
+- **ALWAYS** use HTTPS for API communication
+- **NEVER** expose internal API endpoints publicly
+- **ALWAYS** implement request size limits
+
+### 📝 Logging & Monitoring Security
+
+#### Secure Logging
+- **NEVER** log passwords, tokens, API keys, or secrets
+- **NEVER** log full request/response bodies (may contain sensitive data)
+- **ALWAYS** sanitize logs before writing (remove PII, tokens)
+- **ALWAYS** use log levels appropriately (don't log sensitive data at INFO/DEBUG)
+- **NEVER** log stack traces containing sensitive data in production
+
+#### Error Handling
+- **NEVER** expose internal errors to users
+- **ALWAYS** return generic error messages to clients
+- **ALWAYS** log detailed errors server-side only
+- **NEVER** include file paths, stack traces, or internal details in API responses
+
+### 🔍 Code Security Practices
+
+#### Dangerous Functions
+- **NEVER** use `eval()`, `exec()`, or `compile()` with user input
+- **NEVER** use `pickle` with untrusted data
+- **NEVER** use `subprocess` with user-provided commands
+- **ALWAYS** validate input before using in system calls
+- **NEVER** use shell=True in subprocess calls
+
+#### Dependency Security
+- **ALWAYS** keep dependencies up to date
+- **ALWAYS** check for known vulnerabilities (use `safety` or `pip-audit`)
+- **NEVER** use unmaintained or suspicious packages
+- **ALWAYS** review dependency changes in PRs
+- **ALWAYS** pin dependency versions in production
+
+#### Code Review Security Checklist
+Before committing code, verify:
+- [ ] No secrets or API keys in code
+- [ ] No hardcoded credentials
+- [ ] All user input is validated
+- [ ] No sensitive data in logs
+- [ ] No dangerous functions with user input
+- [ ] File paths are validated
+- [ ] Error messages don't expose internals
+- [ ] Dependencies are secure and up-to-date
+
+### 🚨 Security Incident Response
+
+#### If Secrets Are Exposed
+1. **IMMEDIATELY** rotate all exposed credentials
+2. **IMMEDIATELY** remove secrets from git history (if possible)
+3. **ALWAYS** audit logs for unauthorized access
+4. **ALWAYS** notify affected parties
+5. **ALWAYS** document the incident
+
+#### Pre-Commit Security Checks
+- **ALWAYS** run `git diff` before committing to check for secrets
+- **ALWAYS** use `git-secrets` or similar tools to prevent secret commits
+- **ALWAYS** verify `.env` is in `.gitignore`
+- **NEVER** commit files containing "password", "secret", "key", "token" without review
+
+## Git Workflow
+
+### Commits
+- Use conventional commit messages (feat:, fix:, docs:, etc.)
+- Keep commits atomic and focused
+- Write clear commit messages explaining WHY, not just WHAT
+
+### Branches
+- Use feature branches for new features
+- Keep main branch stable
+- Create PRs for all changes (except minor docs fixes)
+
+## File Organization
+
+### Python Files
+- Keep files focused on a single responsibility
+- Maximum file length: ~500 lines (split if longer)
+- Group related functions in modules
+
+### Documentation
+- Keep README.md updated
+- Document breaking changes
+- Add examples for new features
+- Keep architecture diagrams updated
+
+## Dependencies
+
+### Adding Dependencies
+- Check if dependency is necessary
+- Prefer well-maintained libraries
+- Add to requirements.txt (or equivalent)
+- Document why dependency is needed
+- Consider security implications of new dependencies
+
+### Version Management
+- Pin major versions in requirements.txt
+- Test with Python 3.9+ (check compatibility)
+- Document any version-specific requirements
+
+## Performance
+
+### Optimization
+- Profile before optimizing
+- Use async operations for I/O-bound tasks
+- Cache expensive operations when appropriate
+- Avoid premature optimization
+
+### Resource Management
+- Close file handles and connections properly
+- Use context managers (with statements)
+- Clean up resources in finally blocks
+
+## Common Patterns
+
+### API Endpoints
+- Use FastAPI decorators (@router.get, @router.post, etc.)
+- Return Pydantic models, not raw dicts
+- Use HTTP status codes correctly
+- Document endpoints with docstrings
+
+### Async Operations
+- Use httpx.AsyncClient for HTTP requests
+- Use asyncio.gather() for parallel operations
+- Handle exceptions in async functions properly
+
+### Logging
+- Use Python logging module
+- Log at appropriate levels (DEBUG, INFO, WARNING, ERROR)
+- Include context in log messages
+- Don't log sensitive information
+
+## When Making Changes
+
+1. **Understand the context** - Read related code first
+2. **Check existing patterns** - Follow established conventions
+3. **Update tests** - Add/update tests for changes
+4. **Update documentation** - Keep docs in sync with code
+5. **Test locally** - Verify changes work before committing
+6. **Review security** - Check for security implications
+
+## Questions to Ask
+
+Before making significant changes:
+- Is this consistent with existing code patterns?
+- Are there security implications?
+- Does this need documentation updates?
+- Are tests needed/updated?
+- Does this follow project-specific requirements/specifications?
+
+### External API Integration Security
+- **ALWAYS** validate API keys via environment variables
+- **NEVER** log API responses containing user data
+- **ALWAYS** sanitize user input before sending to external APIs
+- **NEVER** expose API keys in error messages or logs
+- **ALWAYS** implement timeout and retry limits for API calls
+- **NEVER** send sensitive data to external APIs without user consent
+- **ALWAYS** validate and sanitize data received from external APIs
+
+### WebSocket/SSE Security
+- **ALWAYS** validate WebSocket connections (check origin, tokens)
+- **NEVER** expose internal state through WebSocket messages
+- **ALWAYS** implement connection limits per IP/user
+- **NEVER** send sensitive data through unencrypted WebSocket connections
+- **ALWAYS** validate subscription identifiers and user permissions
+- **ALWAYS** implement message rate limiting per connection
+
+### Frontend/GUI Security
+- **NEVER** expose API keys or secrets in frontend code
+- **ALWAYS** use environment variables for configuration
+- **NEVER** log user interactions containing sensitive data
+- **ALWAYS** sanitize user input in forms
+- **NEVER** expose internal system details in error messages
+- **ALWAYS** validate and sanitize data before displaying to users
+- **NEVER** trust client-side validation alone - always validate server-side
+
+## ✅ Pre-Commit Security Checklist
+
+**BEFORE every commit, verify:**
+
+### Secrets & Credentials
+- [ ] No API keys, passwords, or tokens in code
+- [ ] No hardcoded credentials
+- [ ] `.env` file is in `.gitignore`
+- [ ] No secrets in commit messages
+- [ ] No secrets in file names or paths
+
+### Code Review
+- [ ] All user input is validated
+- [ ] No dangerous functions (`eval`, `exec`, `pickle`) with user input
+- [ ] File paths are validated and sanitized
+- [ ] SQL queries use parameterization (if applicable)
+- [ ] Error messages don't expose internals
+
+### Logging & Output
+- [ ] No sensitive data in print statements
+- [ ] No secrets in log messages
+- [ ] No PII in logs or error messages
+- [ ] Stack traces don't expose sensitive paths
+
+### Dependencies
+- [ ] Dependencies are up-to-date
+- [ ] No suspicious or unmaintained packages
+- [ ] Security vulnerabilities checked
+
+### Git History
+- [ ] Run `git diff` to review changes
+- [ ] Check for accidental secret inclusion
+- [ ] Verify no sensitive files staged
+
+### Testing
+- [ ] Tests don't contain real API keys
+- [ ] Test data is sanitized
+- [ ] No secrets in test fixtures
+
+**If ANY item fails, DO NOT COMMIT. Fix the issue first.**
