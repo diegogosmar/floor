@@ -1,28 +1,28 @@
 # Open Floor Protocol (OFP) Multi-Agent System
 
-A Python-based implementation of the Open Floor Protocol 1.1 specification for multi-agent conversation management and floor control.
+A Python-based implementation of the Open Floor Protocol 1.1.0 specification for multi-agent conversation management and floor control.
 
 ## Overview
 
-This project implements the **Floor Manager** per Open Floor Protocol (OFP) 1.1 specification, providing:
+This project implements the **Floor Manager** per Open Floor Protocol (OFP) 1.1.0 specification, providing:
 
 - **Floor Manager**: Core OFP component managing floor control and envelope routing
 - **Floor Control Logic**: Minimal floor management behaviors (requestFloor → grantFloor, yieldFloor, etc.)
-- **Envelope Processing**: OFP 1.1 compliant JSON envelope handling
+- **Envelope Processing**: OFP 1.1.0 compliant JSON envelope handling
 - **Agent Support**: Base classes and example agents for testing
 
-**Per OFP 1.1**: No central agent registry (agents identified only by speakerUri). Dynamic discovery via getManifests/publishManifests events.
+**Per OFP 1.1.0**: No central agent registry (agents identified only by speakerUri). Dynamic discovery via getManifests/publishManifests events.
 
 ## Architecture
 
-### System Architecture per OFP 1.1
+### System Architecture per OFP 1.1.0
 
 ```
 src/
 ├── floor_manager/     # Floor Manager (core OFP component)
 │   ├── manager.py       # Main Floor Manager (includes envelope routing)
 │   ├── floor_control.py # Floor control logic (minimal behaviors)
-│   └── envelope.py      # OFP 1.1 envelope models
+│   └── envelope.py      # OFP 1.1.0 envelope models
 ├── agents/            # Agent implementations (BaseAgent, ExampleAgent, LLMAgent)
 ├── orchestration/     # Optional orchestration patterns (Convener Agent, etc.)
 ├── api/               # FastAPI REST endpoints
@@ -31,14 +31,14 @@ src/
 └── main.py            # FastAPI application entry point
 ```
 
-### Floor Manager (Core OFP 1.1 Component)
+### Floor Manager (Core OFP 1.1.0 Component)
 
 The **Floor Manager** is the central component per OFP Specification Section 0.4.3:
 
 ```
 ┌─────────────────────────────────────────────┐
 │           FLOOR MANAGER                     │
-│  (Implements OFP 1.1 Spec Section 2.2)   │
+│  (Implements OFP 1.1.0 Spec Section 2.2)  │
 │                                             │
 │  • Envelope Processing & Routing (built-in) │
 │  • Floor Control Logic (minimal behaviors)  │
@@ -59,12 +59,12 @@ The **Floor Manager** is the central component per OFP Specification Section 0.4
 3. **Priority Queue**: Manages floor requests by priority
 4. **State Machine**: Floor as autonomous state machine
 
-**Important Terminology** (per OFP 1.1 Spec):
+**Important Terminology** (per OFP 1.1.0 Spec):
 - **Floor Manager** = Our system component (what this project implements)
 - **Convener Agent** = Optional AGENT that mediates conversations (like a meeting chair)
 - The Floor Manager can work standalone OR delegate to a Convener Agent if present
 
-📊 **Visual Architecture Diagrams**: See [OFP 1.1 Spec Analysis](docs/OFP_1.0.1_OFFICIAL_SPEC_ANALYSIS.md) for detailed architecture based on official specification.
+📊 **Visual Architecture Diagrams**: See [OFP 1.1.0 Spec Analysis](docs/OFP_1.0.1_OFFICIAL_SPEC_ANALYSIS.md) for detailed architecture based on official specification.
 
 ### Optional Orchestration Patterns
 
@@ -233,14 +233,16 @@ curl http://localhost:8000/api/v1/floor/holder/conv_test
 ### 📚 Complete Documentation
 
 - **🚀 How to Launch and Test**: [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) ⭐ **START HERE**
-- **📋 OFP 1.1 Spec Analysis**: [docs/OFP_1.0.1_OFFICIAL_SPEC_ANALYSIS.md](docs/OFP_1.0.1_OFFICIAL_SPEC_ANALYSIS.md) - Official specification analysis and compliance
-- **🔄 Refactoring Status**: [REFACTORING_STATUS.md](REFACTORING_STATUS.md) - Current refactoring progress per OFP 1.1
+- **📋 OFP 1.1.0 Migration Plan**: [OFP_1.1.0_MIGRATION_PLAN.md](OFP_1.1.0_MIGRATION_PLAN.md) - Migration from 1.0.1 to 1.1.0
+- **📋 OFP Spec Analysis**: [docs/OFP_1.0.1_OFFICIAL_SPEC_ANALYSIS.md](docs/OFP_1.0.1_OFFICIAL_SPEC_ANALYSIS.md) - Official specification analysis and compliance
+- **🔄 Refactoring Status**: [REFACTORING_STATUS.md](REFACTORING_STATUS.md) - Current refactoring progress per OFP 1.1.0
 - **🎭 Simple OFP Demo**: [examples/agents/complete_ofp_demo_simple.py](examples/agents/complete_ofp_demo_simple.py) - Floor control without agent registration
 - **⚙️ Detailed Setup**: [docs/SETUP.md](docs/SETUP.md)
 - **🏗️ Architecture**: [docs/ARCHITECTURE_DETAILED.md](docs/ARCHITECTURE_DETAILED.md)
 - **🧠 LLM Integration**: [docs/LLM_INTEGRATION.md](docs/LLM_INTEGRATION.md) - How to use real LLM providers (OpenAI, Anthropic, Ollama)
 - **🧪 Testing**: [docs/TESTING.md](docs/TESTING.md) - How to run tests
 - **📖 Quick Reference**: [docs/QUICKSTART.md](docs/QUICKSTART.md)
+- **📝 OFP 1.1.0 Compliance**: Project complies with OFP 1.1.0 specification
 
 ## Development
 
@@ -343,18 +345,19 @@ Once the server is running, access the interactive API documentation:
 - **Swagger UI**: http://localhost:8000/docs
 - **ReDoc**: http://localhost:8000/redoc
 
-## Open Floor Protocol 1.1
+## Open Floor Protocol 1.1.0
 
-This implementation follows the Open Floor Protocol 1.1 specification for:
-- Floor control primitives (autonomous state machine with convener)
+This implementation follows the Open Floor Protocol 1.1.0 specification for:
+- Floor control primitives (autonomous state machine with optional convener)
 - Conversation envelope format (with assignedFloorRoles and floorGranted)
 - Agent capability discovery
 - Message routing and delivery
 - Privacy flag handling (only for utterance events)
 
-**Key OFP 1.1 Features**:
-- Floor Manager acts as autonomous Convener
-- `assignedFloorRoles` and `floorGranted` in conversation object
+**Key OFP 1.1.0 Features**:
+- Floor Manager acts as autonomous floor controller
+- `assignedFloorRoles`: Dictionary mapping roles to arrays of speakerURIs
+- `floorGranted`: Array of speakerURIs with floor rights (simplified from 1.0.1)
 - `acceptInvite` event support
 - Privacy flag only respected for utterance events
 

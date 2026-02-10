@@ -32,18 +32,17 @@ def create_sample_envelope():
     
     envelope = OpenFloorEnvelope(
         schema_obj=SchemaObject(
-            version="1.0.1",
+            version="1.1.0",
             url="https://github.com/open-voice-interoperability/openfloor-docs"
         ),
         conversation=ConversationObject(
             id="test_stella_001",
             assignedFloorRoles={
-                "convener": "tag:floor.manager,2025:convener"
+                "convener": ["tag:floor.manager,2025:convener"]
             },
-            floorGranted={
-                "speakerUri": "tag:example.com,2025:test_agent",
-                "grantedAt": datetime.now(timezone.utc).isoformat()
-            }
+            floorGranted=[
+                "tag:example.com,2025:test_agent"
+            ]
         ),
         sender=SenderObject(
             speakerUri="tag:example.com,2025:test_agent",
@@ -91,10 +90,10 @@ def validate_envelope_structure(envelope: OpenFloorEnvelope):
     checks = []
     
     # Check 1: Schema version
-    if envelope.schema_obj.version == "1.0.1":
-        checks.append(("✅", "Schema version is 1.0.1"))
+    if envelope.schema_obj.version == "1.1.0":
+        checks.append(("✅", "Schema version is 1.1.0"))
     else:
-        checks.append(("❌", f"Schema version is {envelope.schema_obj.version} (expected 1.0.1)"))
+        checks.append(("❌", f"Schema version is {envelope.schema_obj.version} (expected 1.1.0)"))
     
     # Check 2: Conversation ID exists
     if envelope.conversation.id:
@@ -127,10 +126,10 @@ def validate_envelope_structure(envelope: OpenFloorEnvelope):
     else:
         checks.append(("⚠️", "assignedFloorRoles missing (optional but recommended)"))
     
-    # Check 7: floorGranted exists (OFP 1.0.1)
+    # Check 7: floorGranted exists (OFP 1.1.0)
     if envelope.conversation.floorGranted:
-        speaker = envelope.conversation.floorGranted.get("speakerUri", "unknown")
-        checks.append(("✅", f"floorGranted present (holder: {speaker})"))
+        holders = ", ".join(envelope.conversation.floorGranted) if len(envelope.conversation.floorGranted) > 0 else "none"
+        checks.append(("✅", f"floorGranted present (holders: {holders})"))
     else:
         checks.append(("⚠️", "floorGranted missing (optional)"))
     

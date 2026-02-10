@@ -7,6 +7,7 @@ set -e
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
+RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 echo -e "${BLUE}🎨 Floor Manager GUI Launcher${NC}"
@@ -18,6 +19,25 @@ if [ ! -f "streamlit_app.py" ]; then
     echo "Assicurati di essere nella directory del progetto."
     exit 1
 fi
+
+# Rileva Python dal venv
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$SCRIPT_DIR/venv/bin/python" ]; then
+    PYTHON_CMD="$SCRIPT_DIR/venv/bin/python"
+    STREAMLIT_CMD="$PYTHON_CMD -m streamlit"
+elif [ -f "$SCRIPT_DIR/myenv/bin/python" ]; then
+    PYTHON_CMD="$SCRIPT_DIR/myenv/bin/python"
+    STREAMLIT_CMD="$PYTHON_CMD -m streamlit"
+elif command -v python3 &> /dev/null; then
+    PYTHON_CMD="python3"
+    STREAMLIT_CMD="$PYTHON_CMD -m streamlit"
+else
+    echo -e "${RED}❌ Python non trovato!${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}✓ Usando Python: $PYTHON_CMD${NC}"
+echo ""
 
 # Menu di selezione
 echo "Quale GUI vuoi lanciare?"
@@ -36,12 +56,12 @@ case $choice in
         echo ""
         echo "📝 Comandi manuali:"
         echo "   Terminal 1: docker-compose up"
-        echo "   Terminal 2: streamlit run streamlit_app.py"
+        echo "   Terminal 2: $STREAMLIT_CMD run streamlit_app.py"
         echo ""
         echo "⚠️  Assicurati che Floor Manager sia già avviato!"
         echo ""
         read -p "Premi INVIO per continuare..."
-        streamlit run streamlit_app.py
+        $STREAMLIT_CMD run streamlit_app.py
         ;;
     2)
         echo ""
@@ -49,12 +69,12 @@ case $choice in
         echo ""
         echo "📝 Comandi manuali:"
         echo "   Terminal 1: docker-compose up"
-        echo "   Terminal 2: streamlit run streamlit_app_realtime.py"
+        echo "   Terminal 2: $STREAMLIT_CMD run streamlit_app_realtime.py"
         echo ""
         echo "⚠️  Assicurati che Floor Manager sia già avviato!"
         echo ""
         read -p "Premi INVIO per continuare..."
-        streamlit run streamlit_app_realtime.py
+        $STREAMLIT_CMD run streamlit_app_realtime.py
         ;;
     3)
         echo ""
@@ -62,19 +82,19 @@ case $choice in
         echo ""
         echo "📝 Comandi manuali:"
         echo "   Terminal 1: docker-compose up"
-        echo "   Terminal 2: streamlit run streamlit_app.py --server.port 8501"
-        echo "   Terminal 3: streamlit run streamlit_app_realtime.py --server.port 8502"
+        echo "   Terminal 2: $STREAMLIT_CMD run streamlit_app.py --server.port 8501"
+        echo "   Terminal 3: $STREAMLIT_CMD run streamlit_app_realtime.py --server.port 8502"
         echo ""
         echo "⚠️  Assicurati che Floor Manager sia già avviato!"
         echo ""
         read -p "Premi INVIO per continuare..."
         echo ""
         echo -e "${BLUE}Avvio Standard GUI su porta 8501...${NC}"
-        streamlit run streamlit_app.py --server.port 8501 &
+        $STREAMLIT_CMD run streamlit_app.py --server.port 8501 &
         PID1=$!
         sleep 2
         echo -e "${BLUE}Avvio Real-Time GUI su porta 8502...${NC}"
-        streamlit run streamlit_app_realtime.py --server.port 8502 &
+        $STREAMLIT_CMD run streamlit_app_realtime.py --server.port 8502 &
         PID2=$!
         echo ""
         echo -e "${GREEN}✅ Entrambe le GUI sono avviate!${NC}"
@@ -96,4 +116,5 @@ case $choice in
         exit 1
         ;;
 esac
+
 

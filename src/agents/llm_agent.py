@@ -31,7 +31,7 @@ class LLMAgent(BaseAgent):
         model_name: Optional[str] = None,
         system_prompt: Optional[str] = None,
         serviceUrl: Optional[str] = None,
-        agent_version: str = "1.0.0"
+        agent_version: str = "1.1.0"
     ) -> None:
         """
         Initialize LLM agent
@@ -307,7 +307,7 @@ Be concise, helpful, and collaborative with other agents in the conversation."""
         )
 
         response_envelope = OpenFloorEnvelope(
-            schema_obj=SchemaObject(version="1.0.1"),
+            schema_obj=SchemaObject(version="1.1.0"),
             conversation=ConversationObject(id=envelope.conversation.id),
             sender=SenderObject(
                 speakerUri=self.speakerUri,

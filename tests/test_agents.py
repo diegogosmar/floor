@@ -51,7 +51,7 @@ async def test_example_agent_handle_envelope() -> None:
     sender_speakerUri = "tag:test.com,2025:sender"
 
     envelope = OpenFloorEnvelope(
-        schema_obj=SchemaObject(version="1.0.1"),
+        schema_obj=SchemaObject(version="1.1.0"),
         conversation=ConversationObject(id="conv_1"),
         sender=SenderObject(speakerUri=sender_speakerUri),
         events=[

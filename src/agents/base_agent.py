@@ -26,7 +26,7 @@ class BaseAgent(ABC):
         speakerUri: str,
         agent_name: str,
         serviceUrl: Optional[str] = None,
-        agent_version: str = "1.0.1"
+        agent_version: str = "1.1.0"
     ) -> None:
         """
         Initialize base agent

@@ -1,7 +1,7 @@
 """
-Floor Manager - Main OFP 1.0.1 Floor Control Component
+Floor Manager - Main OFP 1.1.0 Floor Control Component
 
-Per OFP 1.0.1 Specification:
+Per OFP 1.1.0 Specification:
 - Floor Manager includes envelope routing (not a separate component)
 - If convener present: Floor Manager delegates floor decisions to Convener
 - If no convener: Floor Manager has minimal behavior (first-come-first-served)
@@ -35,7 +35,7 @@ logger = structlog.get_logger()
 
 class FloorManager:
     """
-    Floor Manager per OFP 1.0.1
+    Floor Manager per OFP 1.1.0
     
     Central component that:
     - Routes envelopes between agents (built-in, not separate component)
@@ -82,7 +82,7 @@ class FloorManager:
         Register routing handler for an agent
         
         Note: This is for envelope delivery, NOT agent registration.
-        Per OFP 1.0.1, no agent registration exists.
+        Per OFP 1.1.0, no agent registration exists.
         
         Args:
             speakerUri: Agent speaker URI (for envelope routing only)
@@ -104,9 +104,9 @@ class FloorManager:
     
     async def route_envelope(self, envelope: OpenFloorEnvelope) -> bool:
         """
-        Route envelope to target agents based on events per OFP 1.0.1
+        Route envelope to target agents based on events per OFP 1.1.0
         
-        Per OFP 1.0.1:
+        Per OFP 1.1.0:
         - Privacy flag ONLY respected for utterance events
         - All other events ignore privacy flag
         
@@ -119,7 +119,7 @@ class FloorManager:
         routed = False
         
         for event in envelope.events:
-            # OFP 1.0.1: Privacy flag only respected for utterance events
+            # OFP 1.1.0: Privacy flag only respected for utterance events
             is_private = (
                 event.to is not None
                 and event.to.private
@@ -180,7 +180,7 @@ class FloorManager:
                 continue
             
             # For non-utterance events or non-private utterances:
-            # Privacy flag is ignored per OFP 1.0.1
+            # Privacy flag is ignored per OFP 1.1.0
             # Route to intended recipient
             if target_speakerUri not in self._routes:
                 logger.warning(
@@ -254,7 +254,7 @@ class FloorManager:
         """
         Process individual event
         
-        Per OFP 1.0.1: Floor Manager delegates floor decisions to Convener
+        Per OFP 1.1.0: Floor Manager delegates floor decisions to Convener
         """
         conversation_id = envelope.conversation.id
         sender_uri = envelope.sender.speakerUri
@@ -325,7 +325,7 @@ class FloorManager:
         Returns:
             Created envelope
         """
-        schema = SchemaObject(version="1.0.1")
+        schema = SchemaObject(version="1.1.0")
         conversation = ConversationObject(id=conversation_id)
         sender = SenderObject(
             speakerUri=sender_speakerUri,
@@ -359,7 +359,7 @@ class FloorManager:
             target_speakerUri: Optional target speaker URI
             target_serviceUrl: Optional target service URL
             text: Utterance text
-            private: Whether utterance is private (only respected for utterance per OFP 1.0.1)
+            private: Whether utterance is private (only respected for utterance per OFP 1.1.0)
         
         Returns:
             Created envelope

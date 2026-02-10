@@ -1,5 +1,5 @@
 """
-Conversation Envelope - OFP 1.0.1 Interoperable Conversation Envelope Specification
+Conversation Envelope - OFP 1.1.0 Interoperable Conversation Envelope Specification
 """
 
 from datetime import datetime
@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field, ConfigDict
 
 
 class EventType(str, Enum):
-    """Event type enumeration per OFP 1.0.1"""
+    """Event type enumeration per OFP 1.1.0"""
     # Speaking or sending multi-media events
     UTTERANCE = "utterance"
     CONTEXT = "context"
@@ -33,8 +33,8 @@ class EventType(str, Enum):
 
 
 class SchemaObject(BaseModel):
-    """Schema object per OFP 1.0.1"""
-    version: str = Field("1.0.1", description="Schema version")
+    """Schema object per OFP 1.1.0"""
+    version: str = Field("1.1.0", description="Schema version")
     url: Optional[str] = Field(
         None,
         description="URL to JSON schema for validation"
@@ -42,12 +42,12 @@ class SchemaObject(BaseModel):
     
     model_config = ConfigDict(
         # Avoid shadowing BaseModel.schema
-        json_schema_extra={"examples": [{"version": "1.0.1"}]}
+        json_schema_extra={"examples": [{"version": "1.1.0"}]}
     )
 
 
 class ConversantIdentification(BaseModel):
-    """Conversant identification per OFP 1.0.1"""
+    """Conversant identification per OFP 1.1.0"""
     speakerUri: str = Field(..., description="Unique URI identifying the agent")
     serviceUrl: Optional[str] = Field(None, description="URL of the agent service")
     organization: Optional[str] = None
@@ -58,35 +58,35 @@ class ConversantIdentification(BaseModel):
 
 
 class ConversantObject(BaseModel):
-    """Conversant object per OFP 1.0.1
+    """Conversant object per OFP 1.1.0
     
-    Note: persistentState removed in OFP 1.0.1 due to state management issues
+    Note: persistentState was removed in OFP 1.0.1 due to state management issues
     in multi-party conversations. Agents should use their own session management
     based on conversation ID.
     """
     identification: ConversantIdentification = Field(..., description="Agent identification")
-    # persistentState removed in OFP 1.0.1
+    # persistentState removed in OFP 1.0.1, not present in 1.1.0
 
 
 class ConversationObject(BaseModel):
-    """Conversation object per OFP 1.0.1"""
+    """Conversation object per OFP 1.1.0"""
     id: str = Field(..., description="Unique conversation identifier")
     conversants: Optional[List[ConversantObject]] = Field(
         None,
         description="List of conversants in the conversation"
     )
-    assignedFloorRoles: Optional[Dict[str, str]] = Field(
+    assignedFloorRoles: Optional[Dict[str, List[str]]] = Field(
         None,
-        description="Assigned floor roles (e.g., {'convener': 'tag:example.com,2025:floor_manager'})"
+        description="Assigned floor roles mapping role names to arrays of speakerURIs (e.g., {'convener': ['tag:example.com,2025:floor_manager']})"
     )
-    floorGranted: Optional[Dict[str, Any]] = Field(
+    floorGranted: Optional[List[str]] = Field(
         None,
-        description="Current floor grant information (speakerUri, grantedAt, etc.)"
+        description="Array of speakerURIs for conversants who currently have floor rights"
     )
 
 
 class SenderObject(BaseModel):
-    """Sender object per OFP 1.0.1"""
+    """Sender object per OFP 1.1.0"""
     speakerUri: str = Field(..., description="Unique URI identifying the sender")
     serviceUrl: Optional[str] = Field(
         None,
@@ -95,10 +95,10 @@ class SenderObject(BaseModel):
 
 
 class ToObject(BaseModel):
-    """To object for event addressing per OFP 1.0.1
+    """To object for event addressing per OFP 1.1.0
     
     Note: The 'private' flag is only respected for utterance events.
-    For all other events, the privacy flag is ignored per OFP 1.0.1.
+    For all other events, the privacy flag is ignored per OFP 1.1.0.
     """
     speakerUri: Optional[str] = Field(None, description="URI of intended recipient")
     serviceUrl: Optional[str] = Field(None, description="URL of intended recipient")
@@ -106,7 +106,7 @@ class ToObject(BaseModel):
 
 
 class EventObject(BaseModel):
-    """Event object per OFP 1.0.1"""
+    """Event object per OFP 1.1.0"""
     to: Optional[ToObject] = Field(
         None,
         description="Target recipient (optional, if absent event is for all)"
@@ -124,7 +124,7 @@ class EventObject(BaseModel):
 
 class OpenFloorEnvelope(BaseModel):
     """
-    Open Floor Conversation Envelope per OFP 1.0.1 specification
+    Open Floor Conversation Envelope per OFP 1.1.0 specification
     
     Structure:
     {
@@ -136,11 +136,12 @@ class OpenFloorEnvelope(BaseModel):
       }
     }
     
-    Key changes in OFP 1.0.1:
-    - Floor is an autonomous state machine with convener making all decisions
-    - assignedFloorRoles and floorGranted added to conversation object
-    - acceptInvite event added
-    - persistentState removed from conversants
+    Key features in OFP 1.1.0:
+    - Floor is an autonomous state machine with optional convener
+    - assignedFloorRoles: Dictionary mapping roles to arrays of speakerURIs
+    - floorGranted: Array of speakerURIs with floor rights (simplified from 1.0.1)
+    - acceptInvite event support
+    - persistentState removed from conversants (since 1.0.1)
     - Privacy flag only respected for utterance events
     """
 

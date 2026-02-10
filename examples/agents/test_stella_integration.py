@@ -51,18 +51,17 @@ async def test_send_to_stella(
     # Create envelope
     envelope = OpenFloorEnvelope(
         schema_obj=SchemaObject(
-            version="1.0.1",
+            version="1.1.0",
             url="https://github.com/open-voice-interoperability/openfloor-docs"
         ),
         conversation=ConversationObject(
             id=f"floor_to_stella_{int(datetime.now(timezone.utc).timestamp())}",
             assignedFloorRoles={
-                "convener": "tag:floor.manager,2025:convener"
+                "convener": ["tag:floor.manager,2025:convener"]
             },
-            floorGranted={
-                "speakerUri": "tag:floor.manager,2025:test_agent",
-                "grantedAt": datetime.now(timezone.utc).isoformat()
-            }
+            floorGranted=[
+                "tag:floor.manager,2025:test_agent"
+            ]
         ),
         sender=SenderObject(
             speakerUri="tag:floor.manager,2025:test_agent",
@@ -174,7 +173,7 @@ async def test_floor_control_with_stella(your_public_url: str):
     print("\n📤 Sending requestFloor event to Stella...")
     
     envelope = OpenFloorEnvelope(
-        schema_obj=SchemaObject(version="1.0.1"),
+            schema_obj=SchemaObject(version="1.1.0"),
         conversation=ConversationObject(
             id=conversation_id,
             assignedFloorRoles={
@@ -306,5 +305,6 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
 

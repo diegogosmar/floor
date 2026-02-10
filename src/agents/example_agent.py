@@ -26,7 +26,7 @@ class ExampleAgent(BaseAgent):
         speakerUri: str = "tag:example.com,2025:example_agent",
         agent_name: str = "Example Agent",
         serviceUrl: Optional[str] = None,
-        agent_version: str = "1.0.1"
+        agent_version: str = "1.1.0"
     ) -> None:
         """Initialize example agent"""
         super().__init__(
@@ -123,7 +123,7 @@ class ExampleAgent(BaseAgent):
         )
 
         response_envelope = OpenFloorEnvelope(
-            schema_obj=SchemaObject(version="1.0.1"),
+            schema_obj=SchemaObject(version="1.1.0"),
             conversation=ConversationObject(id=envelope.conversation.id),
             sender=SenderObject(
                 speakerUri=self.speakerUri,

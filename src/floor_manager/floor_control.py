@@ -1,5 +1,5 @@
 """
-Floor Control - Floor Manager's floor control logic per OFP 1.0.1
+Floor Control - Floor Manager's floor control logic per OFP 1.1.0
 
 This implements the Floor Manager's floor control logic (minimal behaviors per Section 2.2).
 The floor operates as an autonomous state machine.
@@ -28,7 +28,7 @@ class FloorState(Enum):
 
 class FloorControl:
     """
-    Floor Manager's floor control logic per OFP 1.0.1
+    Floor Manager's floor control logic per OFP 1.1.0
     
     Implements minimal floor management behaviors (OFP Spec Section 2.2):
     - requestFloor → grantFloor logic (with priority queue)
@@ -53,7 +53,7 @@ class FloorControl:
         self._floor_requests: dict[str, list] = {}
         self._floor_timeout = settings.FLOOR_TIMEOUT
         self._max_hold_time = settings.FLOOR_MAX_HOLD_TIME
-        # Floor Manager identification per OFP 1.0.1
+        # Floor Manager identification per OFP 1.1.0
         # Note: If an optional Convener Agent exists, it would be tracked in assignedFloorRoles
         self.floor_manager_speakerUri = floor_manager_speakerUri or "tag:floor.manager,2025:manager"
         self._conversation_metadata: dict[str, dict] = {}  # Track conversation metadata
@@ -65,7 +65,7 @@ class FloorControl:
         priority: int = 0
     ) -> bool:
         """
-        Request floor for a conversation per OFP 1.0.1 Section 1.19
+        Request floor for a conversation per OFP 1.1.0 Section 1.19
         
         Implements minimal Floor Manager behavior (Spec Section 2.2):
         - If floor available: grant immediately
@@ -120,7 +120,7 @@ class FloorControl:
 
     async def release_floor(self, conversation_id: str, speakerUri: str) -> bool:
         """
-        Release floor for a conversation per OFP 1.0.1 Section 1.22 (yieldFloor)
+        Release floor for a conversation per OFP 1.1.0 Section 1.22 (yieldFloor)
         
         Implements minimal Floor Manager behavior (Spec Section 2.2):
         - Release floor from current holder
@@ -183,9 +183,11 @@ class FloorControl:
 
     async def _grant_floor(self, conversation_id: str, speakerUri: str) -> None:
         """
-        Grant floor to an agent per OFP 1.0.1 Section 1.20 (grantFloor)
+        Grant floor to an agent per OFP 1.1.0 Section 1.20 (grantFloor)
         
         Floor Manager decision. Updates floorGranted in conversation metadata.
+        
+        Per OFP 1.1.0: floorGranted is an array of speakerURIs with floor rights.
         """
         granted_at = datetime.now(UTC);
         self._floor_holders[conversation_id] = {
@@ -193,16 +195,14 @@ class FloorControl:
             "granted_at": granted_at
         };
         
-        # Update conversation metadata with floorGranted per OFP 1.0.1
+        # Update conversation metadata with floorGranted per OFP 1.1.0
         if conversation_id not in self._conversation_metadata:
             self._conversation_metadata[conversation_id] = {
                 "assignedFloorRoles": {}  # Can include convener if Convener Agent present
             };
         
-        self._conversation_metadata[conversation_id]["floorGranted"] = {
-            "speakerUri": speakerUri,
-            "grantedAt": granted_at.isoformat()
-        };
+        # OFP 1.1.0: floorGranted is an array of speakerURIs (simplified from 1.0.1)
+        self._conversation_metadata[conversation_id]["floorGranted"] = [speakerUri];
         
         logger.info(
             "Floor granted by Floor Manager",
@@ -214,7 +214,7 @@ class FloorControl:
 
     async def _revoke_floor(self, conversation_id: str, reason: str = "@timeout") -> None:
         """
-        Revoke floor due to timeout or other reason per OFP 1.0.1 Section 1.21 (revokeFloor)
+        Revoke floor due to timeout or other reason per OFP 1.1.0 Section 1.21 (revokeFloor)
         
         Floor Manager decision (e.g., timeout, override).
         """
@@ -239,10 +239,13 @@ class FloorControl:
         """
         Get conversation metadata including assignedFloorRoles and floorGranted
         
-        Returns metadata per OFP 1.0.1 Section 1.6 (conversation object structure).
+        Returns metadata per OFP 1.1.0 Section 1.6 (conversation object structure).
         
-        Note: assignedFloorRoles can include "convener" key if a Convener Agent
-              (per OFP spec) is participating. Currently not implemented.
+        Note: 
+        - assignedFloorRoles: Dict[str, List[str]] mapping roles to arrays of speakerURIs
+        - floorGranted: List[str] of speakerURIs with floor rights
+        - assignedFloorRoles can include "convener" key if a Convener Agent
+          (per OFP spec) is participating. Currently not implemented.
         """
         return self._conversation_metadata.get(conversation_id, {
             "assignedFloorRoles": {}  # Empty by default, can be populated if Convener Agent exists
