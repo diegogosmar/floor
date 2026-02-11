@@ -78,23 +78,40 @@ with st.sidebar:
         response = httpx.get(f"{FLOOR_API}/floor/holder/{CONVERSATION_ID}", timeout=5.0)
         if response.status_code == 200:
             data = response.json()
-            holder = data.get("holder", "None")
+            holder = data.get("holder")  # Can be None
             
             # Find agent name from speakerUri
             holder_name = "None"
             holder_emoji = "⏸️"
-            for name, info in AGENTS.items():
-                if holder in info["speakerUri"]:
-                    holder_name = name
-                    holder_emoji = info["emoji"]
-                    break
             
-            st.success(f"{holder_emoji} **{holder_name}** has floor")
+            # Only search if holder is not None
+            if holder:
+                for name, info in AGENTS.items():
+                    if holder in info["speakerUri"]:
+                        holder_name = name
+                        holder_emoji = info["emoji"]
+                        break
+            
+            if holder:
+                st.success(f"{holder_emoji} **{holder_name}** has floor")
+            else:
+                st.info("⏸️ Floor is free")
         else:
-            st.info("⏸️ Floor is free")
-    except:
-        st.warning("🔌 Floor Manager not running")
+            st.warning(f"⚠️ API returned status {response.status_code}")
+    except Exception as e:
+        st.error("🔌 Floor Manager not running")
+        st.caption(f"❌ Error: {str(e)}")
+        st.caption(f"🔍 Error type: {type(e).__name__}")
+        st.caption(f"📡 Trying to connect to: {FLOOR_API}/floor/holder/{CONVERSATION_ID}")
         st.caption("Start with: `docker-compose up`")
+        
+        # Detailed debug info in expander
+        with st.expander("🐛 Full Debug Info"):
+            import traceback
+            st.code(traceback.format_exc())
+            st.write("**Configuration:**")
+            st.code(f"FLOOR_API = {FLOOR_API}")
+            st.code(f"CONVERSATION_ID = {CONVERSATION_ID}")
 
 # Initialize session state
 if "messages" not in st.session_state:

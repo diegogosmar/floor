@@ -149,17 +149,20 @@ with st.sidebar:
         response = httpx.get(f"{FLOOR_API}/floor/holder/{CONVERSATION_ID}", timeout=2.0)
         if response.status_code == 200:
             data = response.json()
-            holder = data.get("holder", "None")
+            holder = data.get("holder")  # Can be None
             
             holder_name = "None"
             holder_emoji = "⏸️"
-            for name, info in AGENTS.items():
-                if holder in info["speakerUri"]:
-                    holder_name = name
-                    holder_emoji = info["emoji"]
-                    break
             
-            if holder_name != "None":
+            # Only search if holder is not None
+            if holder:
+                for name, info in AGENTS.items():
+                    if holder in info["speakerUri"]:
+                        holder_name = name
+                        holder_emoji = info["emoji"]
+                        break
+            
+            if holder:
                 st.success(f"{holder_emoji} **{holder_name}** has floor")
             else:
                 st.info("⏸️ Floor is free")
