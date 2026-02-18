@@ -16,7 +16,7 @@ from datetime import datetime
 import streamlit.components.v1 as components
 
 # Configuration
-FLOOR_API = "http://localhost:8000/api/v1"
+FLOOR_API = "http://localhost:8787/api/v1"
 CONVERSATION_ID = "streamlit_chat_001"
 
 # Available agents

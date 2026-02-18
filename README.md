@@ -111,7 +111,7 @@ sleep 5
 
 ```bash
 # Health check
-curl http://localhost:8000/health
+curl http://localhost:8787/health
 # Response: {"status":"healthy"}
 ```
 
@@ -171,8 +171,8 @@ python examples/agents/demo_agents.py priority
 **Option D: Swagger UI (Interactive)**
 ```bash
 # Open in browser
-open http://localhost:8000/docs
-# Or visit: http://localhost:8000/docs
+open http://localhost:8787/docs
+# Or visit: http://localhost:8787/docs
 ```
 
 #### 4. Test with LLM Agents (Optional)
@@ -209,7 +209,7 @@ python examples/agents/llm_agent_example.py
 
 ```bash
 # 1. Register an agent
-curl -X POST http://localhost:8000/api/v1/agents/register \
+curl -X POST http://localhost:8787/api/v1/agents/register \
   -H "Content-Type: application/json" \
   -d '{
     "speakerUri": "tag:test.com,2025:agent_1",
@@ -218,7 +218,7 @@ curl -X POST http://localhost:8000/api/v1/agents/register \
   }'
 
 # 2. Request floor
-curl -X POST http://localhost:8000/api/v1/floor/request \
+curl -X POST http://localhost:8787/api/v1/floor/request \
   -H "Content-Type: application/json" \
   -d '{
     "conversation_id": "conv_test",
@@ -227,7 +227,7 @@ curl -X POST http://localhost:8000/api/v1/floor/request \
   }'
 
 # 3. Check floor holder
-curl http://localhost:8000/api/v1/floor/holder/conv_test
+curl http://localhost:8787/api/v1/floor/holder/conv_test
 ```
 
 ### 📚 Complete Documentation
@@ -342,8 +342,8 @@ FLOOR/
 
 Once the server is running, access the interactive API documentation:
 
-- **Swagger UI**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
+- **Swagger UI**: http://localhost:8787/docs
+- **ReDoc**: http://localhost:8787/redoc
 
 ## Open Floor Protocol 1.1.0
 

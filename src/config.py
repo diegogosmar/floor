@@ -19,7 +19,7 @@ class Settings(BaseSettings):
 
     # Server
     HOST: str = "0.0.0.0"
-    PORT: int = 8000
+    PORT: int = 8787
     API_PREFIX: str = "/api/v1"
 
     # PostgreSQL
@@ -74,7 +74,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
     # CORS
-    CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:8000"]
+    CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:8787"]
     CORS_CREDENTIALS: bool = True
 
     model_config = ConfigDict(

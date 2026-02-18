@@ -12,7 +12,7 @@ import os
 from datetime import datetime
 
 # Configuration
-FLOOR_API = "http://localhost:8000/api/v1"
+FLOOR_API = "http://localhost:8787/api/v1"
 CONVERSATION_ID = "streamlit_chat_001"
 
 # Available agents
